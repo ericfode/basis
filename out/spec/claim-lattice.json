@@ -1,0 +1,2955 @@
+{
+  "schemaVersion": "specgym.claim-lattice.v0",
+  "generatedAt": "2026-05-02T19:02:40.408Z",
+  "source": {
+    "path": "/Users/ericfode/Documents/New project 4/spec.md",
+    "title": "Spec Gym Specification",
+    "lineCount": 239
+  },
+  "environment": {
+    "kind": "collaborative-spec-verifiability-environment",
+    "model": "claim-lattice",
+    "actors": [
+      "human",
+      "agent",
+      "prover",
+      "test_runner",
+      "adapter",
+      "policy"
+    ],
+    "observation": [
+      "source_spec",
+      "source_anchors",
+      "claim_lattice",
+      "obligation_graph",
+      "viability_critique",
+      "verification_surfaces",
+      "adapter_outputs"
+    ],
+    "actions": [
+      "split_claim",
+      "merge_claims",
+      "strengthen_claim",
+      "weaken_claim",
+      "add_evidence",
+      "add_negative_test",
+      "add_proof_obligation",
+      "mark_non_goal",
+      "reject_idea",
+      "request_narrower_experiment"
+    ],
+    "rewardSignals": [
+      "verifiability_delta",
+      "traceability_delta",
+      "falsifiability_delta",
+      "contradiction_reduction",
+      "ambiguity_reduction",
+      "obligations_discharged",
+      "negative_tests_rejected",
+      "invalid_idea_rejected"
+    ],
+    "doneStates": [
+      "implementation_ready",
+      "rejected",
+      "unresolved_with_missing_evidence"
+    ],
+    "safetyInvariant": "A player must not improve score by deleting source evidence or weakening the stated problem without recording that tradeoff.",
+    "score": 0.9
+  },
+  "stats": {
+    "nodeCount": 130,
+    "edgeCount": 145,
+    "nodeTypes": {
+      "spec": 1,
+      "section": 18,
+      "requirement": 21,
+      "goal": 10,
+      "non_goal": 7,
+      "claim": 57,
+      "dependency": 2,
+      "test": 12,
+      "finding": 2
+    },
+    "findingCount": 2,
+    "findingClasses": {
+      "misses_problem": 1,
+      "underspecified": 1
+    },
+    "hasProblem": true,
+    "hasGoals": true,
+    "hasValidation": true,
+    "hasProverTarget": true
+  },
+  "nodes": [
+    {
+      "id": "spec",
+      "type": "spec",
+      "title": "Spec Gym Specification",
+      "label": "Spec Gym Specification",
+      "source": "/Users/ericfode/Documents/New project 4/spec.md",
+      "lineStart": 1,
+      "lineEnd": 239,
+      "excerpt": "# Spec Gym Specification"
+    },
+    {
+      "id": "section-001-spec-gym-specification",
+      "type": "section",
+      "title": "Spec Gym Specification",
+      "label": "Spec Gym Specification",
+      "level": 1,
+      "lineStart": 1,
+      "lineEnd": 8,
+      "excerpt": "# Spec Gym Specification\n\nStatus: Draft v0.2\n\nPurpose: Define a tool-neutral, collaborative spec verifiability environment for\nturning prose specifications into playable, inspectable, criticizable, and\nformalizable state before prototype work begins."
+    },
+    {
+      "id": "section-002-normative-language",
+      "type": "section",
+      "title": "Normative Language",
+      "label": "Normative Language",
+      "level": 2,
+      "lineStart": 9,
+      "lineEnd": 24,
+      "excerpt": "## Normative Language\n\nThe key words `MUST`, `MUST NOT`, `REQUIRED`, `SHOULD`, `SHOULD NOT`,\n`RECOMMENDED`, `MAY`, and `OPTIONAL` in this document are to be interpreted as\ndescribed in RFC 2119.\n\n`Spec Gym` means the environment and CLI surface.\n\n`Claim lattice` means the canonical model: claims, refinements, obligations,"
+    },
+    {
+      "id": "section-003-1-problem-statement",
+      "type": "section",
+      "title": "1. Problem Statement",
+      "label": "1. Problem Statement",
+      "level": 2,
+      "lineStart": 25,
+      "lineEnd": 43,
+      "excerpt": "## 1. Problem Statement\n\nTeams often write specifications as unstructured text, then discover only during\nprototype or implementation that the idea is impossible, useless, more complex\nthan the baseline, or aimed at the wrong problem.\n\nSpec Gym exists to move that failure earlier. It turns a prose specification\ninto a collaborative environment where humans, agents, provers, test runners,\nadapters, and future learned policies can play durable refinement moves against"
+    },
+    {
+      "id": "section-004-2-goals-and-non-goals",
+      "type": "section",
+      "title": "2. Goals and Non-Goals",
+      "label": "2. Goals and Non-Goals",
+      "level": 2,
+      "lineStart": 44,
+      "lineEnd": 45,
+      "excerpt": "## 2. Goals and Non-Goals"
+    },
+    {
+      "id": "section-005-2-1-goals",
+      "type": "section",
+      "title": "2.1 Goals",
+      "label": "2.1 Goals",
+      "level": 3,
+      "lineStart": 46,
+      "lineEnd": 60,
+      "excerpt": "### 2.1 Goals\n\n- Parse Markdown specifications into a canonical claim lattice.\n- Preserve source structure and line-level evidence.\n- Extract addressable claims from headings, bullets, and normative sentences.\n- Classify claims into a small, stable ontology.\n- Detect early bad-idea pressure with explainable evidence.\n- Emit a viability critique for human and agent review.\n- Emit a refinement packet for the next narrow correction."
+    },
+    {
+      "id": "section-006-2-2-non-goals",
+      "type": "section",
+      "title": "2.2 Non-Goals",
+      "label": "2.2 Non-Goals",
+      "level": 3,
+      "lineStart": 61,
+      "lineEnd": 70,
+      "excerpt": "### 2.2 Non-Goals\n\n- Owning multiplayer canvas infrastructure.\n- Owning identity, comments, permissions, or live cursors.\n- Owning a graph database.\n- Requiring a specific issue tracker, diagram tool, prover, or agent runner.\n- Treating adapter output as canonical specification state.\n- Replacing human judgment or domain expertise.\n- Making reward metrics authoritative over recorded rationale."
+    },
+    {
+      "id": "section-007-3-core-artifacts",
+      "type": "section",
+      "title": "3. Core Artifacts",
+      "label": "3. Core Artifacts",
+      "level": 2,
+      "lineStart": 71,
+      "lineEnd": 83,
+      "excerpt": "## 3. Core Artifacts\n\nDefault generation MUST emit only core artifacts:\n\n- `claim-lattice.json`\n- `viability-critique.md`\n- `ClaimLattice.lean`\n- `refinement-packet.md`"
+    },
+    {
+      "id": "section-008-4-claim-lattice",
+      "type": "section",
+      "title": "4. Claim Lattice",
+      "label": "4. Claim Lattice",
+      "level": 2,
+      "lineStart": 84,
+      "lineEnd": 85,
+      "excerpt": "## 4. Claim Lattice"
+    },
+    {
+      "id": "section-009-4-1-node-types",
+      "type": "section",
+      "title": "4.1 Node Types",
+      "label": "4.1 Node Types",
+      "level": 3,
+      "lineStart": 86,
+      "lineEnd": 99,
+      "excerpt": "### 4.1 Node Types\n\n- `spec`: root input document.\n- `section`: source heading and line range.\n- `goal`: desired outcome.\n- `non_goal`: explicit boundary.\n- `requirement`: normative claim.\n- `component`: named subsystem, actor, layer, or responsibility.\n- `dependency`: external system, file, tool, API, or host assumption."
+    },
+    {
+      "id": "section-010-4-2-edge-types",
+      "type": "section",
+      "title": "4.2 Edge Types",
+      "label": "4.2 Edge Types",
+      "level": 3,
+      "lineStart": 100,
+      "lineEnd": 107,
+      "excerpt": "### 4.2 Edge Types\n\n- `contains`: structural containment.\n- `elaborates`: source claim elaborates a section.\n- `evidences`: source node supports a finding.\n- `pressures`: finding pressures a source node.\n- `tensions`: source nodes appear to conflict."
+    },
+    {
+      "id": "section-011-4-3-stability",
+      "type": "section",
+      "title": "4.3 Stability",
+      "label": "4.3 Stability",
+      "level": 3,
+      "lineStart": 108,
+      "lineEnd": 115,
+      "excerpt": "### 4.3 Stability\n\nNode IDs SHOULD be deterministic for the same source text and heading structure.\n\nThe schema MUST be versioned.\n\nLine references SHOULD be preserved whenever the input format supports them."
+    },
+    {
+      "id": "section-012-5-environment-boundary",
+      "type": "section",
+      "title": "5. Environment Boundary",
+      "label": "5. Environment Boundary",
+      "level": 2,
+      "lineStart": 116,
+      "lineEnd": 135,
+      "excerpt": "## 5. Environment Boundary\n\nSpec Gym MUST treat the human as a first-class player, not an external approver.\n\nThe environment state SHOULD expose:\n\n- `observation`: source spec, source anchors, claim lattice, obligation graph,\n  viability critique, verification surfaces, and adapter outputs.\n- `action`: split, merge, strengthen, weaken, restate, classify, add evidence,"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure",
+      "type": "section",
+      "title": "6. Bad-Idea Pressure",
+      "label": "6. Bad-Idea Pressure",
+      "level": 2,
+      "lineStart": 136,
+      "lineEnd": 157,
+      "excerpt": "## 6. Bad-Idea Pressure\n\nThe toolkit SHOULD detect at least these failure modes:\n\n- `impossible`: constraints cannot all hold at once.\n- `useless`: success does not improve the stated problem.\n- `more_complex_than_nothing`: coordination cost exceeds justified value.\n- `misses_problem`: machinery optimizes adjacent work instead of the problem.\n- `underspecified`: behavior-affecting choices are unnamed."
+    },
+    {
+      "id": "section-014-7-refinement-packet",
+      "type": "section",
+      "title": "7. Refinement Packet",
+      "label": "7. Refinement Packet",
+      "level": 2,
+      "lineStart": 158,
+      "lineEnd": 172,
+      "excerpt": "## 7. Refinement Packet\n\nThe refinement packet is a tool-neutral work instruction derived from the\ncurrent claim lattice and viability critique.\n\nIt SHOULD:\n\n- rank current findings by severity\n- identify evidence nodes"
+    },
+    {
+      "id": "section-015-8-formalization-boundary",
+      "type": "section",
+      "title": "8. Formalization Boundary",
+      "label": "8. Formalization Boundary",
+      "level": 2,
+      "lineStart": 173,
+      "lineEnd": 188,
+      "excerpt": "## 8. Formalization Boundary\n\nThe prover-facing artifact SHOULD model the algebra of the claim lattice rather\nthan raw prose.\n\nInitial formal surfaces include:\n\n- bad-idea classes\n- severity"
+    },
+    {
+      "id": "section-016-9-adapter-boundary",
+      "type": "section",
+      "title": "9. Adapter Boundary",
+      "label": "9. Adapter Boundary",
+      "level": 2,
+      "lineStart": 189,
+      "lineEnd": 213,
+      "excerpt": "## 9. Adapter Boundary\n\nAdapters MAY target specific tools, but the core model MUST remain tool-neutral.\n\nAdapter capabilities include:\n\n- `collaborative_map`\n- `graph_query`\n- `architecture_projection`"
+    },
+    {
+      "id": "section-017-10-reference-inputs",
+      "type": "section",
+      "title": "10. Reference Inputs",
+      "label": "10. Reference Inputs",
+      "level": 2,
+      "lineStart": 214,
+      "lineEnd": 226,
+      "excerpt": "## 10. Reference Inputs\n\nThe toolkit SHOULD be validated against specifications that are already useful\nas documents.\n\nCurrent reference inputs:\n\n- `/Users/ericfode/src/openai-symphony/spec.md`\n- `https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f`"
+    },
+    {
+      "id": "section-018-11-definition-of-done-for-current-increment",
+      "type": "section",
+      "title": "11. Definition of Done for Current Increment",
+      "label": "11. Definition of Done for Current Increment",
+      "level": 2,
+      "lineStart": 227,
+      "lineEnd": 239,
+      "excerpt": "## 11. Definition of Done for Current Increment\n\nThe repository is acceptable when:\n\n- `spec.md` is the top-level authoritative specification.\n- The primary CLI is `specgym`.\n- Default generation emits only core artifacts.\n- Named projections are opt-in.\n- The adapter boundary is documented."
+    },
+    {
+      "id": "requirement-normative-language-the-key-words-must-must-not-required-should-should-not",
+      "type": "requirement",
+      "title": "The key words MUST, MUST NOT, REQUIRED, SHOULD, SHOULD NOT,",
+      "label": "The key words MUST, MUST NOT, REQUIRED, SHOULD, SHOULD NOT,",
+      "sectionId": "section-002-normative-language",
+      "lineStart": 10,
+      "lineEnd": 10,
+      "normative": [
+        "MUST",
+        "MUST NOT",
+        "REQUIRED",
+        "SHOULD",
+        "SHOULD NOT"
+      ],
+      "excerpt": "The key words `MUST`, `MUST NOT`, `REQUIRED`, `SHOULD`, `SHOULD NOT`,"
+    },
+    {
+      "id": "requirement-normative-language-recommended-may-and-optional-in-this-document-are-to-be-interpreted-as",
+      "type": "requirement",
+      "title": "RECOMMENDED, MAY, and OPTIONAL in this document are to be interpreted as",
+      "label": "RECOMMENDED, MAY, and OPTIONAL in this document are to be interpreted as",
+      "sectionId": "section-002-normative-language",
+      "lineStart": 11,
+      "lineEnd": 11,
+      "normative": [
+        "RECOMMENDED",
+        "MAY",
+        "OPTIONAL"
+      ],
+      "excerpt": "`RECOMMENDED`, `MAY`, and `OPTIONAL` in this document are to be interpreted as"
+    },
+    {
+      "id": "requirement-1-problem-statement-systems-but-it-must-preserve-a-tool-neutral-core",
+      "type": "requirement",
+      "title": "systems, but it MUST preserve a tool-neutral core.",
+      "label": "systems, but it MUST preserve a tool-neutral core.",
+      "sectionId": "section-003-1-problem-statement",
+      "lineStart": 41,
+      "lineEnd": 41,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "systems, but it MUST preserve a tool-neutral core."
+    },
+    {
+      "id": "goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice",
+      "type": "goal",
+      "title": "Parse Markdown specifications into a canonical claim lattice.",
+      "label": "Parse Markdown specifications into a canonical claim lattice.",
+      "sectionId": "section-005-2-1-goals",
+      "lineStart": 47,
+      "lineEnd": 47,
+      "normative": [],
+      "excerpt": "Parse Markdown specifications into a canonical claim lattice."
+    },
+    {
+      "id": "goal-2-1-goals-preserve-source-structure-and-line-level-evidence",
+      "type": "goal",
+      "title": "Preserve source structure and line-level evidence.",
+      "label": "Preserve source structure and line-level evidence.",
+      "sectionId": "section-005-2-1-goals",
+      "lineStart": 48,
+      "lineEnd": 48,
+      "normative": [],
+      "excerpt": "Preserve source structure and line-level evidence."
+    },
+    {
+      "id": "goal-2-1-goals-extract-addressable-claims-from-headings-bullets-and-normative-sentences",
+      "type": "goal",
+      "title": "Extract addressable claims from headings, bullets, and normative sentences.",
+      "label": "Extract addressable claims from headings, bullets, and normative sentences.",
+      "sectionId": "section-005-2-1-goals",
+      "lineStart": 49,
+      "lineEnd": 49,
+      "normative": [],
+      "excerpt": "Extract addressable claims from headings, bullets, and normative sentences."
+    },
+    {
+      "id": "goal-2-1-goals-classify-claims-into-a-small-stable-ontology",
+      "type": "goal",
+      "title": "Classify claims into a small, stable ontology.",
+      "label": "Classify claims into a small, stable ontology.",
+      "sectionId": "section-005-2-1-goals",
+      "lineStart": 50,
+      "lineEnd": 50,
+      "normative": [],
+      "excerpt": "Classify claims into a small, stable ontology."
+    },
+    {
+      "id": "goal-2-1-goals-detect-early-bad-idea-pressure-with-explainable-evidence",
+      "type": "goal",
+      "title": "Detect early bad-idea pressure with explainable evidence.",
+      "label": "Detect early bad-idea pressure with explainable evidence.",
+      "sectionId": "section-005-2-1-goals",
+      "lineStart": 51,
+      "lineEnd": 51,
+      "normative": [],
+      "excerpt": "Detect early bad-idea pressure with explainable evidence."
+    },
+    {
+      "id": "goal-2-1-goals-emit-a-viability-critique-for-human-and-agent-review",
+      "type": "goal",
+      "title": "Emit a viability critique for human and agent review.",
+      "label": "Emit a viability critique for human and agent review.",
+      "sectionId": "section-005-2-1-goals",
+      "lineStart": 52,
+      "lineEnd": 52,
+      "normative": [],
+      "excerpt": "Emit a viability critique for human and agent review."
+    },
+    {
+      "id": "goal-2-1-goals-emit-a-refinement-packet-for-the-next-narrow-correction",
+      "type": "goal",
+      "title": "Emit a refinement packet for the next narrow correction.",
+      "label": "Emit a refinement packet for the next narrow correction.",
+      "sectionId": "section-005-2-1-goals",
+      "lineStart": 53,
+      "lineEnd": 53,
+      "normative": [],
+      "excerpt": "Emit a refinement packet for the next narrow correction."
+    },
+    {
+      "id": "goal-2-1-goals-emit-a-prover-facing-model-that-can-become-sharper-over-time",
+      "type": "goal",
+      "title": "Emit a prover-facing model that can become sharper over time.",
+      "label": "Emit a prover-facing model that can become sharper over time.",
+      "sectionId": "section-005-2-1-goals",
+      "lineStart": 54,
+      "lineEnd": 54,
+      "normative": [],
+      "excerpt": "Emit a prover-facing model that can become sharper over time."
+    },
+    {
+      "id": "goal-2-1-goals-expose-an-environment-boundary-suitable-for-future-rl-observation-action-actor-r",
+      "type": "goal",
+      "title": "Expose an environment boundary suitable for future RL: observation, action, actor, re...",
+      "label": "Expose an environment boundary suitable for future RL: observation, action, actor, re...",
+      "sectionId": "section-005-2-1-goals",
+      "lineStart": 55,
+      "lineEnd": 55,
+      "normative": [],
+      "excerpt": "Expose an environment boundary suitable for future RL: observation, action, actor, reward, done state, and safety invariant."
+    },
+    {
+      "id": "goal-2-1-goals-support-optional-adapters-for-collaboration-graph-query-architecture-projection-",
+      "type": "goal",
+      "title": "Support optional adapters for collaboration, graph query, architecture projection, kn...",
+      "label": "Support optional adapters for collaboration, graph query, architecture projection, kn...",
+      "sectionId": "section-005-2-1-goals",
+      "lineStart": 57,
+      "lineEnd": 57,
+      "normative": [],
+      "excerpt": "Support optional adapters for collaboration, graph query, architecture projection, knowledge vaults, formal models, and execution queues."
+    },
+    {
+      "id": "non_goal-2-2-non-goals-owning-multiplayer-canvas-infrastructure",
+      "type": "non_goal",
+      "title": "Owning multiplayer canvas infrastructure.",
+      "label": "Owning multiplayer canvas infrastructure.",
+      "sectionId": "section-006-2-2-non-goals",
+      "lineStart": 62,
+      "lineEnd": 62,
+      "normative": [],
+      "excerpt": "Owning multiplayer canvas infrastructure."
+    },
+    {
+      "id": "non_goal-2-2-non-goals-owning-identity-comments-permissions-or-live-cursors",
+      "type": "non_goal",
+      "title": "Owning identity, comments, permissions, or live cursors.",
+      "label": "Owning identity, comments, permissions, or live cursors.",
+      "sectionId": "section-006-2-2-non-goals",
+      "lineStart": 63,
+      "lineEnd": 63,
+      "normative": [],
+      "excerpt": "Owning identity, comments, permissions, or live cursors."
+    },
+    {
+      "id": "non_goal-2-2-non-goals-owning-a-graph-database",
+      "type": "non_goal",
+      "title": "Owning a graph database.",
+      "label": "Owning a graph database.",
+      "sectionId": "section-006-2-2-non-goals",
+      "lineStart": 64,
+      "lineEnd": 64,
+      "normative": [],
+      "excerpt": "Owning a graph database."
+    },
+    {
+      "id": "non_goal-2-2-non-goals-requiring-a-specific-issue-tracker-diagram-tool-prover-or-agent-runner",
+      "type": "non_goal",
+      "title": "Requiring a specific issue tracker, diagram tool, prover, or agent runner.",
+      "label": "Requiring a specific issue tracker, diagram tool, prover, or agent runner.",
+      "sectionId": "section-006-2-2-non-goals",
+      "lineStart": 65,
+      "lineEnd": 65,
+      "normative": [],
+      "excerpt": "Requiring a specific issue tracker, diagram tool, prover, or agent runner."
+    },
+    {
+      "id": "non_goal-2-2-non-goals-treating-adapter-output-as-canonical-specification-state",
+      "type": "non_goal",
+      "title": "Treating adapter output as canonical specification state.",
+      "label": "Treating adapter output as canonical specification state.",
+      "sectionId": "section-006-2-2-non-goals",
+      "lineStart": 66,
+      "lineEnd": 66,
+      "normative": [],
+      "excerpt": "Treating adapter output as canonical specification state."
+    },
+    {
+      "id": "non_goal-2-2-non-goals-replacing-human-judgment-or-domain-expertise",
+      "type": "non_goal",
+      "title": "Replacing human judgment or domain expertise.",
+      "label": "Replacing human judgment or domain expertise.",
+      "sectionId": "section-006-2-2-non-goals",
+      "lineStart": 67,
+      "lineEnd": 67,
+      "normative": [],
+      "excerpt": "Replacing human judgment or domain expertise."
+    },
+    {
+      "id": "non_goal-2-2-non-goals-making-reward-metrics-authoritative-over-recorded-rationale",
+      "type": "non_goal",
+      "title": "Making reward metrics authoritative over recorded rationale.",
+      "label": "Making reward metrics authoritative over recorded rationale.",
+      "sectionId": "section-006-2-2-non-goals",
+      "lineStart": 68,
+      "lineEnd": 68,
+      "normative": [],
+      "excerpt": "Making reward metrics authoritative over recorded rationale."
+    },
+    {
+      "id": "requirement-3-core-artifacts-default-generation-must-emit-only-core-artifacts",
+      "type": "requirement",
+      "title": "Default generation MUST emit only core artifacts:",
+      "label": "Default generation MUST emit only core artifacts:",
+      "sectionId": "section-007-3-core-artifacts",
+      "lineStart": 72,
+      "lineEnd": 72,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Default generation MUST emit only core artifacts:"
+    },
+    {
+      "id": "claim-3-core-artifacts-claim-lattice-json",
+      "type": "claim",
+      "title": "claim-lattice.json",
+      "label": "claim-lattice.json",
+      "sectionId": "section-007-3-core-artifacts",
+      "lineStart": 74,
+      "lineEnd": 74,
+      "normative": [],
+      "excerpt": "`claim-lattice.json`"
+    },
+    {
+      "id": "claim-3-core-artifacts-viability-critique-md",
+      "type": "claim",
+      "title": "viability-critique.md",
+      "label": "viability-critique.md",
+      "sectionId": "section-007-3-core-artifacts",
+      "lineStart": 75,
+      "lineEnd": 75,
+      "normative": [],
+      "excerpt": "`viability-critique.md`"
+    },
+    {
+      "id": "claim-3-core-artifacts-claimlattice-lean",
+      "type": "claim",
+      "title": "ClaimLattice.lean",
+      "label": "ClaimLattice.lean",
+      "sectionId": "section-007-3-core-artifacts",
+      "lineStart": 76,
+      "lineEnd": 76,
+      "normative": [],
+      "excerpt": "`ClaimLattice.lean`"
+    },
+    {
+      "id": "claim-3-core-artifacts-refinement-packet-md",
+      "type": "claim",
+      "title": "refinement-packet.md",
+      "label": "refinement-packet.md",
+      "sectionId": "section-007-3-core-artifacts",
+      "lineStart": 77,
+      "lineEnd": 77,
+      "normative": [],
+      "excerpt": "`refinement-packet.md`"
+    },
+    {
+      "id": "requirement-3-core-artifacts-default-generation-must-not-emit-named-adapter-files",
+      "type": "requirement",
+      "title": "Default generation MUST NOT emit named adapter files.",
+      "label": "Default generation MUST NOT emit named adapter files.",
+      "sectionId": "section-007-3-core-artifacts",
+      "lineStart": 79,
+      "lineEnd": 79,
+      "normative": [
+        "MUST NOT"
+      ],
+      "excerpt": "Default generation MUST NOT emit named adapter files."
+    },
+    {
+      "id": "requirement-3-core-artifacts-adapter-output-must-be-opt-in",
+      "type": "requirement",
+      "title": "Adapter output MUST be opt-in.",
+      "label": "Adapter output MUST be opt-in.",
+      "sectionId": "section-007-3-core-artifacts",
+      "lineStart": 81,
+      "lineEnd": 81,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Adapter output MUST be opt-in."
+    },
+    {
+      "id": "claim-4-1-node-types-spec-root-input-document",
+      "type": "claim",
+      "title": "spec: root input document.",
+      "label": "spec: root input document.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 87,
+      "lineEnd": 87,
+      "normative": [],
+      "excerpt": "`spec`: root input document."
+    },
+    {
+      "id": "claim-4-1-node-types-section-source-heading-and-line-range",
+      "type": "claim",
+      "title": "section: source heading and line range.",
+      "label": "section: source heading and line range.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 88,
+      "lineEnd": 88,
+      "normative": [],
+      "excerpt": "`section`: source heading and line range."
+    },
+    {
+      "id": "claim-4-1-node-types-goal-desired-outcome",
+      "type": "claim",
+      "title": "goal: desired outcome.",
+      "label": "goal: desired outcome.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 89,
+      "lineEnd": 89,
+      "normative": [],
+      "excerpt": "`goal`: desired outcome."
+    },
+    {
+      "id": "claim-4-1-node-types-nongoal-explicit-boundary",
+      "type": "claim",
+      "title": "nongoal: explicit boundary.",
+      "label": "nongoal: explicit boundary.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 90,
+      "lineEnd": 90,
+      "normative": [],
+      "excerpt": "`non_goal`: explicit boundary."
+    },
+    {
+      "id": "claim-4-1-node-types-requirement-normative-claim",
+      "type": "claim",
+      "title": "requirement: normative claim.",
+      "label": "requirement: normative claim.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 91,
+      "lineEnd": 91,
+      "normative": [],
+      "excerpt": "`requirement`: normative claim."
+    },
+    {
+      "id": "claim-4-1-node-types-component-named-subsystem-actor-layer-or-responsibility",
+      "type": "claim",
+      "title": "component: named subsystem, actor, layer, or responsibility.",
+      "label": "component: named subsystem, actor, layer, or responsibility.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 92,
+      "lineEnd": 92,
+      "normative": [],
+      "excerpt": "`component`: named subsystem, actor, layer, or responsibility."
+    },
+    {
+      "id": "dependency-4-1-node-types-dependency-external-system-file-tool-api-or-host-assumption",
+      "type": "dependency",
+      "title": "dependency: external system, file, tool, API, or host assumption.",
+      "label": "dependency: external system, file, tool, API, or host assumption.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 93,
+      "lineEnd": 93,
+      "normative": [],
+      "excerpt": "`dependency`: external system, file, tool, API, or host assumption."
+    },
+    {
+      "id": "test-4-1-node-types-test-validation-surface-or-conformance-check",
+      "type": "test",
+      "title": "test: validation surface or conformance check.",
+      "label": "test: validation surface or conformance check.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 94,
+      "lineEnd": 94,
+      "normative": [],
+      "excerpt": "`test`: validation surface or conformance check."
+    },
+    {
+      "id": "claim-4-1-node-types-risk-safety-recovery-trust-failure-or-ambiguity-pressure",
+      "type": "claim",
+      "title": "risk: safety, recovery, trust, failure, or ambiguity pressure.",
+      "label": "risk: safety, recovery, trust, failure, or ambiguity pressure.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 95,
+      "lineEnd": 95,
+      "normative": [],
+      "excerpt": "`risk`: safety, recovery, trust, failure, or ambiguity pressure."
+    },
+    {
+      "id": "claim-4-1-node-types-claim-extracted-assertion-not-yet-sharpened",
+      "type": "claim",
+      "title": "claim: extracted assertion not yet sharpened.",
+      "label": "claim: extracted assertion not yet sharpened.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 96,
+      "lineEnd": 96,
+      "normative": [],
+      "excerpt": "`claim`: extracted assertion not yet sharpened."
+    },
+    {
+      "id": "claim-4-1-node-types-finding-generated-bad-idea-pressure",
+      "type": "claim",
+      "title": "finding: generated bad-idea pressure.",
+      "label": "finding: generated bad-idea pressure.",
+      "sectionId": "section-009-4-1-node-types",
+      "lineStart": 97,
+      "lineEnd": 97,
+      "normative": [],
+      "excerpt": "`finding`: generated bad-idea pressure."
+    },
+    {
+      "id": "claim-4-2-edge-types-contains-structural-containment",
+      "type": "claim",
+      "title": "contains: structural containment.",
+      "label": "contains: structural containment.",
+      "sectionId": "section-010-4-2-edge-types",
+      "lineStart": 101,
+      "lineEnd": 101,
+      "normative": [],
+      "excerpt": "`contains`: structural containment."
+    },
+    {
+      "id": "claim-4-2-edge-types-elaborates-source-claim-elaborates-a-section",
+      "type": "claim",
+      "title": "elaborates: source claim elaborates a section.",
+      "label": "elaborates: source claim elaborates a section.",
+      "sectionId": "section-010-4-2-edge-types",
+      "lineStart": 102,
+      "lineEnd": 102,
+      "normative": [],
+      "excerpt": "`elaborates`: source claim elaborates a section."
+    },
+    {
+      "id": "claim-4-2-edge-types-evidences-source-node-supports-a-finding",
+      "type": "claim",
+      "title": "evidences: source node supports a finding.",
+      "label": "evidences: source node supports a finding.",
+      "sectionId": "section-010-4-2-edge-types",
+      "lineStart": 103,
+      "lineEnd": 103,
+      "normative": [],
+      "excerpt": "`evidences`: source node supports a finding."
+    },
+    {
+      "id": "claim-4-2-edge-types-pressures-finding-pressures-a-source-node",
+      "type": "claim",
+      "title": "pressures: finding pressures a source node.",
+      "label": "pressures: finding pressures a source node.",
+      "sectionId": "section-010-4-2-edge-types",
+      "lineStart": 104,
+      "lineEnd": 104,
+      "normative": [],
+      "excerpt": "`pressures`: finding pressures a source node."
+    },
+    {
+      "id": "claim-4-2-edge-types-tensions-source-nodes-appear-to-conflict",
+      "type": "claim",
+      "title": "tensions: source nodes appear to conflict.",
+      "label": "tensions: source nodes appear to conflict.",
+      "sectionId": "section-010-4-2-edge-types",
+      "lineStart": 105,
+      "lineEnd": 105,
+      "normative": [],
+      "excerpt": "`tensions`: source nodes appear to conflict."
+    },
+    {
+      "id": "requirement-4-3-stability-node-ids-should-be-deterministic-for-the-same-source-text-and-heading-structure",
+      "type": "requirement",
+      "title": "Node IDs SHOULD be deterministic for the same source text and heading structure.",
+      "label": "Node IDs SHOULD be deterministic for the same source text and heading structure.",
+      "sectionId": "section-011-4-3-stability",
+      "lineStart": 109,
+      "lineEnd": 109,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "Node IDs SHOULD be deterministic for the same source text and heading structure."
+    },
+    {
+      "id": "requirement-4-3-stability-the-schema-must-be-versioned",
+      "type": "requirement",
+      "title": "The schema MUST be versioned.",
+      "label": "The schema MUST be versioned.",
+      "sectionId": "section-011-4-3-stability",
+      "lineStart": 111,
+      "lineEnd": 111,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "The schema MUST be versioned."
+    },
+    {
+      "id": "requirement-4-3-stability-line-references-should-be-preserved-whenever-the-input-format-supports-them",
+      "type": "requirement",
+      "title": "Line references SHOULD be preserved whenever the input format supports them.",
+      "label": "Line references SHOULD be preserved whenever the input format supports them.",
+      "sectionId": "section-011-4-3-stability",
+      "lineStart": 113,
+      "lineEnd": 113,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "Line references SHOULD be preserved whenever the input format supports them."
+    },
+    {
+      "id": "requirement-5-environment-boundary-spec-gym-must-treat-the-human-as-a-first-class-player-not-an-external-approver",
+      "type": "requirement",
+      "title": "Spec Gym MUST treat the human as a first-class player, not an external approver.",
+      "label": "Spec Gym MUST treat the human as a first-class player, not an external approver.",
+      "sectionId": "section-012-5-environment-boundary",
+      "lineStart": 117,
+      "lineEnd": 117,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Spec Gym MUST treat the human as a first-class player, not an external approver."
+    },
+    {
+      "id": "requirement-5-environment-boundary-the-environment-state-should-expose",
+      "type": "requirement",
+      "title": "The environment state SHOULD expose:",
+      "label": "The environment state SHOULD expose:",
+      "sectionId": "section-012-5-environment-boundary",
+      "lineStart": 119,
+      "lineEnd": 119,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "The environment state SHOULD expose:"
+    },
+    {
+      "id": "claim-5-environment-boundary-observation-source-spec-source-anchors-claim-lattice-obligation-graph-viability",
+      "type": "claim",
+      "title": "observation: source spec, source anchors, claim lattice, obligation graph, viability...",
+      "label": "observation: source spec, source anchors, claim lattice, obligation graph, viability...",
+      "sectionId": "section-012-5-environment-boundary",
+      "lineStart": 121,
+      "lineEnd": 121,
+      "normative": [],
+      "excerpt": "`observation`: source spec, source anchors, claim lattice, obligation graph, viability critique, verification surfaces, and adapter outputs."
+    },
+    {
+      "id": "test-5-environment-boundary-action-split-merge-strengthen-weaken-restate-classify-add-evidence-add-negati",
+      "type": "test",
+      "title": "action: split, merge, strengthen, weaken, restate, classify, add evidence, add negati...",
+      "label": "action: split, merge, strengthen, weaken, restate, classify, add evidence, add negati...",
+      "sectionId": "section-012-5-environment-boundary",
+      "lineStart": 123,
+      "lineEnd": 123,
+      "normative": [],
+      "excerpt": "`action`: split, merge, strengthen, weaken, restate, classify, add evidence, add negative test, add proof obligation, mark non-goal, reject idea, or ask for a narrower experiment."
+    },
+    {
+      "id": "test-5-environment-boundary-actor-human-agent-prover-test-runner-adapter-or-policy",
+      "type": "test",
+      "title": "actor: human, agent, prover, test runner, adapter, or policy.",
+      "label": "actor: human, agent, prover, test runner, adapter, or policy.",
+      "sectionId": "section-012-5-environment-boundary",
+      "lineStart": 126,
+      "lineEnd": 126,
+      "normative": [],
+      "excerpt": "`actor`: human, agent, prover, test runner, adapter, or policy."
+    },
+    {
+      "id": "claim-5-environment-boundary-reward-verifiability-score-delta-traceability-score-delta-falsifiability-score-d",
+      "type": "claim",
+      "title": "reward: verifiability score delta, traceability score delta, falsifiability score del...",
+      "label": "reward: verifiability score delta, traceability score delta, falsifiability score del...",
+      "sectionId": "section-012-5-environment-boundary",
+      "lineStart": 127,
+      "lineEnd": 127,
+      "normative": [],
+      "excerpt": "`reward`: verifiability score delta, traceability score delta, falsifiability score delta, contradiction reduction, ambiguity reduction, obligations discharged, negative tests rejected, or invalid idea rejected."
+    },
+    {
+      "id": "claim-5-environment-boundary-done-implementation-ready-threshold-reached-idea-rejected-or-unresolved-state-pr",
+      "type": "claim",
+      "title": "done: implementation-ready threshold reached, idea rejected, or unresolved state pres...",
+      "label": "done: implementation-ready threshold reached, idea rejected, or unresolved state pres...",
+      "sectionId": "section-012-5-environment-boundary",
+      "lineStart": 130,
+      "lineEnd": 130,
+      "normative": [],
+      "excerpt": "`done`: implementation-ready threshold reached, idea rejected, or unresolved state preserved with named missing evidence."
+    },
+    {
+      "id": "claim-5-environment-boundary-safetyinvariant-a-player-cannot-improve-score-by-deleting-source-evidence-or-wea",
+      "type": "claim",
+      "title": "safetyInvariant: a player cannot improve score by deleting source evidence or weakeni...",
+      "label": "safetyInvariant: a player cannot improve score by deleting source evidence or weakeni...",
+      "sectionId": "section-012-5-environment-boundary",
+      "lineStart": 132,
+      "lineEnd": 132,
+      "normative": [],
+      "excerpt": "`safetyInvariant`: a player cannot improve score by deleting source evidence or weakening the stated problem without recording that tradeoff."
+    },
+    {
+      "id": "requirement-6-bad-idea-pressure-the-toolkit-should-detect-at-least-these-failure-modes",
+      "type": "requirement",
+      "title": "The toolkit SHOULD detect at least these failure modes:",
+      "label": "The toolkit SHOULD detect at least these failure modes:",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 137,
+      "lineEnd": 137,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "The toolkit SHOULD detect at least these failure modes:"
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-impossible-constraints-cannot-all-hold-at-once",
+      "type": "claim",
+      "title": "impossible: constraints cannot all hold at once.",
+      "label": "impossible: constraints cannot all hold at once.",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 139,
+      "lineEnd": 139,
+      "normative": [],
+      "excerpt": "`impossible`: constraints cannot all hold at once."
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-useless-success-does-not-improve-the-stated-problem",
+      "type": "claim",
+      "title": "useless: success does not improve the stated problem.",
+      "label": "useless: success does not improve the stated problem.",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 140,
+      "lineEnd": 140,
+      "normative": [],
+      "excerpt": "`useless`: success does not improve the stated problem."
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-morecomplexthannothing-coordination-cost-exceeds-justified-value",
+      "type": "claim",
+      "title": "morecomplexthannothing: coordination cost exceeds justified value.",
+      "label": "morecomplexthannothing: coordination cost exceeds justified value.",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 141,
+      "lineEnd": 141,
+      "normative": [],
+      "excerpt": "`more_complex_than_nothing`: coordination cost exceeds justified value."
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-missesproblem-machinery-optimizes-adjacent-work-instead-of-the-problem",
+      "type": "claim",
+      "title": "missesproblem: machinery optimizes adjacent work instead of the problem.",
+      "label": "missesproblem: machinery optimizes adjacent work instead of the problem.",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 142,
+      "lineEnd": 142,
+      "normative": [],
+      "excerpt": "`misses_problem`: machinery optimizes adjacent work instead of the problem."
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-underspecified-behavior-affecting-choices-are-unnamed",
+      "type": "claim",
+      "title": "underspecified: behavior-affecting choices are unnamed.",
+      "label": "underspecified: behavior-affecting choices are unnamed.",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 143,
+      "lineEnd": 143,
+      "normative": [],
+      "excerpt": "`underspecified`: behavior-affecting choices are unnamed."
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-unfalsifiable-no-clear-validation-could-prove-the-idea-wrong",
+      "type": "claim",
+      "title": "unfalsifiable: no clear validation could prove the idea wrong.",
+      "label": "unfalsifiable: no clear validation could prove the idea wrong.",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 144,
+      "lineEnd": 144,
+      "normative": [],
+      "excerpt": "`unfalsifiable`: no clear validation could prove the idea wrong."
+    },
+    {
+      "id": "requirement-6-bad-idea-pressure-findings-must-include",
+      "type": "requirement",
+      "title": "Findings MUST include:",
+      "label": "Findings MUST include:",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 146,
+      "lineEnd": 146,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Findings MUST include:"
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-class",
+      "type": "claim",
+      "title": "class",
+      "label": "class",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 148,
+      "lineEnd": 148,
+      "normative": [],
+      "excerpt": "class"
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-severity",
+      "type": "claim",
+      "title": "severity",
+      "label": "severity",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 149,
+      "lineEnd": 149,
+      "normative": [],
+      "excerpt": "severity"
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-title",
+      "type": "claim",
+      "title": "title",
+      "label": "title",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 150,
+      "lineEnd": 150,
+      "normative": [],
+      "excerpt": "title"
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-explanation",
+      "type": "claim",
+      "title": "explanation",
+      "label": "explanation",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 151,
+      "lineEnd": 151,
+      "normative": [],
+      "excerpt": "explanation"
+    },
+    {
+      "id": "claim-6-bad-idea-pressure-evidence-node-ids-when-available",
+      "type": "claim",
+      "title": "evidence node IDs when available",
+      "label": "evidence node IDs when available",
+      "sectionId": "section-013-6-bad-idea-pressure",
+      "lineStart": 152,
+      "lineEnd": 152,
+      "normative": [],
+      "excerpt": "evidence node IDs when available"
+    },
+    {
+      "id": "requirement-7-refinement-packet-it-should",
+      "type": "requirement",
+      "title": "It SHOULD:",
+      "label": "It SHOULD:",
+      "sectionId": "section-014-7-refinement-packet",
+      "lineStart": 162,
+      "lineEnd": 162,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "It SHOULD:"
+    },
+    {
+      "id": "claim-7-refinement-packet-rank-current-findings-by-severity",
+      "type": "claim",
+      "title": "rank current findings by severity",
+      "label": "rank current findings by severity",
+      "sectionId": "section-014-7-refinement-packet",
+      "lineStart": 164,
+      "lineEnd": 164,
+      "normative": [],
+      "excerpt": "rank current findings by severity"
+    },
+    {
+      "id": "claim-7-refinement-packet-identify-evidence-nodes",
+      "type": "claim",
+      "title": "identify evidence nodes",
+      "label": "identify evidence nodes",
+      "sectionId": "section-014-7-refinement-packet",
+      "lineStart": 165,
+      "lineEnd": 165,
+      "normative": [],
+      "excerpt": "identify evidence nodes"
+    },
+    {
+      "id": "claim-7-refinement-packet-require-exactly-one-narrow-correction-or-rejection-move",
+      "type": "claim",
+      "title": "require exactly one narrow correction or rejection move",
+      "label": "require exactly one narrow correction or rejection move",
+      "sectionId": "section-014-7-refinement-packet",
+      "lineStart": 166,
+      "lineEnd": 166,
+      "normative": [],
+      "excerpt": "require exactly one narrow correction or rejection move"
+    },
+    {
+      "id": "claim-7-refinement-packet-name-the-actor-when-known",
+      "type": "claim",
+      "title": "name the actor when known",
+      "label": "name the actor when known",
+      "sectionId": "section-014-7-refinement-packet",
+      "lineStart": 167,
+      "lineEnd": 167,
+      "normative": [],
+      "excerpt": "name the actor when known"
+    },
+    {
+      "id": "claim-7-refinement-packet-require-regeneration-of-core-artifacts",
+      "type": "claim",
+      "title": "require regeneration of core artifacts",
+      "label": "require regeneration of core artifacts",
+      "sectionId": "section-014-7-refinement-packet",
+      "lineStart": 168,
+      "lineEnd": 168,
+      "normative": [],
+      "excerpt": "require regeneration of core artifacts"
+    },
+    {
+      "id": "claim-7-refinement-packet-require-verification-gates",
+      "type": "claim",
+      "title": "require verification gates",
+      "label": "require verification gates",
+      "sectionId": "section-014-7-refinement-packet",
+      "lineStart": 169,
+      "lineEnd": 169,
+      "normative": [],
+      "excerpt": "require verification gates"
+    },
+    {
+      "id": "claim-7-refinement-packet-avoid-naming-a-specific-runner-unless-emitted-by-an-adapter",
+      "type": "claim",
+      "title": "avoid naming a specific runner unless emitted by an adapter",
+      "label": "avoid naming a specific runner unless emitted by an adapter",
+      "sectionId": "section-014-7-refinement-packet",
+      "lineStart": 170,
+      "lineEnd": 170,
+      "normative": [],
+      "excerpt": "avoid naming a specific runner unless emitted by an adapter"
+    },
+    {
+      "id": "requirement-8-formalization-boundary-the-prover-facing-artifact-should-model-the-algebra-of-the-claim-lattice-rather",
+      "type": "requirement",
+      "title": "The prover-facing artifact SHOULD model the algebra of the claim lattice rather",
+      "label": "The prover-facing artifact SHOULD model the algebra of the claim lattice rather",
+      "sectionId": "section-015-8-formalization-boundary",
+      "lineStart": 174,
+      "lineEnd": 174,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "The prover-facing artifact SHOULD model the algebra of the claim lattice rather"
+    },
+    {
+      "id": "claim-8-formalization-boundary-bad-idea-classes",
+      "type": "claim",
+      "title": "bad-idea classes",
+      "label": "bad-idea classes",
+      "sectionId": "section-015-8-formalization-boundary",
+      "lineStart": 179,
+      "lineEnd": 179,
+      "normative": [],
+      "excerpt": "bad-idea classes"
+    },
+    {
+      "id": "claim-8-formalization-boundary-severity",
+      "type": "claim",
+      "title": "severity",
+      "label": "severity",
+      "sectionId": "section-015-8-formalization-boundary",
+      "lineStart": 180,
+      "lineEnd": 180,
+      "normative": [],
+      "excerpt": "severity"
+    },
+    {
+      "id": "claim-8-formalization-boundary-graph-counts",
+      "type": "claim",
+      "title": "graph counts",
+      "label": "graph counts",
+      "sectionId": "section-015-8-formalization-boundary",
+      "lineStart": 181,
+      "lineEnd": 181,
+      "normative": [],
+      "excerpt": "graph counts"
+    },
+    {
+      "id": "claim-8-formalization-boundary-core-surface-presence",
+      "type": "claim",
+      "title": "core-surface presence",
+      "label": "core-surface presence",
+      "sectionId": "section-015-8-formalization-boundary",
+      "lineStart": 182,
+      "lineEnd": 182,
+      "normative": [],
+      "excerpt": "core-surface presence"
+    },
+    {
+      "id": "claim-8-formalization-boundary-prototype-readiness-predicates",
+      "type": "claim",
+      "title": "prototype-readiness predicates",
+      "label": "prototype-readiness predicates",
+      "sectionId": "section-015-8-formalization-boundary",
+      "lineStart": 183,
+      "lineEnd": 183,
+      "normative": [],
+      "excerpt": "prototype-readiness predicates"
+    },
+    {
+      "id": "requirement-8-formalization-boundary-the-toolkit-should-separate-generated-facts-from-handwritten-theory-once-the",
+      "type": "requirement",
+      "title": "The toolkit SHOULD separate generated facts from handwritten theory once the",
+      "label": "The toolkit SHOULD separate generated facts from handwritten theory once the",
+      "sectionId": "section-015-8-formalization-boundary",
+      "lineStart": 185,
+      "lineEnd": 185,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "The toolkit SHOULD separate generated facts from handwritten theory once the"
+    },
+    {
+      "id": "requirement-9-adapter-boundary-adapters-may-target-specific-tools-but-the-core-model-must-remain-tool-neutral",
+      "type": "requirement",
+      "title": "Adapters MAY target specific tools, but the core model MUST remain tool-neutral.",
+      "label": "Adapters MAY target specific tools, but the core model MUST remain tool-neutral.",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 190,
+      "lineEnd": 190,
+      "normative": [
+        "MAY",
+        "MUST"
+      ],
+      "excerpt": "Adapters MAY target specific tools, but the core model MUST remain tool-neutral."
+    },
+    {
+      "id": "claim-9-adapter-boundary-collaborativemap",
+      "type": "claim",
+      "title": "collaborativemap",
+      "label": "collaborativemap",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 194,
+      "lineEnd": 194,
+      "normative": [],
+      "excerpt": "`collaborative_map`"
+    },
+    {
+      "id": "claim-9-adapter-boundary-graphquery",
+      "type": "claim",
+      "title": "graphquery",
+      "label": "graphquery",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 195,
+      "lineEnd": 195,
+      "normative": [],
+      "excerpt": "`graph_query`"
+    },
+    {
+      "id": "claim-9-adapter-boundary-architectureprojection",
+      "type": "claim",
+      "title": "architectureprojection",
+      "label": "architectureprojection",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 196,
+      "lineEnd": 196,
+      "normative": [],
+      "excerpt": "`architecture_projection`"
+    },
+    {
+      "id": "claim-9-adapter-boundary-knowledgevault",
+      "type": "claim",
+      "title": "knowledgevault",
+      "label": "knowledgevault",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 197,
+      "lineEnd": 197,
+      "normative": [],
+      "excerpt": "`knowledge_vault`"
+    },
+    {
+      "id": "claim-9-adapter-boundary-formalmodel",
+      "type": "claim",
+      "title": "formalmodel",
+      "label": "formalmodel",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 198,
+      "lineEnd": 198,
+      "normative": [],
+      "excerpt": "`formal_model`"
+    },
+    {
+      "id": "claim-9-adapter-boundary-executionqueue",
+      "type": "claim",
+      "title": "executionqueue",
+      "label": "executionqueue",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 199,
+      "lineEnd": 199,
+      "normative": [],
+      "excerpt": "`execution_queue`"
+    },
+    {
+      "id": "requirement-9-adapter-boundary-each-adapter-must-state",
+      "type": "requirement",
+      "title": "Each adapter MUST state:",
+      "label": "Each adapter MUST state:",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 201,
+      "lineEnd": 201,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Each adapter MUST state:"
+    },
+    {
+      "id": "claim-9-adapter-boundary-capability-served",
+      "type": "claim",
+      "title": "capability served",
+      "label": "capability served",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 203,
+      "lineEnd": 203,
+      "normative": [],
+      "excerpt": "capability served"
+    },
+    {
+      "id": "claim-9-adapter-boundary-input-schema-version",
+      "type": "claim",
+      "title": "input schema version",
+      "label": "input schema version",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 204,
+      "lineEnd": 204,
+      "normative": [],
+      "excerpt": "input schema version"
+    },
+    {
+      "id": "dependency-9-adapter-boundary-emitted-files-or-api-calls",
+      "type": "dependency",
+      "title": "emitted files or API calls",
+      "label": "emitted files or API calls",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 205,
+      "lineEnd": 205,
+      "normative": [],
+      "excerpt": "emitted files or API calls"
+    },
+    {
+      "id": "claim-9-adapter-boundary-import-or-execution-instructions",
+      "type": "claim",
+      "title": "import or execution instructions",
+      "label": "import or execution instructions",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 206,
+      "lineEnd": 206,
+      "normative": [],
+      "excerpt": "import or execution instructions"
+    },
+    {
+      "id": "claim-9-adapter-boundary-lossy-transformations",
+      "type": "claim",
+      "title": "lossy transformations",
+      "label": "lossy transformations",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 207,
+      "lineEnd": 207,
+      "normative": [],
+      "excerpt": "lossy transformations"
+    },
+    {
+      "id": "test-9-adapter-boundary-verification-command-or-manual-check",
+      "type": "test",
+      "title": "verification command or manual check",
+      "label": "verification command or manual check",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 208,
+      "lineEnd": 208,
+      "normative": [],
+      "excerpt": "verification command or manual check"
+    },
+    {
+      "id": "requirement-9-adapter-boundary-an-adapter-must-not-introduce-required-core-node-types-or-change-claim-lattice",
+      "type": "requirement",
+      "title": "An adapter MUST NOT introduce required core node types or change claim-lattice",
+      "label": "An adapter MUST NOT introduce required core node types or change claim-lattice",
+      "sectionId": "section-016-9-adapter-boundary",
+      "lineStart": 210,
+      "lineEnd": 210,
+      "normative": [
+        "MUST NOT"
+      ],
+      "excerpt": "An adapter MUST NOT introduce required core node types or change claim-lattice"
+    },
+    {
+      "id": "requirement-10-reference-inputs-the-toolkit-should-be-validated-against-specifications-that-are-already-useful",
+      "type": "requirement",
+      "title": "The toolkit SHOULD be validated against specifications that are already useful",
+      "label": "The toolkit SHOULD be validated against specifications that are already useful",
+      "sectionId": "section-017-10-reference-inputs",
+      "lineStart": 215,
+      "lineEnd": 215,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "The toolkit SHOULD be validated against specifications that are already useful"
+    },
+    {
+      "id": "claim-10-reference-inputs-users-ericfode-src-openai-symphony-spec-md",
+      "type": "claim",
+      "title": "/Users/ericfode/src/openai-symphony/spec.md",
+      "label": "/Users/ericfode/src/openai-symphony/spec.md",
+      "sectionId": "section-017-10-reference-inputs",
+      "lineStart": 220,
+      "lineEnd": 220,
+      "normative": [],
+      "excerpt": "`/Users/ericfode/src/openai-symphony/spec.md`"
+    },
+    {
+      "id": "claim-10-reference-inputs-https-gist-github-com-karpathy-442a6bf555914893e9891c11519de94f",
+      "type": "claim",
+      "title": "https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f",
+      "label": "https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f",
+      "sectionId": "section-017-10-reference-inputs",
+      "lineStart": 221,
+      "lineEnd": 221,
+      "normative": [],
+      "excerpt": "`https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f`"
+    },
+    {
+      "id": "requirement-10-reference-inputs-their-local-tool-choices-must-not-become-toolkit",
+      "type": "requirement",
+      "title": "Their local tool choices MUST NOT become toolkit",
+      "label": "Their local tool choices MUST NOT become toolkit",
+      "sectionId": "section-017-10-reference-inputs",
+      "lineStart": 223,
+      "lineEnd": 223,
+      "normative": [
+        "MUST NOT"
+      ],
+      "excerpt": "Their local tool choices MUST NOT become toolkit"
+    },
+    {
+      "id": "test-11-definition-of-done-for-current-increment-spec-md-is-the-top-level-authoritative-specification",
+      "type": "test",
+      "title": "spec.md is the top-level authoritative specification.",
+      "label": "spec.md is the top-level authoritative specification.",
+      "sectionId": "section-018-11-definition-of-done-for-current-increment",
+      "lineStart": 230,
+      "lineEnd": 230,
+      "normative": [],
+      "excerpt": "`spec.md` is the top-level authoritative specification."
+    },
+    {
+      "id": "test-11-definition-of-done-for-current-increment-the-primary-cli-is-specgym",
+      "type": "test",
+      "title": "The primary CLI is specgym.",
+      "label": "The primary CLI is specgym.",
+      "sectionId": "section-018-11-definition-of-done-for-current-increment",
+      "lineStart": 231,
+      "lineEnd": 231,
+      "normative": [],
+      "excerpt": "The primary CLI is `specgym`."
+    },
+    {
+      "id": "test-11-definition-of-done-for-current-increment-default-generation-emits-only-core-artifacts",
+      "type": "test",
+      "title": "Default generation emits only core artifacts.",
+      "label": "Default generation emits only core artifacts.",
+      "sectionId": "section-018-11-definition-of-done-for-current-increment",
+      "lineStart": 232,
+      "lineEnd": 232,
+      "normative": [],
+      "excerpt": "Default generation emits only core artifacts."
+    },
+    {
+      "id": "test-11-definition-of-done-for-current-increment-named-projections-are-opt-in",
+      "type": "test",
+      "title": "Named projections are opt-in.",
+      "label": "Named projections are opt-in.",
+      "sectionId": "section-018-11-definition-of-done-for-current-increment",
+      "lineStart": 233,
+      "lineEnd": 233,
+      "normative": [],
+      "excerpt": "Named projections are opt-in."
+    },
+    {
+      "id": "test-11-definition-of-done-for-current-increment-the-adapter-boundary-is-documented",
+      "type": "test",
+      "title": "The adapter boundary is documented.",
+      "label": "The adapter boundary is documented.",
+      "sectionId": "section-018-11-definition-of-done-for-current-increment",
+      "lineStart": 234,
+      "lineEnd": 234,
+      "normative": [],
+      "excerpt": "The adapter boundary is documented."
+    },
+    {
+      "id": "test-11-definition-of-done-for-current-increment-the-symphony-service-specification-can-be-played-as-an-example-input",
+      "type": "test",
+      "title": "The Symphony service specification can be played as an example input.",
+      "label": "The Symphony service specification can be played as an example input.",
+      "sectionId": "section-018-11-definition-of-done-for-current-increment",
+      "lineStart": 235,
+      "lineEnd": 235,
+      "normative": [],
+      "excerpt": "The Symphony service specification can be played as an example input."
+    },
+    {
+      "id": "test-11-definition-of-done-for-current-increment-the-lean-mock-model-type-checks",
+      "type": "test",
+      "title": "The Lean mock model type-checks.",
+      "label": "The Lean mock model type-checks.",
+      "sectionId": "section-018-11-definition-of-done-for-current-increment",
+      "lineStart": 236,
+      "lineEnd": 236,
+      "normative": [],
+      "excerpt": "The Lean mock model type-checks."
+    },
+    {
+      "id": "test-11-definition-of-done-for-current-increment-the-local-tests-pass",
+      "type": "test",
+      "title": "The local tests pass.",
+      "label": "The local tests pass.",
+      "sectionId": "section-018-11-definition-of-done-for-current-increment",
+      "lineStart": 237,
+      "lineEnd": 237,
+      "normative": [],
+      "excerpt": "The local tests pass."
+    },
+    {
+      "id": "finding-misses-problem-low-overlap",
+      "type": "finding",
+      "title": "Problem, goals, and tests have weak lexical overlap",
+      "label": "Problem, goals, and tests have weak lexical overlap",
+      "class": "misses_problem",
+      "severity": "medium",
+      "excerpt": "Problem-goal overlap 0.07, problem-test overlap 0.08. Low overlap is not proof of failure, but it is a good prompt to link goals and tests explicitly."
+    },
+    {
+      "id": "finding-underspecified-risk-surface",
+      "type": "finding",
+      "title": "Risk vocabulary appears without extracted risk nodes",
+      "label": "Risk vocabulary appears without extracted risk nodes",
+      "class": "underspecified",
+      "severity": "low",
+      "excerpt": "The parser saw risk vocabulary, but the graph did not classify any risk claims. The source likely needs explicit risk sections or sharper bullets."
+    }
+  ],
+  "edges": [
+    {
+      "id": "spec->section-001-spec-gym-specification:contains",
+      "from": "spec",
+      "to": "section-001-spec-gym-specification",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-002-normative-language:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-002-normative-language",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-003-1-problem-statement:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-003-1-problem-statement",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-004-2-goals-and-non-goals:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-004-2-goals-and-non-goals",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-004-2-goals-and-non-goals->section-005-2-1-goals:contains",
+      "from": "section-004-2-goals-and-non-goals",
+      "to": "section-005-2-1-goals",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-004-2-goals-and-non-goals->section-006-2-2-non-goals:contains",
+      "from": "section-004-2-goals-and-non-goals",
+      "to": "section-006-2-2-non-goals",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-007-3-core-artifacts:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-007-3-core-artifacts",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-008-4-claim-lattice:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-008-4-claim-lattice",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-008-4-claim-lattice->section-009-4-1-node-types:contains",
+      "from": "section-008-4-claim-lattice",
+      "to": "section-009-4-1-node-types",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-008-4-claim-lattice->section-010-4-2-edge-types:contains",
+      "from": "section-008-4-claim-lattice",
+      "to": "section-010-4-2-edge-types",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-008-4-claim-lattice->section-011-4-3-stability:contains",
+      "from": "section-008-4-claim-lattice",
+      "to": "section-011-4-3-stability",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-012-5-environment-boundary:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-012-5-environment-boundary",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-013-6-bad-idea-pressure:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-013-6-bad-idea-pressure",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-014-7-refinement-packet:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-014-7-refinement-packet",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-015-8-formalization-boundary:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-015-8-formalization-boundary",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-016-9-adapter-boundary:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-016-9-adapter-boundary",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-017-10-reference-inputs:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-017-10-reference-inputs",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-spec-gym-specification->section-018-11-definition-of-done-for-current-increment:contains",
+      "from": "section-001-spec-gym-specification",
+      "to": "section-018-11-definition-of-done-for-current-increment",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-002-normative-language->requirement-normative-language-the-key-words-must-must-not-required-should-should-not:elaborates",
+      "from": "section-002-normative-language",
+      "to": "requirement-normative-language-the-key-words-must-must-not-required-should-should-not",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-normative-language->requirement-normative-language-recommended-may-and-optional-in-this-document-are-to-be-interpreted-as:elaborates",
+      "from": "section-002-normative-language",
+      "to": "requirement-normative-language-recommended-may-and-optional-in-this-document-are-to-be-interpreted-as",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-003-1-problem-statement->requirement-1-problem-statement-systems-but-it-must-preserve-a-tool-neutral-core:elaborates",
+      "from": "section-003-1-problem-statement",
+      "to": "requirement-1-problem-statement-systems-but-it-must-preserve-a-tool-neutral-core",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-2-1-goals->goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice:elaborates",
+      "from": "section-005-2-1-goals",
+      "to": "goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-2-1-goals->goal-2-1-goals-preserve-source-structure-and-line-level-evidence:elaborates",
+      "from": "section-005-2-1-goals",
+      "to": "goal-2-1-goals-preserve-source-structure-and-line-level-evidence",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-2-1-goals->goal-2-1-goals-extract-addressable-claims-from-headings-bullets-and-normative-sentences:elaborates",
+      "from": "section-005-2-1-goals",
+      "to": "goal-2-1-goals-extract-addressable-claims-from-headings-bullets-and-normative-sentences",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-2-1-goals->goal-2-1-goals-classify-claims-into-a-small-stable-ontology:elaborates",
+      "from": "section-005-2-1-goals",
+      "to": "goal-2-1-goals-classify-claims-into-a-small-stable-ontology",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-2-1-goals->goal-2-1-goals-detect-early-bad-idea-pressure-with-explainable-evidence:elaborates",
+      "from": "section-005-2-1-goals",
+      "to": "goal-2-1-goals-detect-early-bad-idea-pressure-with-explainable-evidence",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-2-1-goals->goal-2-1-goals-emit-a-viability-critique-for-human-and-agent-review:elaborates",
+      "from": "section-005-2-1-goals",
+      "to": "goal-2-1-goals-emit-a-viability-critique-for-human-and-agent-review",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-2-1-goals->goal-2-1-goals-emit-a-refinement-packet-for-the-next-narrow-correction:elaborates",
+      "from": "section-005-2-1-goals",
+      "to": "goal-2-1-goals-emit-a-refinement-packet-for-the-next-narrow-correction",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-2-1-goals->goal-2-1-goals-emit-a-prover-facing-model-that-can-become-sharper-over-time:elaborates",
+      "from": "section-005-2-1-goals",
+      "to": "goal-2-1-goals-emit-a-prover-facing-model-that-can-become-sharper-over-time",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-2-1-goals->goal-2-1-goals-expose-an-environment-boundary-suitable-for-future-rl-observation-action-actor-r:elaborates",
+      "from": "section-005-2-1-goals",
+      "to": "goal-2-1-goals-expose-an-environment-boundary-suitable-for-future-rl-observation-action-actor-r",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-2-1-goals->goal-2-1-goals-support-optional-adapters-for-collaboration-graph-query-architecture-projection-:elaborates",
+      "from": "section-005-2-1-goals",
+      "to": "goal-2-1-goals-support-optional-adapters-for-collaboration-graph-query-architecture-projection-",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-006-2-2-non-goals->non_goal-2-2-non-goals-owning-multiplayer-canvas-infrastructure:elaborates",
+      "from": "section-006-2-2-non-goals",
+      "to": "non_goal-2-2-non-goals-owning-multiplayer-canvas-infrastructure",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-006-2-2-non-goals->non_goal-2-2-non-goals-owning-identity-comments-permissions-or-live-cursors:elaborates",
+      "from": "section-006-2-2-non-goals",
+      "to": "non_goal-2-2-non-goals-owning-identity-comments-permissions-or-live-cursors",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-006-2-2-non-goals->non_goal-2-2-non-goals-owning-a-graph-database:elaborates",
+      "from": "section-006-2-2-non-goals",
+      "to": "non_goal-2-2-non-goals-owning-a-graph-database",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-006-2-2-non-goals->non_goal-2-2-non-goals-requiring-a-specific-issue-tracker-diagram-tool-prover-or-agent-runner:elaborates",
+      "from": "section-006-2-2-non-goals",
+      "to": "non_goal-2-2-non-goals-requiring-a-specific-issue-tracker-diagram-tool-prover-or-agent-runner",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-006-2-2-non-goals->non_goal-2-2-non-goals-treating-adapter-output-as-canonical-specification-state:elaborates",
+      "from": "section-006-2-2-non-goals",
+      "to": "non_goal-2-2-non-goals-treating-adapter-output-as-canonical-specification-state",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-006-2-2-non-goals->non_goal-2-2-non-goals-replacing-human-judgment-or-domain-expertise:elaborates",
+      "from": "section-006-2-2-non-goals",
+      "to": "non_goal-2-2-non-goals-replacing-human-judgment-or-domain-expertise",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-006-2-2-non-goals->non_goal-2-2-non-goals-making-reward-metrics-authoritative-over-recorded-rationale:elaborates",
+      "from": "section-006-2-2-non-goals",
+      "to": "non_goal-2-2-non-goals-making-reward-metrics-authoritative-over-recorded-rationale",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-007-3-core-artifacts->requirement-3-core-artifacts-default-generation-must-emit-only-core-artifacts:elaborates",
+      "from": "section-007-3-core-artifacts",
+      "to": "requirement-3-core-artifacts-default-generation-must-emit-only-core-artifacts",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-007-3-core-artifacts->claim-3-core-artifacts-claim-lattice-json:elaborates",
+      "from": "section-007-3-core-artifacts",
+      "to": "claim-3-core-artifacts-claim-lattice-json",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-007-3-core-artifacts->claim-3-core-artifacts-viability-critique-md:elaborates",
+      "from": "section-007-3-core-artifacts",
+      "to": "claim-3-core-artifacts-viability-critique-md",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-007-3-core-artifacts->claim-3-core-artifacts-claimlattice-lean:elaborates",
+      "from": "section-007-3-core-artifacts",
+      "to": "claim-3-core-artifacts-claimlattice-lean",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-007-3-core-artifacts->claim-3-core-artifacts-refinement-packet-md:elaborates",
+      "from": "section-007-3-core-artifacts",
+      "to": "claim-3-core-artifacts-refinement-packet-md",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-007-3-core-artifacts->requirement-3-core-artifacts-default-generation-must-not-emit-named-adapter-files:elaborates",
+      "from": "section-007-3-core-artifacts",
+      "to": "requirement-3-core-artifacts-default-generation-must-not-emit-named-adapter-files",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-007-3-core-artifacts->requirement-3-core-artifacts-adapter-output-must-be-opt-in:elaborates",
+      "from": "section-007-3-core-artifacts",
+      "to": "requirement-3-core-artifacts-adapter-output-must-be-opt-in",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->claim-4-1-node-types-spec-root-input-document:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "claim-4-1-node-types-spec-root-input-document",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->claim-4-1-node-types-section-source-heading-and-line-range:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "claim-4-1-node-types-section-source-heading-and-line-range",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->claim-4-1-node-types-goal-desired-outcome:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "claim-4-1-node-types-goal-desired-outcome",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->claim-4-1-node-types-nongoal-explicit-boundary:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "claim-4-1-node-types-nongoal-explicit-boundary",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->claim-4-1-node-types-requirement-normative-claim:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "claim-4-1-node-types-requirement-normative-claim",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->claim-4-1-node-types-component-named-subsystem-actor-layer-or-responsibility:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "claim-4-1-node-types-component-named-subsystem-actor-layer-or-responsibility",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->dependency-4-1-node-types-dependency-external-system-file-tool-api-or-host-assumption:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "dependency-4-1-node-types-dependency-external-system-file-tool-api-or-host-assumption",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->test-4-1-node-types-test-validation-surface-or-conformance-check:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "test-4-1-node-types-test-validation-surface-or-conformance-check",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->claim-4-1-node-types-risk-safety-recovery-trust-failure-or-ambiguity-pressure:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "claim-4-1-node-types-risk-safety-recovery-trust-failure-or-ambiguity-pressure",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->claim-4-1-node-types-claim-extracted-assertion-not-yet-sharpened:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "claim-4-1-node-types-claim-extracted-assertion-not-yet-sharpened",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-4-1-node-types->claim-4-1-node-types-finding-generated-bad-idea-pressure:elaborates",
+      "from": "section-009-4-1-node-types",
+      "to": "claim-4-1-node-types-finding-generated-bad-idea-pressure",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-010-4-2-edge-types->claim-4-2-edge-types-contains-structural-containment:elaborates",
+      "from": "section-010-4-2-edge-types",
+      "to": "claim-4-2-edge-types-contains-structural-containment",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-010-4-2-edge-types->claim-4-2-edge-types-elaborates-source-claim-elaborates-a-section:elaborates",
+      "from": "section-010-4-2-edge-types",
+      "to": "claim-4-2-edge-types-elaborates-source-claim-elaborates-a-section",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-010-4-2-edge-types->claim-4-2-edge-types-evidences-source-node-supports-a-finding:elaborates",
+      "from": "section-010-4-2-edge-types",
+      "to": "claim-4-2-edge-types-evidences-source-node-supports-a-finding",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-010-4-2-edge-types->claim-4-2-edge-types-pressures-finding-pressures-a-source-node:elaborates",
+      "from": "section-010-4-2-edge-types",
+      "to": "claim-4-2-edge-types-pressures-finding-pressures-a-source-node",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-010-4-2-edge-types->claim-4-2-edge-types-tensions-source-nodes-appear-to-conflict:elaborates",
+      "from": "section-010-4-2-edge-types",
+      "to": "claim-4-2-edge-types-tensions-source-nodes-appear-to-conflict",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-011-4-3-stability->requirement-4-3-stability-node-ids-should-be-deterministic-for-the-same-source-text-and-heading-structure:elaborates",
+      "from": "section-011-4-3-stability",
+      "to": "requirement-4-3-stability-node-ids-should-be-deterministic-for-the-same-source-text-and-heading-structure",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-011-4-3-stability->requirement-4-3-stability-the-schema-must-be-versioned:elaborates",
+      "from": "section-011-4-3-stability",
+      "to": "requirement-4-3-stability-the-schema-must-be-versioned",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-011-4-3-stability->requirement-4-3-stability-line-references-should-be-preserved-whenever-the-input-format-supports-them:elaborates",
+      "from": "section-011-4-3-stability",
+      "to": "requirement-4-3-stability-line-references-should-be-preserved-whenever-the-input-format-supports-them",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-012-5-environment-boundary->requirement-5-environment-boundary-spec-gym-must-treat-the-human-as-a-first-class-player-not-an-external-approver:elaborates",
+      "from": "section-012-5-environment-boundary",
+      "to": "requirement-5-environment-boundary-spec-gym-must-treat-the-human-as-a-first-class-player-not-an-external-approver",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-012-5-environment-boundary->requirement-5-environment-boundary-the-environment-state-should-expose:elaborates",
+      "from": "section-012-5-environment-boundary",
+      "to": "requirement-5-environment-boundary-the-environment-state-should-expose",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-012-5-environment-boundary->claim-5-environment-boundary-observation-source-spec-source-anchors-claim-lattice-obligation-graph-viability:elaborates",
+      "from": "section-012-5-environment-boundary",
+      "to": "claim-5-environment-boundary-observation-source-spec-source-anchors-claim-lattice-obligation-graph-viability",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-012-5-environment-boundary->test-5-environment-boundary-action-split-merge-strengthen-weaken-restate-classify-add-evidence-add-negati:elaborates",
+      "from": "section-012-5-environment-boundary",
+      "to": "test-5-environment-boundary-action-split-merge-strengthen-weaken-restate-classify-add-evidence-add-negati",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-012-5-environment-boundary->test-5-environment-boundary-actor-human-agent-prover-test-runner-adapter-or-policy:elaborates",
+      "from": "section-012-5-environment-boundary",
+      "to": "test-5-environment-boundary-actor-human-agent-prover-test-runner-adapter-or-policy",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-012-5-environment-boundary->claim-5-environment-boundary-reward-verifiability-score-delta-traceability-score-delta-falsifiability-score-d:elaborates",
+      "from": "section-012-5-environment-boundary",
+      "to": "claim-5-environment-boundary-reward-verifiability-score-delta-traceability-score-delta-falsifiability-score-d",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-012-5-environment-boundary->claim-5-environment-boundary-done-implementation-ready-threshold-reached-idea-rejected-or-unresolved-state-pr:elaborates",
+      "from": "section-012-5-environment-boundary",
+      "to": "claim-5-environment-boundary-done-implementation-ready-threshold-reached-idea-rejected-or-unresolved-state-pr",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-012-5-environment-boundary->claim-5-environment-boundary-safetyinvariant-a-player-cannot-improve-score-by-deleting-source-evidence-or-wea:elaborates",
+      "from": "section-012-5-environment-boundary",
+      "to": "claim-5-environment-boundary-safetyinvariant-a-player-cannot-improve-score-by-deleting-source-evidence-or-wea",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->requirement-6-bad-idea-pressure-the-toolkit-should-detect-at-least-these-failure-modes:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "requirement-6-bad-idea-pressure-the-toolkit-should-detect-at-least-these-failure-modes",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-impossible-constraints-cannot-all-hold-at-once:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-impossible-constraints-cannot-all-hold-at-once",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-useless-success-does-not-improve-the-stated-problem:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-useless-success-does-not-improve-the-stated-problem",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-morecomplexthannothing-coordination-cost-exceeds-justified-value:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-morecomplexthannothing-coordination-cost-exceeds-justified-value",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-missesproblem-machinery-optimizes-adjacent-work-instead-of-the-problem:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-missesproblem-machinery-optimizes-adjacent-work-instead-of-the-problem",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-underspecified-behavior-affecting-choices-are-unnamed:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-underspecified-behavior-affecting-choices-are-unnamed",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-unfalsifiable-no-clear-validation-could-prove-the-idea-wrong:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-unfalsifiable-no-clear-validation-could-prove-the-idea-wrong",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->requirement-6-bad-idea-pressure-findings-must-include:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "requirement-6-bad-idea-pressure-findings-must-include",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-class:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-class",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-severity:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-severity",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-title:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-title",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-explanation:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-explanation",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-013-6-bad-idea-pressure->claim-6-bad-idea-pressure-evidence-node-ids-when-available:elaborates",
+      "from": "section-013-6-bad-idea-pressure",
+      "to": "claim-6-bad-idea-pressure-evidence-node-ids-when-available",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-014-7-refinement-packet->requirement-7-refinement-packet-it-should:elaborates",
+      "from": "section-014-7-refinement-packet",
+      "to": "requirement-7-refinement-packet-it-should",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-014-7-refinement-packet->claim-7-refinement-packet-rank-current-findings-by-severity:elaborates",
+      "from": "section-014-7-refinement-packet",
+      "to": "claim-7-refinement-packet-rank-current-findings-by-severity",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-014-7-refinement-packet->claim-7-refinement-packet-identify-evidence-nodes:elaborates",
+      "from": "section-014-7-refinement-packet",
+      "to": "claim-7-refinement-packet-identify-evidence-nodes",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-014-7-refinement-packet->claim-7-refinement-packet-require-exactly-one-narrow-correction-or-rejection-move:elaborates",
+      "from": "section-014-7-refinement-packet",
+      "to": "claim-7-refinement-packet-require-exactly-one-narrow-correction-or-rejection-move",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-014-7-refinement-packet->claim-7-refinement-packet-name-the-actor-when-known:elaborates",
+      "from": "section-014-7-refinement-packet",
+      "to": "claim-7-refinement-packet-name-the-actor-when-known",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-014-7-refinement-packet->claim-7-refinement-packet-require-regeneration-of-core-artifacts:elaborates",
+      "from": "section-014-7-refinement-packet",
+      "to": "claim-7-refinement-packet-require-regeneration-of-core-artifacts",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-014-7-refinement-packet->claim-7-refinement-packet-require-verification-gates:elaborates",
+      "from": "section-014-7-refinement-packet",
+      "to": "claim-7-refinement-packet-require-verification-gates",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-014-7-refinement-packet->claim-7-refinement-packet-avoid-naming-a-specific-runner-unless-emitted-by-an-adapter:elaborates",
+      "from": "section-014-7-refinement-packet",
+      "to": "claim-7-refinement-packet-avoid-naming-a-specific-runner-unless-emitted-by-an-adapter",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-015-8-formalization-boundary->requirement-8-formalization-boundary-the-prover-facing-artifact-should-model-the-algebra-of-the-claim-lattice-rather:elaborates",
+      "from": "section-015-8-formalization-boundary",
+      "to": "requirement-8-formalization-boundary-the-prover-facing-artifact-should-model-the-algebra-of-the-claim-lattice-rather",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-015-8-formalization-boundary->claim-8-formalization-boundary-bad-idea-classes:elaborates",
+      "from": "section-015-8-formalization-boundary",
+      "to": "claim-8-formalization-boundary-bad-idea-classes",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-015-8-formalization-boundary->claim-8-formalization-boundary-severity:elaborates",
+      "from": "section-015-8-formalization-boundary",
+      "to": "claim-8-formalization-boundary-severity",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-015-8-formalization-boundary->claim-8-formalization-boundary-graph-counts:elaborates",
+      "from": "section-015-8-formalization-boundary",
+      "to": "claim-8-formalization-boundary-graph-counts",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-015-8-formalization-boundary->claim-8-formalization-boundary-core-surface-presence:elaborates",
+      "from": "section-015-8-formalization-boundary",
+      "to": "claim-8-formalization-boundary-core-surface-presence",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-015-8-formalization-boundary->claim-8-formalization-boundary-prototype-readiness-predicates:elaborates",
+      "from": "section-015-8-formalization-boundary",
+      "to": "claim-8-formalization-boundary-prototype-readiness-predicates",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-015-8-formalization-boundary->requirement-8-formalization-boundary-the-toolkit-should-separate-generated-facts-from-handwritten-theory-once-the:elaborates",
+      "from": "section-015-8-formalization-boundary",
+      "to": "requirement-8-formalization-boundary-the-toolkit-should-separate-generated-facts-from-handwritten-theory-once-the",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->requirement-9-adapter-boundary-adapters-may-target-specific-tools-but-the-core-model-must-remain-tool-neutral:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "requirement-9-adapter-boundary-adapters-may-target-specific-tools-but-the-core-model-must-remain-tool-neutral",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->claim-9-adapter-boundary-collaborativemap:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "claim-9-adapter-boundary-collaborativemap",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->claim-9-adapter-boundary-graphquery:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "claim-9-adapter-boundary-graphquery",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->claim-9-adapter-boundary-architectureprojection:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "claim-9-adapter-boundary-architectureprojection",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->claim-9-adapter-boundary-knowledgevault:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "claim-9-adapter-boundary-knowledgevault",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->claim-9-adapter-boundary-formalmodel:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "claim-9-adapter-boundary-formalmodel",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->claim-9-adapter-boundary-executionqueue:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "claim-9-adapter-boundary-executionqueue",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->requirement-9-adapter-boundary-each-adapter-must-state:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "requirement-9-adapter-boundary-each-adapter-must-state",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->claim-9-adapter-boundary-capability-served:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "claim-9-adapter-boundary-capability-served",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->claim-9-adapter-boundary-input-schema-version:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "claim-9-adapter-boundary-input-schema-version",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->dependency-9-adapter-boundary-emitted-files-or-api-calls:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "dependency-9-adapter-boundary-emitted-files-or-api-calls",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->claim-9-adapter-boundary-import-or-execution-instructions:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "claim-9-adapter-boundary-import-or-execution-instructions",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->claim-9-adapter-boundary-lossy-transformations:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "claim-9-adapter-boundary-lossy-transformations",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->test-9-adapter-boundary-verification-command-or-manual-check:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "test-9-adapter-boundary-verification-command-or-manual-check",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-016-9-adapter-boundary->requirement-9-adapter-boundary-an-adapter-must-not-introduce-required-core-node-types-or-change-claim-lattice:elaborates",
+      "from": "section-016-9-adapter-boundary",
+      "to": "requirement-9-adapter-boundary-an-adapter-must-not-introduce-required-core-node-types-or-change-claim-lattice",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-017-10-reference-inputs->requirement-10-reference-inputs-the-toolkit-should-be-validated-against-specifications-that-are-already-useful:elaborates",
+      "from": "section-017-10-reference-inputs",
+      "to": "requirement-10-reference-inputs-the-toolkit-should-be-validated-against-specifications-that-are-already-useful",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-017-10-reference-inputs->claim-10-reference-inputs-users-ericfode-src-openai-symphony-spec-md:elaborates",
+      "from": "section-017-10-reference-inputs",
+      "to": "claim-10-reference-inputs-users-ericfode-src-openai-symphony-spec-md",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-017-10-reference-inputs->claim-10-reference-inputs-https-gist-github-com-karpathy-442a6bf555914893e9891c11519de94f:elaborates",
+      "from": "section-017-10-reference-inputs",
+      "to": "claim-10-reference-inputs-https-gist-github-com-karpathy-442a6bf555914893e9891c11519de94f",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-017-10-reference-inputs->requirement-10-reference-inputs-their-local-tool-choices-must-not-become-toolkit:elaborates",
+      "from": "section-017-10-reference-inputs",
+      "to": "requirement-10-reference-inputs-their-local-tool-choices-must-not-become-toolkit",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-018-11-definition-of-done-for-current-increment->test-11-definition-of-done-for-current-increment-spec-md-is-the-top-level-authoritative-specification:elaborates",
+      "from": "section-018-11-definition-of-done-for-current-increment",
+      "to": "test-11-definition-of-done-for-current-increment-spec-md-is-the-top-level-authoritative-specification",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-018-11-definition-of-done-for-current-increment->test-11-definition-of-done-for-current-increment-the-primary-cli-is-specgym:elaborates",
+      "from": "section-018-11-definition-of-done-for-current-increment",
+      "to": "test-11-definition-of-done-for-current-increment-the-primary-cli-is-specgym",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-018-11-definition-of-done-for-current-increment->test-11-definition-of-done-for-current-increment-default-generation-emits-only-core-artifacts:elaborates",
+      "from": "section-018-11-definition-of-done-for-current-increment",
+      "to": "test-11-definition-of-done-for-current-increment-default-generation-emits-only-core-artifacts",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-018-11-definition-of-done-for-current-increment->test-11-definition-of-done-for-current-increment-named-projections-are-opt-in:elaborates",
+      "from": "section-018-11-definition-of-done-for-current-increment",
+      "to": "test-11-definition-of-done-for-current-increment-named-projections-are-opt-in",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-018-11-definition-of-done-for-current-increment->test-11-definition-of-done-for-current-increment-the-adapter-boundary-is-documented:elaborates",
+      "from": "section-018-11-definition-of-done-for-current-increment",
+      "to": "test-11-definition-of-done-for-current-increment-the-adapter-boundary-is-documented",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-018-11-definition-of-done-for-current-increment->test-11-definition-of-done-for-current-increment-the-symphony-service-specification-can-be-played-as-an-example-input:elaborates",
+      "from": "section-018-11-definition-of-done-for-current-increment",
+      "to": "test-11-definition-of-done-for-current-increment-the-symphony-service-specification-can-be-played-as-an-example-input",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-018-11-definition-of-done-for-current-increment->test-11-definition-of-done-for-current-increment-the-lean-mock-model-type-checks:elaborates",
+      "from": "section-018-11-definition-of-done-for-current-increment",
+      "to": "test-11-definition-of-done-for-current-increment-the-lean-mock-model-type-checks",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-018-11-definition-of-done-for-current-increment->test-11-definition-of-done-for-current-increment-the-local-tests-pass:elaborates",
+      "from": "section-018-11-definition-of-done-for-current-increment",
+      "to": "test-11-definition-of-done-for-current-increment-the-local-tests-pass",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "finding-misses-problem-low-overlap->section-003-1-problem-statement:pressures",
+      "from": "finding-misses-problem-low-overlap",
+      "to": "section-003-1-problem-statement",
+      "type": "pressures",
+      "label": "pressures"
+    },
+    {
+      "id": "section-003-1-problem-statement->finding-misses-problem-low-overlap:evidences",
+      "from": "section-003-1-problem-statement",
+      "to": "finding-misses-problem-low-overlap",
+      "type": "evidences",
+      "label": "evidences"
+    },
+    {
+      "id": "finding-misses-problem-low-overlap->goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice:pressures",
+      "from": "finding-misses-problem-low-overlap",
+      "to": "goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice",
+      "type": "pressures",
+      "label": "pressures"
+    },
+    {
+      "id": "goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice->finding-misses-problem-low-overlap:evidences",
+      "from": "goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice",
+      "to": "finding-misses-problem-low-overlap",
+      "type": "evidences",
+      "label": "evidences"
+    },
+    {
+      "id": "finding-misses-problem-low-overlap->goal-2-1-goals-preserve-source-structure-and-line-level-evidence:pressures",
+      "from": "finding-misses-problem-low-overlap",
+      "to": "goal-2-1-goals-preserve-source-structure-and-line-level-evidence",
+      "type": "pressures",
+      "label": "pressures"
+    },
+    {
+      "id": "goal-2-1-goals-preserve-source-structure-and-line-level-evidence->finding-misses-problem-low-overlap:evidences",
+      "from": "goal-2-1-goals-preserve-source-structure-and-line-level-evidence",
+      "to": "finding-misses-problem-low-overlap",
+      "type": "evidences",
+      "label": "evidences"
+    },
+    {
+      "id": "finding-misses-problem-low-overlap->goal-2-1-goals-extract-addressable-claims-from-headings-bullets-and-normative-sentences:pressures",
+      "from": "finding-misses-problem-low-overlap",
+      "to": "goal-2-1-goals-extract-addressable-claims-from-headings-bullets-and-normative-sentences",
+      "type": "pressures",
+      "label": "pressures"
+    },
+    {
+      "id": "goal-2-1-goals-extract-addressable-claims-from-headings-bullets-and-normative-sentences->finding-misses-problem-low-overlap:evidences",
+      "from": "goal-2-1-goals-extract-addressable-claims-from-headings-bullets-and-normative-sentences",
+      "to": "finding-misses-problem-low-overlap",
+      "type": "evidences",
+      "label": "evidences"
+    },
+    {
+      "id": "finding-misses-problem-low-overlap->goal-2-1-goals-classify-claims-into-a-small-stable-ontology:pressures",
+      "from": "finding-misses-problem-low-overlap",
+      "to": "goal-2-1-goals-classify-claims-into-a-small-stable-ontology",
+      "type": "pressures",
+      "label": "pressures"
+    },
+    {
+      "id": "goal-2-1-goals-classify-claims-into-a-small-stable-ontology->finding-misses-problem-low-overlap:evidences",
+      "from": "goal-2-1-goals-classify-claims-into-a-small-stable-ontology",
+      "to": "finding-misses-problem-low-overlap",
+      "type": "evidences",
+      "label": "evidences"
+    },
+    {
+      "id": "finding-misses-problem-low-overlap->test-4-1-node-types-test-validation-surface-or-conformance-check:pressures",
+      "from": "finding-misses-problem-low-overlap",
+      "to": "test-4-1-node-types-test-validation-surface-or-conformance-check",
+      "type": "pressures",
+      "label": "pressures"
+    },
+    {
+      "id": "test-4-1-node-types-test-validation-surface-or-conformance-check->finding-misses-problem-low-overlap:evidences",
+      "from": "test-4-1-node-types-test-validation-surface-or-conformance-check",
+      "to": "finding-misses-problem-low-overlap",
+      "type": "evidences",
+      "label": "evidences"
+    },
+    {
+      "id": "finding-misses-problem-low-overlap->test-5-environment-boundary-action-split-merge-strengthen-weaken-restate-classify-add-evidence-add-negati:pressures",
+      "from": "finding-misses-problem-low-overlap",
+      "to": "test-5-environment-boundary-action-split-merge-strengthen-weaken-restate-classify-add-evidence-add-negati",
+      "type": "pressures",
+      "label": "pressures"
+    },
+    {
+      "id": "test-5-environment-boundary-action-split-merge-strengthen-weaken-restate-classify-add-evidence-add-negati->finding-misses-problem-low-overlap:evidences",
+      "from": "test-5-environment-boundary-action-split-merge-strengthen-weaken-restate-classify-add-evidence-add-negati",
+      "to": "finding-misses-problem-low-overlap",
+      "type": "evidences",
+      "label": "evidences"
+    },
+    {
+      "id": "finding-misses-problem-low-overlap->test-5-environment-boundary-actor-human-agent-prover-test-runner-adapter-or-policy:pressures",
+      "from": "finding-misses-problem-low-overlap",
+      "to": "test-5-environment-boundary-actor-human-agent-prover-test-runner-adapter-or-policy",
+      "type": "pressures",
+      "label": "pressures"
+    },
+    {
+      "id": "test-5-environment-boundary-actor-human-agent-prover-test-runner-adapter-or-policy->finding-misses-problem-low-overlap:evidences",
+      "from": "test-5-environment-boundary-actor-human-agent-prover-test-runner-adapter-or-policy",
+      "to": "finding-misses-problem-low-overlap",
+      "type": "evidences",
+      "label": "evidences"
+    },
+    {
+      "id": "finding-misses-problem-low-overlap->test-9-adapter-boundary-verification-command-or-manual-check:pressures",
+      "from": "finding-misses-problem-low-overlap",
+      "to": "test-9-adapter-boundary-verification-command-or-manual-check",
+      "type": "pressures",
+      "label": "pressures"
+    },
+    {
+      "id": "test-9-adapter-boundary-verification-command-or-manual-check->finding-misses-problem-low-overlap:evidences",
+      "from": "test-9-adapter-boundary-verification-command-or-manual-check",
+      "to": "finding-misses-problem-low-overlap",
+      "type": "evidences",
+      "label": "evidences"
+    }
+  ],
+  "findings": [
+    {
+      "id": "finding-misses-problem-low-overlap",
+      "class": "misses_problem",
+      "severity": "medium",
+      "title": "Problem, goals, and tests have weak lexical overlap",
+      "detail": "Problem-goal overlap 0.07, problem-test overlap 0.08. Low overlap is not proof of failure, but it is a good prompt to link goals and tests explicitly.",
+      "evidenceNodeIds": [
+        "section-003-1-problem-statement",
+        "goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice",
+        "goal-2-1-goals-preserve-source-structure-and-line-level-evidence",
+        "goal-2-1-goals-extract-addressable-claims-from-headings-bullets-and-normative-sentences",
+        "goal-2-1-goals-classify-claims-into-a-small-stable-ontology",
+        "test-4-1-node-types-test-validation-surface-or-conformance-check",
+        "test-5-environment-boundary-action-split-merge-strengthen-weaken-restate-classify-add-evidence-add-negati",
+        "test-5-environment-boundary-actor-human-agent-prover-test-runner-adapter-or-policy",
+        "test-9-adapter-boundary-verification-command-or-manual-check"
+      ]
+    },
+    {
+      "id": "finding-underspecified-risk-surface",
+      "class": "underspecified",
+      "severity": "low",
+      "title": "Risk vocabulary appears without extracted risk nodes",
+      "detail": "The parser saw risk vocabulary, but the graph did not classify any risk claims. The source likely needs explicit risk sections or sharper bullets.",
+      "evidenceNodeIds": []
+    }
+  ],
+  "glossary": [
+    {
+      "term": "/Users/ericfode/src/openai-symphony/spec.md",
+      "nodeIds": [
+        "section-017-10-reference-inputs",
+        "claim-10-reference-inputs-users-ericfode-src-openai-symphony-spec-md"
+      ]
+    },
+    {
+      "term": "action",
+      "nodeIds": [
+        "section-012-5-environment-boundary",
+        "test-5-environment-boundary-action-split-merge-strengthen-weaken-restate-classify-add-evidence-add-negati"
+      ]
+    },
+    {
+      "term": "actor",
+      "nodeIds": [
+        "test-5-environment-boundary-actor-human-agent-prover-test-runner-adapter-or-policy"
+      ]
+    },
+    {
+      "term": "architecture_projection",
+      "nodeIds": [
+        "section-016-9-adapter-boundary",
+        "claim-9-adapter-boundary-architectureprojection"
+      ]
+    },
+    {
+      "term": "claim",
+      "nodeIds": [
+        "claim-4-1-node-types-claim-extracted-assertion-not-yet-sharpened"
+      ]
+    },
+    {
+      "term": "Claim lattice",
+      "nodeIds": [
+        "section-002-normative-language"
+      ]
+    },
+    {
+      "term": "claim-lattice.json",
+      "nodeIds": [
+        "section-007-3-core-artifacts",
+        "claim-3-core-artifacts-claim-lattice-json"
+      ]
+    },
+    {
+      "term": "ClaimLattice.lean",
+      "nodeIds": [
+        "section-007-3-core-artifacts",
+        "claim-3-core-artifacts-claimlattice-lean"
+      ]
+    },
+    {
+      "term": "collaborative_map",
+      "nodeIds": [
+        "section-016-9-adapter-boundary",
+        "claim-9-adapter-boundary-collaborativemap"
+      ]
+    },
+    {
+      "term": "component",
+      "nodeIds": [
+        "section-009-4-1-node-types",
+        "claim-4-1-node-types-component-named-subsystem-actor-layer-or-responsibility"
+      ]
+    },
+    {
+      "term": "contains",
+      "nodeIds": [
+        "section-010-4-2-edge-types",
+        "claim-4-2-edge-types-contains-structural-containment"
+      ]
+    },
+    {
+      "term": "dependency",
+      "nodeIds": [
+        "section-009-4-1-node-types",
+        "dependency-4-1-node-types-dependency-external-system-file-tool-api-or-host-assumption"
+      ]
+    },
+    {
+      "term": "done",
+      "nodeIds": [
+        "claim-5-environment-boundary-done-implementation-ready-threshold-reached-idea-rejected-or-unresolved-state-pr"
+      ]
+    },
+    {
+      "term": "elaborates",
+      "nodeIds": [
+        "section-010-4-2-edge-types",
+        "claim-4-2-edge-types-elaborates-source-claim-elaborates-a-section"
+      ]
+    },
+    {
+      "term": "evidences",
+      "nodeIds": [
+        "section-010-4-2-edge-types",
+        "claim-4-2-edge-types-evidences-source-node-supports-a-finding"
+      ]
+    },
+    {
+      "term": "execution_queue",
+      "nodeIds": [
+        "claim-9-adapter-boundary-executionqueue"
+      ]
+    },
+    {
+      "term": "finding",
+      "nodeIds": [
+        "claim-4-1-node-types-finding-generated-bad-idea-pressure"
+      ]
+    },
+    {
+      "term": "formal_model",
+      "nodeIds": [
+        "claim-9-adapter-boundary-formalmodel"
+      ]
+    },
+    {
+      "term": "goal",
+      "nodeIds": [
+        "section-009-4-1-node-types",
+        "claim-4-1-node-types-goal-desired-outcome"
+      ]
+    },
+    {
+      "term": "graph_query",
+      "nodeIds": [
+        "section-016-9-adapter-boundary",
+        "claim-9-adapter-boundary-graphquery"
+      ]
+    },
+    {
+      "term": "https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f",
+      "nodeIds": [
+        "section-017-10-reference-inputs",
+        "claim-10-reference-inputs-https-gist-github-com-karpathy-442a6bf555914893e9891c11519de94f"
+      ]
+    },
+    {
+      "term": "impossible",
+      "nodeIds": [
+        "section-013-6-bad-idea-pressure",
+        "claim-6-bad-idea-pressure-impossible-constraints-cannot-all-hold-at-once"
+      ]
+    },
+    {
+      "term": "knowledge_vault",
+      "nodeIds": [
+        "claim-9-adapter-boundary-knowledgevault"
+      ]
+    },
+    {
+      "term": "MAY",
+      "nodeIds": [
+        "section-002-normative-language",
+        "requirement-normative-language-recommended-may-and-optional-in-this-document-are-to-be-interpreted-as"
+      ]
+    },
+    {
+      "term": "misses_problem",
+      "nodeIds": [
+        "section-013-6-bad-idea-pressure",
+        "claim-6-bad-idea-pressure-missesproblem-machinery-optimizes-adjacent-work-instead-of-the-problem"
+      ]
+    },
+    {
+      "term": "more_complex_than_nothing",
+      "nodeIds": [
+        "section-013-6-bad-idea-pressure",
+        "claim-6-bad-idea-pressure-morecomplexthannothing-coordination-cost-exceeds-justified-value"
+      ]
+    },
+    {
+      "term": "MUST",
+      "nodeIds": [
+        "section-002-normative-language",
+        "requirement-normative-language-the-key-words-must-must-not-required-should-should-not"
+      ]
+    },
+    {
+      "term": "MUST NOT",
+      "nodeIds": [
+        "section-002-normative-language",
+        "requirement-normative-language-the-key-words-must-must-not-required-should-should-not"
+      ]
+    },
+    {
+      "term": "non_goal",
+      "nodeIds": [
+        "section-009-4-1-node-types",
+        "claim-4-1-node-types-nongoal-explicit-boundary"
+      ]
+    },
+    {
+      "term": "observation",
+      "nodeIds": [
+        "section-012-5-environment-boundary",
+        "claim-5-environment-boundary-observation-source-spec-source-anchors-claim-lattice-obligation-graph-viability"
+      ]
+    },
+    {
+      "term": "OPTIONAL",
+      "nodeIds": [
+        "section-002-normative-language",
+        "requirement-normative-language-recommended-may-and-optional-in-this-document-are-to-be-interpreted-as"
+      ]
+    },
+    {
+      "term": "pressures",
+      "nodeIds": [
+        "section-010-4-2-edge-types",
+        "claim-4-2-edge-types-pressures-finding-pressures-a-source-node"
+      ]
+    },
+    {
+      "term": "RECOMMENDED",
+      "nodeIds": [
+        "section-002-normative-language",
+        "requirement-normative-language-recommended-may-and-optional-in-this-document-are-to-be-interpreted-as"
+      ]
+    },
+    {
+      "term": "refinement-packet.md",
+      "nodeIds": [
+        "section-007-3-core-artifacts",
+        "claim-3-core-artifacts-refinement-packet-md"
+      ]
+    },
+    {
+      "term": "REQUIRED",
+      "nodeIds": [
+        "section-002-normative-language",
+        "requirement-normative-language-the-key-words-must-must-not-required-should-should-not"
+      ]
+    },
+    {
+      "term": "requirement",
+      "nodeIds": [
+        "section-009-4-1-node-types",
+        "claim-4-1-node-types-requirement-normative-claim"
+      ]
+    },
+    {
+      "term": "reward",
+      "nodeIds": [
+        "claim-5-environment-boundary-reward-verifiability-score-delta-traceability-score-delta-falsifiability-score-d"
+      ]
+    },
+    {
+      "term": "risk",
+      "nodeIds": [
+        "claim-4-1-node-types-risk-safety-recovery-trust-failure-or-ambiguity-pressure"
+      ]
+    },
+    {
+      "term": "safetyInvariant",
+      "nodeIds": [
+        "claim-5-environment-boundary-safetyinvariant-a-player-cannot-improve-score-by-deleting-source-evidence-or-wea"
+      ]
+    },
+    {
+      "term": "section",
+      "nodeIds": [
+        "section-009-4-1-node-types",
+        "claim-4-1-node-types-section-source-heading-and-line-range"
+      ]
+    },
+    {
+      "term": "SHOULD",
+      "nodeIds": [
+        "section-002-normative-language",
+        "requirement-normative-language-the-key-words-must-must-not-required-should-should-not"
+      ]
+    },
+    {
+      "term": "SHOULD NOT",
+      "nodeIds": [
+        "section-002-normative-language",
+        "requirement-normative-language-the-key-words-must-must-not-required-should-should-not"
+      ]
+    },
+    {
+      "term": "spec",
+      "nodeIds": [
+        "section-009-4-1-node-types",
+        "claim-4-1-node-types-spec-root-input-document"
+      ]
+    },
+    {
+      "term": "Spec Gym",
+      "nodeIds": [
+        "section-002-normative-language"
+      ]
+    },
+    {
+      "term": "spec.md",
+      "nodeIds": [
+        "section-018-11-definition-of-done-for-current-increment",
+        "test-11-definition-of-done-for-current-increment-spec-md-is-the-top-level-authoritative-specification"
+      ]
+    },
+    {
+      "term": "specgym",
+      "nodeIds": [
+        "section-018-11-definition-of-done-for-current-increment",
+        "test-11-definition-of-done-for-current-increment-the-primary-cli-is-specgym"
+      ]
+    },
+    {
+      "term": "tensions",
+      "nodeIds": [
+        "section-010-4-2-edge-types",
+        "claim-4-2-edge-types-tensions-source-nodes-appear-to-conflict"
+      ]
+    },
+    {
+      "term": "test",
+      "nodeIds": [
+        "test-4-1-node-types-test-validation-surface-or-conformance-check"
+      ]
+    },
+    {
+      "term": "underspecified",
+      "nodeIds": [
+        "section-013-6-bad-idea-pressure",
+        "claim-6-bad-idea-pressure-underspecified-behavior-affecting-choices-are-unnamed"
+      ]
+    },
+    {
+      "term": "unfalsifiable",
+      "nodeIds": [
+        "claim-6-bad-idea-pressure-unfalsifiable-no-clear-validation-could-prove-the-idea-wrong"
+      ]
+    },
+    {
+      "term": "useless",
+      "nodeIds": [
+        "section-013-6-bad-idea-pressure",
+        "claim-6-bad-idea-pressure-useless-success-does-not-improve-the-stated-problem"
+      ]
+    },
+    {
+      "term": "viability-critique.md",
+      "nodeIds": [
+        "section-007-3-core-artifacts",
+        "claim-3-core-artifacts-viability-critique-md"
+      ]
+    }
+  ],
+  "proverDraft": {
+    "language": "lean4",
+    "module": "ClaimLattice",
+    "obligations": [
+      "CoreSurfacePresent",
+      "NoHighSeverityImpossibleFinding",
+      "EveryGoalHasValidationLink",
+      "EveryImplementationDefinedChoiceHasDocumentedPolicy",
+      "ComponentPressureIsJustifiedByGoals"
+    ],
+    "generatedFacts": {
+      "nodeCount": 130,
+      "edgeCount": 145,
+      "findingCount": 2,
+      "highSeverityFindings": 0
+    }
+  }
+}
