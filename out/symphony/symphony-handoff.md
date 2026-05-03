@@ -7,6 +7,7 @@ Resolve the highest-value viability finding before prototype work proceeds.
 ## Input Artifacts
 
 - Source spec: `/Users/ericfode/src/openai-symphony/spec.md`
+- Dataified spec: `dataified-spec.json`
 - Canonical graph: `claim-lattice.json`
 - Critique: `viability-critique.md`
 - Lean mock model: `ClaimLattice.lean`
@@ -22,7 +23,7 @@ Resolve the highest-value viability finding before prototype work proceeds.
 
 ## Player Procedure
 
-1. Load `viability-critique.md` and `claim-lattice.json`.
+1. Load `viability-critique.md`, `dataified-spec.json`, and `claim-lattice.json`.
 2. Pick exactly one finding, preferring high severity over broad cleanup.
 3. Trace its evidence nodes back to source lines.
 4. Patch the source specification, add a recorded design decision, or reject the idea with evidence.
@@ -41,6 +42,6 @@ lean out/symphony/ClaimLattice.lean
 ## Acceptance
 
 - The selected finding is resolved or explicitly reclassified with evidence.
-- The claim lattice artifacts regenerate deterministically.
+- Regenerated artifacts include source anchors and enough provenance to review differences.
 - The Lean mock model still type-checks.
 - No new high-severity finding is introduced.

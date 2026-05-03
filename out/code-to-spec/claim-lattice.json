@@ -1,0 +1,451 @@
+{
+  "schemaVersion": "specgym.claim-lattice.v0",
+  "generatedAt": "2026-05-03T02:34:27.165Z",
+  "source": {
+    "path": "/Users/ericfode/Documents/New project 4/src",
+    "title": "Code Source Pack",
+    "lineCount": 261
+  },
+  "environment": {
+    "kind": "collaborative-spec-verifiability-environment",
+    "model": "claim-lattice",
+    "actors": [
+      "human",
+      "agent",
+      "prover",
+      "test_runner",
+      "adapter",
+      "policy"
+    ],
+    "observation": [
+      "source_spec",
+      "source_anchors",
+      "claim_lattice",
+      "obligation_graph",
+      "viability_critique",
+      "verification_surfaces",
+      "adapter_outputs"
+    ],
+    "actions": [
+      "split_claim",
+      "merge_claims",
+      "strengthen_claim",
+      "weaken_claim",
+      "add_evidence",
+      "add_negative_test",
+      "add_proof_obligation",
+      "mark_non_goal",
+      "reject_idea",
+      "request_narrower_experiment"
+    ],
+    "rewardSignals": [
+      "verifiability_delta",
+      "traceability_delta",
+      "falsifiability_delta",
+      "contradiction_reduction",
+      "ambiguity_reduction",
+      "obligations_discharged",
+      "negative_tests_rejected",
+      "invalid_idea_rejected"
+    ],
+    "doneStates": [
+      "implementation_ready",
+      "rejected",
+      "unresolved_with_missing_evidence"
+    ],
+    "safetyInvariant": "A player must not improve score by deleting source evidence or weakening the stated problem without recording that tradeoff.",
+    "score": 0
+  },
+  "stats": {
+    "nodeCount": 18,
+    "edgeCount": 16,
+    "nodeTypes": {
+      "spec": 1,
+      "section": 3,
+      "requirement": 13,
+      "finding": 1
+    },
+    "findingCount": 1,
+    "findingClasses": {
+      "useless": 1
+    },
+    "hasProblem": false,
+    "hasGoals": false,
+    "hasValidation": false,
+    "hasProverTarget": true
+  },
+  "nodes": [
+    {
+      "id": "spec",
+      "type": "spec",
+      "title": "Code Source Pack",
+      "label": "Code Source Pack",
+      "source": "/Users/ericfode/Documents/New project 4/src",
+      "lineStart": 1,
+      "lineEnd": 261,
+      "excerpt": "# Code Source Pack"
+    },
+    {
+      "id": "section-001-code-source-pack",
+      "type": "section",
+      "title": "Code Source Pack",
+      "label": "Code Source Pack",
+      "level": 1,
+      "lineStart": 1,
+      "lineEnd": 7,
+      "excerpt": "# Code Source Pack\n\nSource: `/Users/ericfode/Documents/New project 4/src`\nFiles: 2\n\nThis generated source pack is input for LLM-only code-to-spec projection calls."
+    },
+    {
+      "id": "section-002-historical-spec-mjs",
+      "type": "section",
+      "title": "historical-spec.mjs",
+      "label": "historical-spec.mjs",
+      "level": 2,
+      "lineStart": 8,
+      "lineEnd": 134,
+      "excerpt": "## historical-spec.mjs\n\nLines: 1-120 of 901\n\n```js\nimport fs from \"node:fs\";\nimport path from \"node:path\";\nimport { execFileSync } from \"node:child_process\";"
+    },
+    {
+      "id": "section-003-specgym-mjs",
+      "type": "section",
+      "title": "specgym.mjs",
+      "label": "specgym.mjs",
+      "level": 2,
+      "lineStart": 135,
+      "lineEnd": 261,
+      "excerpt": "## specgym.mjs\n\nLines: 1-120 of 1912\n\n```js\n#!/usr/bin/env node\nimport fs from \"node:fs\";\nimport path from \"node:path\";\nimport crypto from \"node:crypto\";"
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-must-provide-a-long-running-network-server-that-accepts-client-comma",
+      "type": "requirement",
+      "title": "claim: \"Redis MUST provide a long-running network server that accepts client commands...",
+      "label": "claim: \"Redis MUST provide a long-running network server that accepts client commands...",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 24,
+      "lineEnd": 24,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "claim: \"Redis MUST provide a long-running network server that accepts client commands over the Redis protocol.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-must-keep-the-active-dataset-in-memory-while-serving-commands",
+      "type": "requirement",
+      "title": "claim: \"Redis MUST keep the active dataset in memory while serving commands.\",",
+      "label": "claim: \"Redis MUST keep the active dataset in memory while serving commands.\",",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 33,
+      "lineEnd": 33,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "claim: \"Redis MUST keep the active dataset in memory while serving commands.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associat",
+      "type": "requirement",
+      "title": "claim: \"Redis MUST expose a key-addressed namespace where string keys are associated...",
+      "label": "claim: \"Redis MUST expose a key-addressed namespace where string keys are associated...",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 42,
+      "lineEnd": 42,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "claim: \"Redis MUST expose a key-addressed namespace where string keys are associated with typed values.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings",
+      "type": "requirement",
+      "title": "claim: \"Redis MUST treat values as data structures rather than only opaque strings.\",",
+      "label": "claim: \"Redis MUST treat values as data structures rather than only opaque strings.\",",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 51,
+      "lineEnd": 51,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "claim: \"Redis MUST treat values as data structures rather than only opaque strings.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-should-provide-atomic-server-side-primitives-so-clients-can-coordina",
+      "type": "requirement",
+      "title": "claim: \"Redis SHOULD provide atomic server-side primitives so clients can coordinate...",
+      "label": "claim: \"Redis SHOULD provide atomic server-side primitives so clients can coordinate...",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 60,
+      "lineEnd": 60,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "claim: \"Redis SHOULD provide atomic server-side primitives so clients can coordinate without external locks for common operations.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-must-define-a-client-server-protocol-with-parseable-command-requests",
+      "type": "requirement",
+      "title": "claim: \"Redis MUST define a client/server protocol with parseable command requests an...",
+      "label": "claim: \"Redis MUST define a client/server protocol with parseable command requests an...",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 69,
+      "lineEnd": 69,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "claim: \"Redis MUST define a client/server protocol with parseable command requests and explicit replies.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-should-allow-server-behavior-to-be-selected-through-a-configuration-",
+      "type": "requirement",
+      "title": "claim: \"Redis SHOULD allow server behavior to be selected through a configuration fil...",
+      "label": "claim: \"Redis SHOULD allow server behavior to be selected through a configuration fil...",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 78,
+      "lineEnd": 78,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "claim: \"Redis SHOULD allow server behavior to be selected through a configuration file while retaining built-in defaults.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-",
+      "type": "requirement",
+      "title": "claim: \"Redis MUST support snapshot persistence that can reload the dataset after res...",
+      "label": "claim: \"Redis MUST support snapshot persistence that can reload the dataset after res...",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 87,
+      "lineEnd": 87,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "claim: \"Redis MUST support snapshot persistence that can reload the dataset after restart.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-should-support-master-replica-replication-for-availability-and-data-",
+      "type": "requirement",
+      "title": "claim: \"Redis SHOULD support master-replica replication for availability and data-cop...",
+      "label": "claim: \"Redis SHOULD support master-replica replication for availability and data-cop...",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 96,
+      "lineEnd": 96,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "claim: \"Redis SHOULD support master-replica replication for availability and data-copy propagation.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-may-provide-append-only-persistence-as-a-durability-mode-distinct-fr",
+      "type": "requirement",
+      "title": "claim: \"Redis MAY provide append-only persistence as a durability mode distinct from...",
+      "label": "claim: \"Redis MAY provide append-only persistence as a durability mode distinct from...",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 105,
+      "lineEnd": 105,
+      "normative": [
+        "MAY"
+      ],
+      "excerpt": "claim: \"Redis MAY provide append-only persistence as a durability mode distinct from snapshots.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-should-ship-client-tooling-for-interactive-or-scripted-command-execu",
+      "type": "requirement",
+      "title": "claim: \"Redis SHOULD ship client tooling for interactive or scripted command executio...",
+      "label": "claim: \"Redis SHOULD ship client tooling for interactive or scripted command executio...",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 114,
+      "lineEnd": 114,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "claim: \"Redis SHOULD ship client tooling for interactive or scripted command execution.\","
+    },
+    {
+      "id": "requirement-historical-spec-mjs-claim-redis-may-ship-benchmark-tooling-for-measuring-command-throughput",
+      "type": "requirement",
+      "title": "claim: \"Redis MAY ship benchmark tooling for measuring command throughput.\",",
+      "label": "claim: \"Redis MAY ship benchmark tooling for measuring command throughput.\",",
+      "sectionId": "section-002-historical-spec-mjs",
+      "lineStart": 123,
+      "lineEnd": 123,
+      "normative": [
+        "MAY"
+      ],
+      "excerpt": "claim: \"Redis MAY ship benchmark tooling for measuring command throughput.\","
+    },
+    {
+      "id": "requirement-specgym-mjs-const-normativere-b-must-s-not-required-should-s-not-recommended-may-op",
+      "type": "requirement",
+      "title": "const NORMATIVERE = /\\b(MUST(?:\\s+NOT)?|REQUIRED|SHOULD(?:\\s+NOT)?|RECOMMENDED|MAY|OP...",
+      "label": "const NORMATIVERE = /\\b(MUST(?:\\s+NOT)?|REQUIRED|SHOULD(?:\\s+NOT)?|RECOMMENDED|MAY|OP...",
+      "sectionId": "section-003-specgym-mjs",
+      "lineStart": 149,
+      "lineEnd": 149,
+      "normative": [
+        "MUST",
+        "REQUIRED",
+        "SHOULD",
+        "RECOMMENDED",
+        "MAY",
+        "OPTIONAL"
+      ],
+      "excerpt": "const NORMATIVE_RE = /\\b(MUST(?:\\s+NOT)?|REQUIRED|SHOULD(?:\\s+NOT)?|RECOMMENDED|MAY|OPTIONAL)\\b/g;"
+    },
+    {
+      "id": "finding-useless-missing-core-surface",
+      "type": "finding",
+      "title": "Spec lacks one of problem, goals, or validation",
+      "label": "Spec lacks one of problem, goals, or validation",
+      "class": "useless",
+      "severity": "high",
+      "excerpt": "Detected problem sections: 0; goals: 0; tests: 0. A spec can look complete while remaining useless without all three."
+    }
+  ],
+  "edges": [
+    {
+      "id": "spec->section-001-code-source-pack:contains",
+      "from": "spec",
+      "to": "section-001-code-source-pack",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-code-source-pack->section-002-historical-spec-mjs:contains",
+      "from": "section-001-code-source-pack",
+      "to": "section-002-historical-spec-mjs",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-code-source-pack->section-003-specgym-mjs:contains",
+      "from": "section-001-code-source-pack",
+      "to": "section-003-specgym-mjs",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-must-provide-a-long-running-network-server-that-accepts-client-comma:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-must-provide-a-long-running-network-server-that-accepts-client-comma",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-must-keep-the-active-dataset-in-memory-while-serving-commands:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-must-keep-the-active-dataset-in-memory-while-serving-commands",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associat:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associat",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-should-provide-atomic-server-side-primitives-so-clients-can-coordina:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-should-provide-atomic-server-side-primitives-so-clients-can-coordina",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-must-define-a-client-server-protocol-with-parseable-command-requests:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-must-define-a-client-server-protocol-with-parseable-command-requests",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-should-allow-server-behavior-to-be-selected-through-a-configuration-:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-should-allow-server-behavior-to-be-selected-through-a-configuration-",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-should-support-master-replica-replication-for-availability-and-data-:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-should-support-master-replica-replication-for-availability-and-data-",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-may-provide-append-only-persistence-as-a-durability-mode-distinct-fr:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-may-provide-append-only-persistence-as-a-durability-mode-distinct-fr",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-should-ship-client-tooling-for-interactive-or-scripted-command-execu:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-should-ship-client-tooling-for-interactive-or-scripted-command-execu",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-002-historical-spec-mjs->requirement-historical-spec-mjs-claim-redis-may-ship-benchmark-tooling-for-measuring-command-throughput:elaborates",
+      "from": "section-002-historical-spec-mjs",
+      "to": "requirement-historical-spec-mjs-claim-redis-may-ship-benchmark-tooling-for-measuring-command-throughput",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-003-specgym-mjs->requirement-specgym-mjs-const-normativere-b-must-s-not-required-should-s-not-recommended-may-op:elaborates",
+      "from": "section-003-specgym-mjs",
+      "to": "requirement-specgym-mjs-const-normativere-b-must-s-not-required-should-s-not-recommended-may-op",
+      "type": "elaborates",
+      "label": "elaborates"
+    }
+  ],
+  "findings": [
+    {
+      "id": "finding-useless-missing-core-surface",
+      "class": "useless",
+      "severity": "high",
+      "title": "Spec lacks one of problem, goals, or validation",
+      "detail": "Detected problem sections: 0; goals: 0; tests: 0. A spec can look complete while remaining useless without all three.",
+      "evidenceNodeIds": []
+    }
+  ],
+  "glossary": [
+    {
+      "term": "/Users/ericfode/Documents/New project 4/src",
+      "nodeIds": [
+        "section-001-code-source-pack"
+      ]
+    }
+  ],
+  "proverDraft": {
+    "language": "lean4",
+    "module": "ClaimLattice",
+    "obligations": [
+      "CoreSurfacePresent",
+      "NoHighSeverityImpossibleFinding",
+      "EveryGoalHasValidationLink",
+      "EveryImplementationDefinedChoiceHasDocumentedPolicy",
+      "ComponentPressureIsJustifiedByGoals"
+    ],
+    "generatedFacts": {
+      "nodeCount": 18,
+      "edgeCount": 16,
+      "findingCount": 1,
+      "highSeverityFindings": 1
+    }
+  }
+}

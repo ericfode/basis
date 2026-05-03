@@ -1,0 +1,36 @@
+{
+  "id": "implementation-questions-call-010",
+  "projectionId": "implementation-questions",
+  "sliceId": "implementation-questions-slice-010",
+  "runner": "codex_app_server",
+  "source": {
+    "path": "/Users/ericfode/Documents/New project 4/spec.md",
+    "title": "Spec Gym Specification",
+    "hash": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583"
+  },
+  "expectedOutput": {
+    "format": "markdown",
+    "finalPath": "projections/implementation-questions.md",
+    "types": [
+      "implementation-question"
+    ]
+  },
+  "sourceNodeIds": [
+    "requirement-11-projection-boundary-model-must-remain-tool-neutral",
+    "requirement-11-projection-boundary-each-projection-must-state",
+    "requirement-11-projection-boundary-a-projection-must-not-introduce-required-core-node-types-or-change",
+    "requirement-12-reference-inputs-the-toolkit-should-be-validated-against-specifications-that-are-already-useful",
+    "requirement-12-reference-inputs-their-local-tool-choices-must-not-become-toolkit",
+    "finding-underspecified-risk-surface"
+  ],
+  "blockIds": [
+    "block-0329-heading-11-projection-boundary",
+    "block-0331-paragraph-projections-may-target-specific-tools-files-protocols-or-apis-but-the-core-model",
+    "block-0336-blank-blank",
+    "block-0340-blank-blank",
+    "block-0343-heading-12-reference-inputs",
+    "block-0344-blank-blank",
+    "block-0350-blank-blank"
+  ],
+  "prompt": "You are executing Spec Gym projection `implementation-questions`: Implementation Questions.\n\nProjection instructions:\n# Implementation Questions\n\nExtract the questions that need answers before moving from spec to\nimplementation.\n\nThe projection should prefer questions grounded in findings, missing validation,\nambiguous requirements, and implementation-defined behavior.\n\nOutput contract:\n- Format: markdown\n- Final artifact path after merge: projections/implementation-questions.md\n- Type contracts: implementation-question\n\nRules:\n- Use only the source slice below.\n- Preserve source anchors for every emitted item.\n- Mark inferred items explicitly.\n- Do not fill missing facts with invented certainty.\n- Return only the partial projection payload for this slice.\n\nSource nodes:\n```json\n[\n  {\n    \"id\": \"requirement-11-projection-boundary-model-must-remain-tool-neutral\",\n    \"type\": \"requirement\",\n    \"title\": \"model MUST remain tool-neutral.\",\n    \"text\": \"model MUST remain tool-neutral.\",\n    \"normative\": [\n      \"MUST\"\n    ],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 722,\n      \"lineEnd\": 722\n    }\n  },\n  {\n    \"id\": \"requirement-11-projection-boundary-each-projection-must-state\",\n    \"type\": \"requirement\",\n    \"title\": \"Each projection MUST state:\",\n    \"text\": \"Each projection MUST state:\",\n    \"normative\": [\n      \"MUST\"\n    ],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 736,\n      \"lineEnd\": 736\n    }\n  },\n  {\n    \"id\": \"requirement-11-projection-boundary-a-projection-must-not-introduce-required-core-node-types-or-change\",\n    \"type\": \"requirement\",\n    \"title\": \"A projection MUST NOT introduce required core node types or change\",\n    \"text\": \"A projection MUST NOT introduce required core node types or change\",\n    \"normative\": [\n      \"MUST NOT\"\n    ],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 745,\n      \"lineEnd\": 745\n    }\n  },\n  {\n    \"id\": \"requirement-12-reference-inputs-the-toolkit-should-be-validated-against-specifications-that-are-already-useful\",\n    \"type\": \"requirement\",\n    \"title\": \"The toolkit SHOULD be validated against specifications that are already useful\",\n    \"text\": \"The toolkit SHOULD be validated against specifications that are already useful\",\n    \"normative\": [\n      \"SHOULD\"\n    ],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 750,\n      \"lineEnd\": 750\n    }\n  },\n  {\n    \"id\": \"requirement-12-reference-inputs-their-local-tool-choices-must-not-become-toolkit\",\n    \"type\": \"requirement\",\n    \"title\": \"Their local tool choices MUST NOT become toolkit\",\n    \"text\": \"Their local tool choices MUST NOT become toolkit\",\n    \"normative\": [\n      \"MUST NOT\"\n    ],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 758,\n      \"lineEnd\": 758\n    }\n  },\n  {\n    \"id\": \"finding-underspecified-risk-surface\",\n    \"type\": \"finding\",\n    \"title\": \"Risk vocabulary appears without extracted risk nodes\",\n    \"text\": \"The parser saw risk vocabulary, but the graph did not classify any risk claims. The source likely needs explicit risk sections or sharper bullets.\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\"\n    }\n  }\n]\n```\n\nSource Markdown blocks:\n```json\n[\n  {\n    \"id\": \"block-0329-heading-11-projection-boundary\",\n    \"type\": \"heading\",\n    \"lineStart\": 720,\n    \"lineEnd\": 720,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"## 11. Projection Boundary\"\n  },\n  {\n    \"id\": \"block-0331-paragraph-projections-may-target-specific-tools-files-protocols-or-apis-but-the-core-model\",\n    \"type\": \"paragraph\",\n    \"lineStart\": 722,\n    \"lineEnd\": 723,\n    \"generatedClaimIds\": [\n      \"requirement-11-projection-boundary-model-must-remain-tool-neutral\"\n    ],\n    \"rawMarkdown\": \"Projections MAY target specific tools, files, protocols, or APIs, but the core\\nmodel MUST remain tool-neutral.\"\n  },\n  {\n    \"id\": \"block-0336-blank-blank\",\n    \"type\": \"blank\",\n    \"lineStart\": 736,\n    \"lineEnd\": 736,\n    \"generatedClaimIds\": [\n      \"requirement-11-projection-boundary-each-projection-must-state\"\n    ],\n    \"rawMarkdown\": \"\"\n  },\n  {\n    \"id\": \"block-0340-blank-blank\",\n    \"type\": \"blank\",\n    \"lineStart\": 745,\n    \"lineEnd\": 745,\n    \"generatedClaimIds\": [\n      \"requirement-11-projection-boundary-a-projection-must-not-introduce-required-core-node-types-or-change\"\n    ],\n    \"rawMarkdown\": \"\"\n  },\n  {\n    \"id\": \"block-0343-heading-12-reference-inputs\",\n    \"type\": \"heading\",\n    \"lineStart\": 749,\n    \"lineEnd\": 749,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"## 12. Reference Inputs\"\n  },\n  {\n    \"id\": \"block-0344-blank-blank\",\n    \"type\": \"blank\",\n    \"lineStart\": 750,\n    \"lineEnd\": 750,\n    \"generatedClaimIds\": [\n      \"requirement-12-reference-inputs-the-toolkit-should-be-validated-against-specifications-that-are-already-useful\"\n    ],\n    \"rawMarkdown\": \"\"\n  },\n  {\n    \"id\": \"block-0350-blank-blank\",\n    \"type\": \"blank\",\n    \"lineStart\": 758,\n    \"lineEnd\": 758,\n    \"generatedClaimIds\": [\n      \"requirement-12-reference-inputs-their-local-tool-choices-must-not-become-toolkit\"\n    ],\n    \"rawMarkdown\": \"\"\n  }\n]\n```"
+}

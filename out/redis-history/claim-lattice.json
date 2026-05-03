@@ -1,0 +1,1330 @@
+{
+  "schemaVersion": "specgym.claim-lattice.v0",
+  "generatedAt": "2026-05-03T02:23:48.314Z",
+  "source": {
+    "path": "/Users/ericfode/Documents/New project 4/out/redis-history/mined-spec.md",
+    "title": "Redis Historical Mined Spec",
+    "lineCount": 81
+  },
+  "environment": {
+    "kind": "collaborative-spec-verifiability-environment",
+    "model": "claim-lattice",
+    "actors": [
+      "human",
+      "agent",
+      "prover",
+      "test_runner",
+      "adapter",
+      "policy"
+    ],
+    "observation": [
+      "source_spec",
+      "source_anchors",
+      "claim_lattice",
+      "obligation_graph",
+      "viability_critique",
+      "verification_surfaces",
+      "adapter_outputs"
+    ],
+    "actions": [
+      "split_claim",
+      "merge_claims",
+      "strengthen_claim",
+      "weaken_claim",
+      "add_evidence",
+      "add_negative_test",
+      "add_proof_obligation",
+      "mark_non_goal",
+      "reject_idea",
+      "request_narrower_experiment"
+    ],
+    "rewardSignals": [
+      "verifiability_delta",
+      "traceability_delta",
+      "falsifiability_delta",
+      "contradiction_reduction",
+      "ambiguity_reduction",
+      "obligations_discharged",
+      "negative_tests_rejected",
+      "invalid_idea_rejected"
+    ],
+    "doneStates": [
+      "implementation_ready",
+      "rejected",
+      "unresolved_with_missing_evidence"
+    ],
+    "safetyInvariant": "A player must not improve score by deleting source evidence or weakening the stated problem without recording that tradeoff.",
+    "score": 1
+  },
+  "stats": {
+    "nodeCount": 44,
+    "edgeCount": 43,
+    "nodeTypes": {
+      "spec": 1,
+      "section": 9,
+      "goal": 3,
+      "non_goal": 3,
+      "requirement": 10,
+      "test": 3,
+      "risk": 3,
+      "claim": 12
+    },
+    "findingCount": 0,
+    "findingClasses": {},
+    "hasProblem": true,
+    "hasGoals": true,
+    "hasValidation": true,
+    "hasProverTarget": true
+  },
+  "nodes": [
+    {
+      "id": "spec",
+      "type": "spec",
+      "title": "Redis Historical Mined Spec",
+      "label": "Redis Historical Mined Spec",
+      "source": "/Users/ericfode/Documents/New project 4/out/redis-history/mined-spec.md",
+      "lineStart": 1,
+      "lineEnd": 81,
+      "excerpt": "# Redis Historical Mined Spec"
+    },
+    {
+      "id": "section-001-redis-historical-mined-spec",
+      "type": "section",
+      "title": "Redis Historical Mined Spec",
+      "label": "Redis Historical Mined Spec",
+      "level": 1,
+      "lineStart": 1,
+      "lineEnd": 11,
+      "excerpt": "# Redis Historical Mined Spec\n\nStatus: Generated as-built genesis-stable draft\n\nSource repo: `/private/tmp/testing-rl-external/redis`\nBranch/ref judged: `unstable`\nRoot commit: `ed9b544e10b84cd43348ddfab7068b610a5df1f7` (2009-03-22 10:30:00 +0100, first commit)\nLatest judged commit: `2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8` (2026-04-30 21:38:25 +0800, Fix CI Codecov v6 coverage upload configuration (#15147))\nPrompt policy: `genesis-stable-essence-stricter-1:e2`"
+    },
+    {
+      "id": "section-002-problem",
+      "type": "section",
+      "title": "Problem",
+      "label": "Problem",
+      "level": 2,
+      "lineStart": 12,
+      "lineEnd": 15,
+      "excerpt": "## Problem\n\nRedis needs a networked in-memory data-structure server whose command protocol, dataset, persistence, replication, configuration, and tests stay legible across project history."
+    },
+    {
+      "id": "section-003-goals",
+      "type": "section",
+      "title": "Goals",
+      "label": "Goals",
+      "level": 2,
+      "lineStart": 16,
+      "lineEnd": 21,
+      "excerpt": "## Goals\n\n- Redis MUST preserve the role of a networked in-memory data-structure server across the judged history.\n- Redis MUST keep command behavior addressable through client-visible protocol, configuration, persistence, and validation surfaces.\n- Redis SHOULD prefer stable server semantics over implementation details that churn across files or releases."
+    },
+    {
+      "id": "section-004-non-goals",
+      "type": "section",
+      "title": "Non-Goals",
+      "label": "Non-Goals",
+      "level": 2,
+      "lineStart": 22,
+      "lineEnd": 27,
+      "excerpt": "## Non-Goals\n\n- This mined spec does not claim that features introduced after the root commit existed at the root commit.\n- This mined spec does not describe every implementation file or every later extension.\n- This mined spec is not a release note, API reference, or proof that Redis has no undocumented behavior."
+    },
+    {
+      "id": "section-005-stable-essence-requirements",
+      "type": "section",
+      "title": "Stable Essence Requirements",
+      "label": "Stable Essence Requirements",
+      "level": 2,
+      "lineStart": 28,
+      "lineEnd": 50,
+      "excerpt": "## Stable Essence Requirements\n\n- Redis MUST provide a long-running network server that accepts client commands over the Redis protocol.\n  Evidence: `ae.c`, `anet.c`, `doc/ProtocolSpecification.html`, `redis.c`, `src/ae.c`, `src/anet.c`, `src/networking.c`, `src/server.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis MUST keep the active dataset in memory while serving commands.\n  Evidence: `dict.c`, `redis.c`, `src/dict.c`, `src/server.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis MUST treat values as data structures rather than only opaque strings.\n  Evidence: `doc/SaddCommand.html`, `doc/RpoplpushCommand.html`, `src/t_hash.c`, `src/t_list.c`, `src/t_set.c`, `src/t_string.c`, `src/t_zset.c`, `src/t_stream.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis MUST expose a key-addressed namespace where string keys are associated with typed values."
+    },
+    {
+      "id": "section-006-validation-surfaces",
+      "type": "section",
+      "title": "Validation Surfaces",
+      "label": "Validation Surfaces",
+      "level": 2,
+      "lineStart": 51,
+      "lineEnd": 56,
+      "excerpt": "## Validation Surfaces\n\n- The Redis spec MUST be judged against sampled Git snapshots without checking out or modifying the Redis repository.\n- A Redis command, protocol, dataset, persistence, replication, configuration, or test claim is valid for a snapshot only when its mined feature evidence is present in that snapshot.\n- The reward MUST prefer long temporal validity, then coverage of high-weight Redis essence features, then compactness."
+    },
+    {
+      "id": "section-007-risks",
+      "type": "section",
+      "title": "Risks",
+      "label": "Risks",
+      "level": 2,
+      "lineStart": 57,
+      "lineEnd": 62,
+      "excerpt": "## Risks\n\n- A mined Redis spec risks overfitting file names, so stable claims SHOULD keep source-path or source-text evidence.\n- A root-stable Redis spec risks under-covering later features, so later-only features MUST be reported as drift instead of silently backdated.\n- A valid sampled history is not a proof of maintainer intent; human review remains REQUIRED before accepting the mined draft as a project spec."
+    },
+    {
+      "id": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "type": "section",
+      "title": "Later Feature Drift Not Folded Into The Genesis Spec",
+      "label": "Later Feature Drift Not Folded Into The Genesis Spec",
+      "level": 2,
+      "lineStart": 63,
+      "lineEnd": 74,
+      "excerpt": "## Later Feature Drift Not Folded Into The Genesis Spec\n\n- `append_only_file`: Append-only persistence; first seen 2010-05-26 17:55:28 +0200; presence 92.9%.\n- `transactions`: Transactions; first seen 2010-05-26 17:55:28 +0200; presence 92.9%.\n- `pubsub`: Pub/sub; first seen 2010-05-26 17:55:28 +0200; presence 92.9%.\n- `cluster_mode`: Cluster mode; first seen 2011-11-09 21:59:27 +0100; presence 85.7%.\n- `sentinel`: Sentinel; first seen 2013-03-14 21:27:12 +0100; presence 78.6%.\n- `modules`: Modules; first seen 2017-01-10 11:33:50 +0100; presence 57.1%.\n- `streams`: Streams; first seen 2018-09-25 12:31:46 +0200; presence 50.0%."
+    },
+    {
+      "id": "section-009-judge-result",
+      "type": "section",
+      "title": "Judge Result",
+      "label": "Judge Result",
+      "level": 2,
+      "lineStart": 75,
+      "lineEnd": 81,
+      "excerpt": "## Judge Result\n\n- Valid sampled snapshots: 14/14.\n- Valid through: 2026-04-30 21:38:25 +0800 at `2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8`.\n- First invalid sample: none in the judged sample set."
+    },
+    {
+      "id": "goal-goals-redis-must-preserve-the-role-of-a-networked-in-memory-data-structure-server-acro",
+      "type": "goal",
+      "title": "Redis MUST preserve the role of a networked in-memory data-structure server across th...",
+      "label": "Redis MUST preserve the role of a networked in-memory data-structure server across th...",
+      "sectionId": "section-003-goals",
+      "lineStart": 17,
+      "lineEnd": 17,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Redis MUST preserve the role of a networked in-memory data-structure server across the judged history."
+    },
+    {
+      "id": "goal-goals-redis-must-keep-command-behavior-addressable-through-client-visible-protocol-con",
+      "type": "goal",
+      "title": "Redis MUST keep command behavior addressable through client-visible protocol, configu...",
+      "label": "Redis MUST keep command behavior addressable through client-visible protocol, configu...",
+      "sectionId": "section-003-goals",
+      "lineStart": 18,
+      "lineEnd": 18,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Redis MUST keep command behavior addressable through client-visible protocol, configuration, persistence, and validation surfaces."
+    },
+    {
+      "id": "goal-goals-redis-should-prefer-stable-server-semantics-over-implementation-details-that-chu",
+      "type": "goal",
+      "title": "Redis SHOULD prefer stable server semantics over implementation details that churn ac...",
+      "label": "Redis SHOULD prefer stable server semantics over implementation details that churn ac...",
+      "sectionId": "section-003-goals",
+      "lineStart": 19,
+      "lineEnd": 19,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "Redis SHOULD prefer stable server semantics over implementation details that churn across files or releases."
+    },
+    {
+      "id": "non_goal-non-goals-this-mined-spec-does-not-claim-that-features-introduced-after-the-root-commit-ex",
+      "type": "non_goal",
+      "title": "This mined spec does not claim that features introduced after the root commit existed...",
+      "label": "This mined spec does not claim that features introduced after the root commit existed...",
+      "sectionId": "section-004-non-goals",
+      "lineStart": 23,
+      "lineEnd": 23,
+      "normative": [],
+      "excerpt": "This mined spec does not claim that features introduced after the root commit existed at the root commit."
+    },
+    {
+      "id": "non_goal-non-goals-this-mined-spec-does-not-describe-every-implementation-file-or-every-later-exten",
+      "type": "non_goal",
+      "title": "This mined spec does not describe every implementation file or every later extension.",
+      "label": "This mined spec does not describe every implementation file or every later extension.",
+      "sectionId": "section-004-non-goals",
+      "lineStart": 24,
+      "lineEnd": 24,
+      "normative": [],
+      "excerpt": "This mined spec does not describe every implementation file or every later extension."
+    },
+    {
+      "id": "non_goal-non-goals-this-mined-spec-is-not-a-release-note-api-reference-or-proof-that-redis-has-no-u",
+      "type": "non_goal",
+      "title": "This mined spec is not a release note, API reference, or proof that Redis has no undo...",
+      "label": "This mined spec is not a release note, API reference, or proof that Redis has no undo...",
+      "sectionId": "section-004-non-goals",
+      "lineStart": 25,
+      "lineEnd": 25,
+      "normative": [],
+      "excerpt": "This mined spec is not a release note, API reference, or proof that Redis has no undocumented behavior."
+    },
+    {
+      "id": "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov",
+      "type": "requirement",
+      "title": "Redis MUST provide a long-running network server that accepts client commands over th...",
+      "label": "Redis MUST provide a long-running network server that accepts client commands over th...",
+      "sectionId": "section-005-stable-essence-requirements",
+      "lineStart": 29,
+      "lineEnd": 29,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Redis MUST provide a long-running network server that accepts client commands over the Redis protocol. Evidence: `ae.c`, `anet.c`, `doc/ProtocolSpecification.html`, `redis.c`, `src/ae.c`, `src/anet.c`, `src/networking.c`, `src/server.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100."
+    },
+    {
+      "id": "requirement-stable-essence-requirements-redis-must-keep-the-active-dataset-in-memory-while-serving-commands-evidence-dic",
+      "type": "requirement",
+      "title": "Redis MUST keep the active dataset in memory while serving commands. Evidence: dict.c...",
+      "label": "Redis MUST keep the active dataset in memory while serving commands. Evidence: dict.c...",
+      "sectionId": "section-005-stable-essence-requirements",
+      "lineStart": 31,
+      "lineEnd": 31,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Redis MUST keep the active dataset in memory while serving commands. Evidence: `dict.c`, `redis.c`, `src/dict.c`, `src/server.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100."
+    },
+    {
+      "id": "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide",
+      "type": "requirement",
+      "title": "Redis MUST treat values as data structures rather than only opaque strings. Evidence:...",
+      "label": "Redis MUST treat values as data structures rather than only opaque strings. Evidence:...",
+      "sectionId": "section-005-stable-essence-requirements",
+      "lineStart": 33,
+      "lineEnd": 33,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Redis MUST treat values as data structures rather than only opaque strings. Evidence: `doc/SaddCommand.html`, `doc/RpoplpushCommand.html`, `src/t_hash.c`, `src/t_list.c`, `src/t_set.c`, `src/t_string.c`, `src/t_zset.c`, `src/t_stream.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100."
+    },
+    {
+      "id": "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit",
+      "type": "requirement",
+      "title": "Redis MUST expose a key-addressed namespace where string keys are associated with typ...",
+      "label": "Redis MUST expose a key-addressed namespace where string keys are associated with typ...",
+      "sectionId": "section-005-stable-essence-requirements",
+      "lineStart": 35,
+      "lineEnd": 35,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Redis MUST expose a key-addressed namespace where string keys are associated with typed values. Evidence: `doc/DbsizeCommand.html`, `doc/DelCommand.html`, `doc/ExistsCommand.html`, `doc/KeysCommand.html`, `doc/HdelCommand.html`, `doc/HexistsCommand.html`, `src/commands/dbsize.json`, `src/commands/del.json`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100."
+    },
+    {
+      "id": "requirement-stable-essence-requirements-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-restar",
+      "type": "requirement",
+      "title": "Redis MUST support snapshot persistence that can reload the dataset after restart. Ev...",
+      "label": "Redis MUST support snapshot persistence that can reload the dataset after restart. Ev...",
+      "sectionId": "section-005-stable-essence-requirements",
+      "lineStart": 37,
+      "lineEnd": 37,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Redis MUST support snapshot persistence that can reload the dataset after restart. Evidence: `doc/BgsaveCommand.html`, `src/rdb.c`, `src/commands/bgsave.json`, `src/commands/lastsave.json`, `src/commands/save.json`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100."
+    },
+    {
+      "id": "requirement-stable-essence-requirements-redis-must-define-a-client-server-protocol-with-parseable-command-requests-and-e",
+      "type": "requirement",
+      "title": "Redis MUST define a client/server protocol with parseable command requests and explic...",
+      "label": "Redis MUST define a client/server protocol with parseable command requests and explic...",
+      "sectionId": "section-005-stable-essence-requirements",
+      "lineStart": 39,
+      "lineEnd": 39,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "Redis MUST define a client/server protocol with parseable command requests and explicit replies. Evidence: `doc/ProtocolSpecification.html`, `redis.c`, `src/networking.c`, `src/resp_parser.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100."
+    },
+    {
+      "id": "requirement-stable-essence-requirements-redis-should-support-master-replica-replication-for-availability-and-data-copy-p",
+      "type": "requirement",
+      "title": "Redis SHOULD support master-replica replication for availability and data-copy propag...",
+      "label": "Redis SHOULD support master-replica replication for availability and data-copy propag...",
+      "sectionId": "section-005-stable-essence-requirements",
+      "lineStart": 41,
+      "lineEnd": 41,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "Redis SHOULD support master-replica replication for availability and data-copy propagation. Evidence: `doc/SlaveofCommand.html`, `src/replication.c`, `src/commands/psync.json`, `src/commands/replicaof.json`, `src/commands/slaveof.json`, `src/commands/sync.json`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100."
+    },
+    {
+      "id": "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi",
+      "type": "requirement",
+      "title": "Redis SHOULD preserve executable tests or scripted validation for command behavior. E...",
+      "label": "Redis SHOULD preserve executable tests or scripted validation for command behavior. E...",
+      "sectionId": "section-005-stable-essence-requirements",
+      "lineStart": 43,
+      "lineEnd": 43,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "Redis SHOULD preserve executable tests or scripted validation for command behavior. Evidence: `client-libraries/erlang/test/Makefile`, `client-libraries/erlang/test/erldis_tests.erl`, `client-libraries/erlang/test/proto_tests.erl`, `test-redis.tcl`, `tests/assets/default.conf`, `tests/integration/aof.tcl`, `tests/integration/replication.tcl`, `tests/support/redis.tcl`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100."
+    },
+    {
+      "id": "requirement-stable-essence-requirements-redis-should-allow-server-behavior-to-be-selected-through-a-configuration-file-w",
+      "type": "requirement",
+      "title": "Redis SHOULD allow server behavior to be selected through a configuration file while...",
+      "label": "Redis SHOULD allow server behavior to be selected through a configuration file while...",
+      "sectionId": "section-005-stable-essence-requirements",
+      "lineStart": 45,
+      "lineEnd": 45,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "Redis SHOULD allow server behavior to be selected through a configuration file while retaining built-in defaults. Evidence: `redis.conf`, `src/config.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100."
+    },
+    {
+      "id": "requirement-stable-essence-requirements-redis-should-ship-client-tooling-for-interactive-or-scripted-command-execution-e",
+      "type": "requirement",
+      "title": "Redis SHOULD ship client tooling for interactive or scripted command execution. Evide...",
+      "label": "Redis SHOULD ship client tooling for interactive or scripted command execution. Evide...",
+      "sectionId": "section-005-stable-essence-requirements",
+      "lineStart": 47,
+      "lineEnd": 47,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "Redis SHOULD ship client tooling for interactive or scripted command execution. Evidence: `redis-cli.c`, `src/redis-cli.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100."
+    },
+    {
+      "id": "test-validation-surfaces-the-redis-spec-must-be-judged-against-sampled-git-snapshots-without-checking-out",
+      "type": "test",
+      "title": "The Redis spec MUST be judged against sampled Git snapshots without checking out or m...",
+      "label": "The Redis spec MUST be judged against sampled Git snapshots without checking out or m...",
+      "sectionId": "section-006-validation-surfaces",
+      "lineStart": 52,
+      "lineEnd": 52,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "The Redis spec MUST be judged against sampled Git snapshots without checking out or modifying the Redis repository."
+    },
+    {
+      "id": "test-validation-surfaces-a-redis-command-protocol-dataset-persistence-replication-configuration-or-test",
+      "type": "test",
+      "title": "A Redis command, protocol, dataset, persistence, replication, configuration, or test...",
+      "label": "A Redis command, protocol, dataset, persistence, replication, configuration, or test...",
+      "sectionId": "section-006-validation-surfaces",
+      "lineStart": 53,
+      "lineEnd": 53,
+      "normative": [],
+      "excerpt": "A Redis command, protocol, dataset, persistence, replication, configuration, or test claim is valid for a snapshot only when its mined feature evidence is present in that snapshot."
+    },
+    {
+      "id": "test-validation-surfaces-the-reward-must-prefer-long-temporal-validity-then-coverage-of-high-weight-redis",
+      "type": "test",
+      "title": "The reward MUST prefer long temporal validity, then coverage of high-weight Redis ess...",
+      "label": "The reward MUST prefer long temporal validity, then coverage of high-weight Redis ess...",
+      "sectionId": "section-006-validation-surfaces",
+      "lineStart": 54,
+      "lineEnd": 54,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "The reward MUST prefer long temporal validity, then coverage of high-weight Redis essence features, then compactness."
+    },
+    {
+      "id": "risk-risks-a-mined-redis-spec-risks-overfitting-file-names-so-stable-claims-should-keep-sou",
+      "type": "risk",
+      "title": "A mined Redis spec risks overfitting file names, so stable claims SHOULD keep source-...",
+      "label": "A mined Redis spec risks overfitting file names, so stable claims SHOULD keep source-...",
+      "sectionId": "section-007-risks",
+      "lineStart": 58,
+      "lineEnd": 58,
+      "normative": [
+        "SHOULD"
+      ],
+      "excerpt": "A mined Redis spec risks overfitting file names, so stable claims SHOULD keep source-path or source-text evidence."
+    },
+    {
+      "id": "risk-risks-a-root-stable-redis-spec-risks-under-covering-later-features-so-later-only-featu",
+      "type": "risk",
+      "title": "A root-stable Redis spec risks under-covering later features, so later-only features...",
+      "label": "A root-stable Redis spec risks under-covering later features, so later-only features...",
+      "sectionId": "section-007-risks",
+      "lineStart": 59,
+      "lineEnd": 59,
+      "normative": [
+        "MUST"
+      ],
+      "excerpt": "A root-stable Redis spec risks under-covering later features, so later-only features MUST be reported as drift instead of silently backdated."
+    },
+    {
+      "id": "risk-risks-a-valid-sampled-history-is-not-a-proof-of-maintainer-intent-human-review-remains",
+      "type": "risk",
+      "title": "A valid sampled history is not a proof of maintainer intent; human review remains REQ...",
+      "label": "A valid sampled history is not a proof of maintainer intent; human review remains REQ...",
+      "sectionId": "section-007-risks",
+      "lineStart": 60,
+      "lineEnd": 60,
+      "normative": [
+        "REQUIRED"
+      ],
+      "excerpt": "A valid sampled history is not a proof of maintainer intent; human review remains REQUIRED before accepting the mined draft as a project spec."
+    },
+    {
+      "id": "claim-later-feature-drift-not-folded-into-the-genesis-spec-appendonlyfile-append-only-persistence-first-seen-2010-05-26-17-55-28-0200-prese",
+      "type": "claim",
+      "title": "appendonlyfile: Append-only persistence; first seen 2010-05-26 17:55:28 +0200; presen...",
+      "label": "appendonlyfile: Append-only persistence; first seen 2010-05-26 17:55:28 +0200; presen...",
+      "sectionId": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "lineStart": 64,
+      "lineEnd": 64,
+      "normative": [],
+      "excerpt": "`append_only_file`: Append-only persistence; first seen 2010-05-26 17:55:28 +0200; presence 92.9%."
+    },
+    {
+      "id": "claim-later-feature-drift-not-folded-into-the-genesis-spec-transactions-transactions-first-seen-2010-05-26-17-55-28-0200-presence-92-9",
+      "type": "claim",
+      "title": "transactions: Transactions; first seen 2010-05-26 17:55:28 +0200; presence 92.9%.",
+      "label": "transactions: Transactions; first seen 2010-05-26 17:55:28 +0200; presence 92.9%.",
+      "sectionId": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "lineStart": 65,
+      "lineEnd": 65,
+      "normative": [],
+      "excerpt": "`transactions`: Transactions; first seen 2010-05-26 17:55:28 +0200; presence 92.9%."
+    },
+    {
+      "id": "claim-later-feature-drift-not-folded-into-the-genesis-spec-pubsub-pub-sub-first-seen-2010-05-26-17-55-28-0200-presence-92-9",
+      "type": "claim",
+      "title": "pubsub: Pub/sub; first seen 2010-05-26 17:55:28 +0200; presence 92.9%.",
+      "label": "pubsub: Pub/sub; first seen 2010-05-26 17:55:28 +0200; presence 92.9%.",
+      "sectionId": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "lineStart": 66,
+      "lineEnd": 66,
+      "normative": [],
+      "excerpt": "`pubsub`: Pub/sub; first seen 2010-05-26 17:55:28 +0200; presence 92.9%."
+    },
+    {
+      "id": "claim-later-feature-drift-not-folded-into-the-genesis-spec-clustermode-cluster-mode-first-seen-2011-11-09-21-59-27-0100-presence-85-7",
+      "type": "claim",
+      "title": "clustermode: Cluster mode; first seen 2011-11-09 21:59:27 +0100; presence 85.7%.",
+      "label": "clustermode: Cluster mode; first seen 2011-11-09 21:59:27 +0100; presence 85.7%.",
+      "sectionId": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "lineStart": 67,
+      "lineEnd": 67,
+      "normative": [],
+      "excerpt": "`cluster_mode`: Cluster mode; first seen 2011-11-09 21:59:27 +0100; presence 85.7%."
+    },
+    {
+      "id": "claim-later-feature-drift-not-folded-into-the-genesis-spec-sentinel-sentinel-first-seen-2013-03-14-21-27-12-0100-presence-78-6",
+      "type": "claim",
+      "title": "sentinel: Sentinel; first seen 2013-03-14 21:27:12 +0100; presence 78.6%.",
+      "label": "sentinel: Sentinel; first seen 2013-03-14 21:27:12 +0100; presence 78.6%.",
+      "sectionId": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "lineStart": 68,
+      "lineEnd": 68,
+      "normative": [],
+      "excerpt": "`sentinel`: Sentinel; first seen 2013-03-14 21:27:12 +0100; presence 78.6%."
+    },
+    {
+      "id": "claim-later-feature-drift-not-folded-into-the-genesis-spec-modules-modules-first-seen-2017-01-10-11-33-50-0100-presence-57-1",
+      "type": "claim",
+      "title": "modules: Modules; first seen 2017-01-10 11:33:50 +0100; presence 57.1%.",
+      "label": "modules: Modules; first seen 2017-01-10 11:33:50 +0100; presence 57.1%.",
+      "sectionId": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "lineStart": 69,
+      "lineEnd": 69,
+      "normative": [],
+      "excerpt": "`modules`: Modules; first seen 2017-01-10 11:33:50 +0100; presence 57.1%."
+    },
+    {
+      "id": "claim-later-feature-drift-not-folded-into-the-genesis-spec-streams-streams-first-seen-2018-09-25-12-31-46-0200-presence-50-0",
+      "type": "claim",
+      "title": "streams: Streams; first seen 2018-09-25 12:31:46 +0200; presence 50.0%.",
+      "label": "streams: Streams; first seen 2018-09-25 12:31:46 +0200; presence 50.0%.",
+      "sectionId": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "lineStart": 70,
+      "lineEnd": 70,
+      "normative": [],
+      "excerpt": "`streams`: Streams; first seen 2018-09-25 12:31:46 +0200; presence 50.0%."
+    },
+    {
+      "id": "claim-later-feature-drift-not-folded-into-the-genesis-spec-aclsecurity-acl-security-first-seen-2019-11-19-11-23-43-0100-presence-42-9",
+      "type": "claim",
+      "title": "aclsecurity: ACL security; first seen 2019-11-19 11:23:43 +0100; presence 42.9%.",
+      "label": "aclsecurity: ACL security; first seen 2019-11-19 11:23:43 +0100; presence 42.9%.",
+      "sectionId": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "lineStart": 71,
+      "lineEnd": 71,
+      "normative": [],
+      "excerpt": "`acl_security`: ACL security; first seen 2019-11-19 11:23:43 +0100; presence 42.9%."
+    },
+    {
+      "id": "claim-later-feature-drift-not-folded-into-the-genesis-spec-tlstransport-tls-transport-first-seen-2019-11-19-11-23-43-0100-presence-42-9",
+      "type": "claim",
+      "title": "tlstransport: TLS transport; first seen 2019-11-19 11:23:43 +0100; presence 42.9%.",
+      "label": "tlstransport: TLS transport; first seen 2019-11-19 11:23:43 +0100; presence 42.9%.",
+      "sectionId": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "lineStart": 72,
+      "lineEnd": 72,
+      "normative": [],
+      "excerpt": "`tls_transport`: TLS transport; first seen 2019-11-19 11:23:43 +0100; presence 42.9%."
+    },
+    {
+      "id": "claim-judge-result-valid-sampled-snapshots-14-14",
+      "type": "claim",
+      "title": "Valid sampled snapshots: 14/14.",
+      "label": "Valid sampled snapshots: 14/14.",
+      "sectionId": "section-009-judge-result",
+      "lineStart": 76,
+      "lineEnd": 76,
+      "normative": [],
+      "excerpt": "Valid sampled snapshots: 14/14."
+    },
+    {
+      "id": "claim-judge-result-valid-through-2026-04-30-21-38-25-0800-at-2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4",
+      "type": "claim",
+      "title": "Valid through: 2026-04-30 21:38:25 +0800 at 2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8.",
+      "label": "Valid through: 2026-04-30 21:38:25 +0800 at 2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8.",
+      "sectionId": "section-009-judge-result",
+      "lineStart": 77,
+      "lineEnd": 77,
+      "normative": [],
+      "excerpt": "Valid through: 2026-04-30 21:38:25 +0800 at `2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8`."
+    },
+    {
+      "id": "claim-judge-result-first-invalid-sample-none-in-the-judged-sample-set",
+      "type": "claim",
+      "title": "First invalid sample: none in the judged sample set.",
+      "label": "First invalid sample: none in the judged sample set.",
+      "sectionId": "section-009-judge-result",
+      "lineStart": 78,
+      "lineEnd": 78,
+      "normative": [],
+      "excerpt": "First invalid sample: none in the judged sample set."
+    }
+  ],
+  "edges": [
+    {
+      "id": "spec->section-001-redis-historical-mined-spec:contains",
+      "from": "spec",
+      "to": "section-001-redis-historical-mined-spec",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-redis-historical-mined-spec->section-002-problem:contains",
+      "from": "section-001-redis-historical-mined-spec",
+      "to": "section-002-problem",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-redis-historical-mined-spec->section-003-goals:contains",
+      "from": "section-001-redis-historical-mined-spec",
+      "to": "section-003-goals",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-redis-historical-mined-spec->section-004-non-goals:contains",
+      "from": "section-001-redis-historical-mined-spec",
+      "to": "section-004-non-goals",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-redis-historical-mined-spec->section-005-stable-essence-requirements:contains",
+      "from": "section-001-redis-historical-mined-spec",
+      "to": "section-005-stable-essence-requirements",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-redis-historical-mined-spec->section-006-validation-surfaces:contains",
+      "from": "section-001-redis-historical-mined-spec",
+      "to": "section-006-validation-surfaces",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-redis-historical-mined-spec->section-007-risks:contains",
+      "from": "section-001-redis-historical-mined-spec",
+      "to": "section-007-risks",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-redis-historical-mined-spec->section-008-later-feature-drift-not-folded-into-the-genesis-spec:contains",
+      "from": "section-001-redis-historical-mined-spec",
+      "to": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-001-redis-historical-mined-spec->section-009-judge-result:contains",
+      "from": "section-001-redis-historical-mined-spec",
+      "to": "section-009-judge-result",
+      "type": "contains",
+      "label": "contains"
+    },
+    {
+      "id": "section-003-goals->goal-goals-redis-must-preserve-the-role-of-a-networked-in-memory-data-structure-server-acro:elaborates",
+      "from": "section-003-goals",
+      "to": "goal-goals-redis-must-preserve-the-role-of-a-networked-in-memory-data-structure-server-acro",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-003-goals->goal-goals-redis-must-keep-command-behavior-addressable-through-client-visible-protocol-con:elaborates",
+      "from": "section-003-goals",
+      "to": "goal-goals-redis-must-keep-command-behavior-addressable-through-client-visible-protocol-con",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-003-goals->goal-goals-redis-should-prefer-stable-server-semantics-over-implementation-details-that-chu:elaborates",
+      "from": "section-003-goals",
+      "to": "goal-goals-redis-should-prefer-stable-server-semantics-over-implementation-details-that-chu",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-004-non-goals->non_goal-non-goals-this-mined-spec-does-not-claim-that-features-introduced-after-the-root-commit-ex:elaborates",
+      "from": "section-004-non-goals",
+      "to": "non_goal-non-goals-this-mined-spec-does-not-claim-that-features-introduced-after-the-root-commit-ex",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-004-non-goals->non_goal-non-goals-this-mined-spec-does-not-describe-every-implementation-file-or-every-later-exten:elaborates",
+      "from": "section-004-non-goals",
+      "to": "non_goal-non-goals-this-mined-spec-does-not-describe-every-implementation-file-or-every-later-exten",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-004-non-goals->non_goal-non-goals-this-mined-spec-is-not-a-release-note-api-reference-or-proof-that-redis-has-no-u:elaborates",
+      "from": "section-004-non-goals",
+      "to": "non_goal-non-goals-this-mined-spec-is-not-a-release-note-api-reference-or-proof-that-redis-has-no-u",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-stable-essence-requirements->requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov:elaborates",
+      "from": "section-005-stable-essence-requirements",
+      "to": "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-stable-essence-requirements->requirement-stable-essence-requirements-redis-must-keep-the-active-dataset-in-memory-while-serving-commands-evidence-dic:elaborates",
+      "from": "section-005-stable-essence-requirements",
+      "to": "requirement-stable-essence-requirements-redis-must-keep-the-active-dataset-in-memory-while-serving-commands-evidence-dic",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-stable-essence-requirements->requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide:elaborates",
+      "from": "section-005-stable-essence-requirements",
+      "to": "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-stable-essence-requirements->requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit:elaborates",
+      "from": "section-005-stable-essence-requirements",
+      "to": "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-stable-essence-requirements->requirement-stable-essence-requirements-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-restar:elaborates",
+      "from": "section-005-stable-essence-requirements",
+      "to": "requirement-stable-essence-requirements-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-restar",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-stable-essence-requirements->requirement-stable-essence-requirements-redis-must-define-a-client-server-protocol-with-parseable-command-requests-and-e:elaborates",
+      "from": "section-005-stable-essence-requirements",
+      "to": "requirement-stable-essence-requirements-redis-must-define-a-client-server-protocol-with-parseable-command-requests-and-e",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-stable-essence-requirements->requirement-stable-essence-requirements-redis-should-support-master-replica-replication-for-availability-and-data-copy-p:elaborates",
+      "from": "section-005-stable-essence-requirements",
+      "to": "requirement-stable-essence-requirements-redis-should-support-master-replica-replication-for-availability-and-data-copy-p",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-stable-essence-requirements->requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi:elaborates",
+      "from": "section-005-stable-essence-requirements",
+      "to": "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-stable-essence-requirements->requirement-stable-essence-requirements-redis-should-allow-server-behavior-to-be-selected-through-a-configuration-file-w:elaborates",
+      "from": "section-005-stable-essence-requirements",
+      "to": "requirement-stable-essence-requirements-redis-should-allow-server-behavior-to-be-selected-through-a-configuration-file-w",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-005-stable-essence-requirements->requirement-stable-essence-requirements-redis-should-ship-client-tooling-for-interactive-or-scripted-command-execution-e:elaborates",
+      "from": "section-005-stable-essence-requirements",
+      "to": "requirement-stable-essence-requirements-redis-should-ship-client-tooling-for-interactive-or-scripted-command-execution-e",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-006-validation-surfaces->test-validation-surfaces-the-redis-spec-must-be-judged-against-sampled-git-snapshots-without-checking-out:elaborates",
+      "from": "section-006-validation-surfaces",
+      "to": "test-validation-surfaces-the-redis-spec-must-be-judged-against-sampled-git-snapshots-without-checking-out",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-006-validation-surfaces->test-validation-surfaces-a-redis-command-protocol-dataset-persistence-replication-configuration-or-test:elaborates",
+      "from": "section-006-validation-surfaces",
+      "to": "test-validation-surfaces-a-redis-command-protocol-dataset-persistence-replication-configuration-or-test",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-006-validation-surfaces->test-validation-surfaces-the-reward-must-prefer-long-temporal-validity-then-coverage-of-high-weight-redis:elaborates",
+      "from": "section-006-validation-surfaces",
+      "to": "test-validation-surfaces-the-reward-must-prefer-long-temporal-validity-then-coverage-of-high-weight-redis",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-007-risks->risk-risks-a-mined-redis-spec-risks-overfitting-file-names-so-stable-claims-should-keep-sou:elaborates",
+      "from": "section-007-risks",
+      "to": "risk-risks-a-mined-redis-spec-risks-overfitting-file-names-so-stable-claims-should-keep-sou",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-007-risks->risk-risks-a-root-stable-redis-spec-risks-under-covering-later-features-so-later-only-featu:elaborates",
+      "from": "section-007-risks",
+      "to": "risk-risks-a-root-stable-redis-spec-risks-under-covering-later-features-so-later-only-featu",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-007-risks->risk-risks-a-valid-sampled-history-is-not-a-proof-of-maintainer-intent-human-review-remains:elaborates",
+      "from": "section-007-risks",
+      "to": "risk-risks-a-valid-sampled-history-is-not-a-proof-of-maintainer-intent-human-review-remains",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-008-later-feature-drift-not-folded-into-the-genesis-spec->claim-later-feature-drift-not-folded-into-the-genesis-spec-appendonlyfile-append-only-persistence-first-seen-2010-05-26-17-55-28-0200-prese:elaborates",
+      "from": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "to": "claim-later-feature-drift-not-folded-into-the-genesis-spec-appendonlyfile-append-only-persistence-first-seen-2010-05-26-17-55-28-0200-prese",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-008-later-feature-drift-not-folded-into-the-genesis-spec->claim-later-feature-drift-not-folded-into-the-genesis-spec-transactions-transactions-first-seen-2010-05-26-17-55-28-0200-presence-92-9:elaborates",
+      "from": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "to": "claim-later-feature-drift-not-folded-into-the-genesis-spec-transactions-transactions-first-seen-2010-05-26-17-55-28-0200-presence-92-9",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-008-later-feature-drift-not-folded-into-the-genesis-spec->claim-later-feature-drift-not-folded-into-the-genesis-spec-pubsub-pub-sub-first-seen-2010-05-26-17-55-28-0200-presence-92-9:elaborates",
+      "from": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "to": "claim-later-feature-drift-not-folded-into-the-genesis-spec-pubsub-pub-sub-first-seen-2010-05-26-17-55-28-0200-presence-92-9",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-008-later-feature-drift-not-folded-into-the-genesis-spec->claim-later-feature-drift-not-folded-into-the-genesis-spec-clustermode-cluster-mode-first-seen-2011-11-09-21-59-27-0100-presence-85-7:elaborates",
+      "from": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "to": "claim-later-feature-drift-not-folded-into-the-genesis-spec-clustermode-cluster-mode-first-seen-2011-11-09-21-59-27-0100-presence-85-7",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-008-later-feature-drift-not-folded-into-the-genesis-spec->claim-later-feature-drift-not-folded-into-the-genesis-spec-sentinel-sentinel-first-seen-2013-03-14-21-27-12-0100-presence-78-6:elaborates",
+      "from": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "to": "claim-later-feature-drift-not-folded-into-the-genesis-spec-sentinel-sentinel-first-seen-2013-03-14-21-27-12-0100-presence-78-6",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-008-later-feature-drift-not-folded-into-the-genesis-spec->claim-later-feature-drift-not-folded-into-the-genesis-spec-modules-modules-first-seen-2017-01-10-11-33-50-0100-presence-57-1:elaborates",
+      "from": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "to": "claim-later-feature-drift-not-folded-into-the-genesis-spec-modules-modules-first-seen-2017-01-10-11-33-50-0100-presence-57-1",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-008-later-feature-drift-not-folded-into-the-genesis-spec->claim-later-feature-drift-not-folded-into-the-genesis-spec-streams-streams-first-seen-2018-09-25-12-31-46-0200-presence-50-0:elaborates",
+      "from": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "to": "claim-later-feature-drift-not-folded-into-the-genesis-spec-streams-streams-first-seen-2018-09-25-12-31-46-0200-presence-50-0",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-008-later-feature-drift-not-folded-into-the-genesis-spec->claim-later-feature-drift-not-folded-into-the-genesis-spec-aclsecurity-acl-security-first-seen-2019-11-19-11-23-43-0100-presence-42-9:elaborates",
+      "from": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "to": "claim-later-feature-drift-not-folded-into-the-genesis-spec-aclsecurity-acl-security-first-seen-2019-11-19-11-23-43-0100-presence-42-9",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-008-later-feature-drift-not-folded-into-the-genesis-spec->claim-later-feature-drift-not-folded-into-the-genesis-spec-tlstransport-tls-transport-first-seen-2019-11-19-11-23-43-0100-presence-42-9:elaborates",
+      "from": "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "to": "claim-later-feature-drift-not-folded-into-the-genesis-spec-tlstransport-tls-transport-first-seen-2019-11-19-11-23-43-0100-presence-42-9",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-judge-result->claim-judge-result-valid-sampled-snapshots-14-14:elaborates",
+      "from": "section-009-judge-result",
+      "to": "claim-judge-result-valid-sampled-snapshots-14-14",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-judge-result->claim-judge-result-valid-through-2026-04-30-21-38-25-0800-at-2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4:elaborates",
+      "from": "section-009-judge-result",
+      "to": "claim-judge-result-valid-through-2026-04-30-21-38-25-0800-at-2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4",
+      "type": "elaborates",
+      "label": "elaborates"
+    },
+    {
+      "id": "section-009-judge-result->claim-judge-result-first-invalid-sample-none-in-the-judged-sample-set:elaborates",
+      "from": "section-009-judge-result",
+      "to": "claim-judge-result-first-invalid-sample-none-in-the-judged-sample-set",
+      "type": "elaborates",
+      "label": "elaborates"
+    }
+  ],
+  "findings": [],
+  "glossary": [
+    {
+      "term": "/private/tmp/testing-rl-external/redis",
+      "nodeIds": [
+        "section-001-redis-historical-mined-spec"
+      ]
+    },
+    {
+      "term": "2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8",
+      "nodeIds": [
+        "section-001-redis-historical-mined-spec",
+        "section-009-judge-result",
+        "claim-judge-result-valid-through-2026-04-30-21-38-25-0800-at-2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4"
+      ]
+    },
+    {
+      "term": "acl_security",
+      "nodeIds": [
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-aclsecurity-acl-security-first-seen-2019-11-19-11-23-43-0100-presence-42-9"
+      ]
+    },
+    {
+      "term": "ae.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov"
+      ]
+    },
+    {
+      "term": "anet.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov"
+      ]
+    },
+    {
+      "term": "append_only_file",
+      "nodeIds": [
+        "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-appendonlyfile-append-only-persistence-first-seen-2010-05-26-17-55-28-0200-prese"
+      ]
+    },
+    {
+      "term": "client-libraries/erlang/test/erldis_tests.erl",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi"
+      ]
+    },
+    {
+      "term": "client-libraries/erlang/test/Makefile",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi"
+      ]
+    },
+    {
+      "term": "client-libraries/erlang/test/proto_tests.erl",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi"
+      ]
+    },
+    {
+      "term": "cluster_mode",
+      "nodeIds": [
+        "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-clustermode-cluster-mode-first-seen-2011-11-09-21-59-27-0100-presence-85-7"
+      ]
+    },
+    {
+      "term": "dict.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-keep-the-active-dataset-in-memory-while-serving-commands-evidence-dic"
+      ]
+    },
+    {
+      "term": "doc/BgsaveCommand.html",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-restar"
+      ]
+    },
+    {
+      "term": "doc/DbsizeCommand.html",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit"
+      ]
+    },
+    {
+      "term": "doc/DelCommand.html",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit"
+      ]
+    },
+    {
+      "term": "doc/ExistsCommand.html",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit"
+      ]
+    },
+    {
+      "term": "doc/HdelCommand.html",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit"
+      ]
+    },
+    {
+      "term": "doc/HexistsCommand.html",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit"
+      ]
+    },
+    {
+      "term": "doc/KeysCommand.html",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit"
+      ]
+    },
+    {
+      "term": "doc/ProtocolSpecification.html",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov",
+        "requirement-stable-essence-requirements-redis-must-define-a-client-server-protocol-with-parseable-command-requests-and-e"
+      ]
+    },
+    {
+      "term": "doc/RpoplpushCommand.html",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide"
+      ]
+    },
+    {
+      "term": "doc/SaddCommand.html",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide"
+      ]
+    },
+    {
+      "term": "doc/SlaveofCommand.html",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-support-master-replica-replication-for-availability-and-data-copy-p"
+      ]
+    },
+    {
+      "term": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+      "nodeIds": [
+        "section-001-redis-historical-mined-spec"
+      ]
+    },
+    {
+      "term": "genesis-stable-essence-stricter-1:e2",
+      "nodeIds": [
+        "section-001-redis-historical-mined-spec"
+      ]
+    },
+    {
+      "term": "modules",
+      "nodeIds": [
+        "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-modules-modules-first-seen-2017-01-10-11-33-50-0100-presence-57-1"
+      ]
+    },
+    {
+      "term": "pubsub",
+      "nodeIds": [
+        "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-pubsub-pub-sub-first-seen-2010-05-26-17-55-28-0200-presence-92-9"
+      ]
+    },
+    {
+      "term": "redis-cli.c",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-ship-client-tooling-for-interactive-or-scripted-command-execution-e"
+      ]
+    },
+    {
+      "term": "redis.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov",
+        "requirement-stable-essence-requirements-redis-must-keep-the-active-dataset-in-memory-while-serving-commands-evidence-dic",
+        "requirement-stable-essence-requirements-redis-must-define-a-client-server-protocol-with-parseable-command-requests-and-e"
+      ]
+    },
+    {
+      "term": "redis.conf",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-allow-server-behavior-to-be-selected-through-a-configuration-file-w"
+      ]
+    },
+    {
+      "term": "sentinel",
+      "nodeIds": [
+        "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-sentinel-sentinel-first-seen-2013-03-14-21-27-12-0100-presence-78-6"
+      ]
+    },
+    {
+      "term": "src/ae.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov"
+      ]
+    },
+    {
+      "term": "src/anet.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov"
+      ]
+    },
+    {
+      "term": "src/commands/bgsave.json",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-restar"
+      ]
+    },
+    {
+      "term": "src/commands/dbsize.json",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit"
+      ]
+    },
+    {
+      "term": "src/commands/del.json",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit"
+      ]
+    },
+    {
+      "term": "src/commands/lastsave.json",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-restar"
+      ]
+    },
+    {
+      "term": "src/commands/psync.json",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-support-master-replica-replication-for-availability-and-data-copy-p"
+      ]
+    },
+    {
+      "term": "src/commands/replicaof.json",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-support-master-replica-replication-for-availability-and-data-copy-p"
+      ]
+    },
+    {
+      "term": "src/commands/save.json",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-restar"
+      ]
+    },
+    {
+      "term": "src/commands/slaveof.json",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-support-master-replica-replication-for-availability-and-data-copy-p"
+      ]
+    },
+    {
+      "term": "src/commands/sync.json",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-support-master-replica-replication-for-availability-and-data-copy-p"
+      ]
+    },
+    {
+      "term": "src/config.c",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-allow-server-behavior-to-be-selected-through-a-configuration-file-w"
+      ]
+    },
+    {
+      "term": "src/dict.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-keep-the-active-dataset-in-memory-while-serving-commands-evidence-dic"
+      ]
+    },
+    {
+      "term": "src/networking.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov",
+        "requirement-stable-essence-requirements-redis-must-define-a-client-server-protocol-with-parseable-command-requests-and-e"
+      ]
+    },
+    {
+      "term": "src/rdb.c",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-restar"
+      ]
+    },
+    {
+      "term": "src/redis-cli.c",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-ship-client-tooling-for-interactive-or-scripted-command-execution-e"
+      ]
+    },
+    {
+      "term": "src/replication.c",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-support-master-replica-replication-for-availability-and-data-copy-p"
+      ]
+    },
+    {
+      "term": "src/resp_parser.c",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-must-define-a-client-server-protocol-with-parseable-command-requests-and-e"
+      ]
+    },
+    {
+      "term": "src/server.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov",
+        "requirement-stable-essence-requirements-redis-must-keep-the-active-dataset-in-memory-while-serving-commands-evidence-dic"
+      ]
+    },
+    {
+      "term": "src/t_hash.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide"
+      ]
+    },
+    {
+      "term": "src/t_list.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide"
+      ]
+    },
+    {
+      "term": "src/t_set.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide"
+      ]
+    },
+    {
+      "term": "src/t_stream.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide"
+      ]
+    },
+    {
+      "term": "src/t_string.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide"
+      ]
+    },
+    {
+      "term": "src/t_zset.c",
+      "nodeIds": [
+        "section-005-stable-essence-requirements",
+        "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide"
+      ]
+    },
+    {
+      "term": "streams",
+      "nodeIds": [
+        "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-streams-streams-first-seen-2018-09-25-12-31-46-0200-presence-50-0"
+      ]
+    },
+    {
+      "term": "test-redis.tcl",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi"
+      ]
+    },
+    {
+      "term": "tests/assets/default.conf",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi"
+      ]
+    },
+    {
+      "term": "tests/integration/aof.tcl",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi"
+      ]
+    },
+    {
+      "term": "tests/integration/replication.tcl",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi"
+      ]
+    },
+    {
+      "term": "tests/support/redis.tcl",
+      "nodeIds": [
+        "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi"
+      ]
+    },
+    {
+      "term": "tls_transport",
+      "nodeIds": [
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-tlstransport-tls-transport-first-seen-2019-11-19-11-23-43-0100-presence-42-9"
+      ]
+    },
+    {
+      "term": "transactions",
+      "nodeIds": [
+        "section-008-later-feature-drift-not-folded-into-the-genesis-spec",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-transactions-transactions-first-seen-2010-05-26-17-55-28-0200-presence-92-9"
+      ]
+    },
+    {
+      "term": "unstable",
+      "nodeIds": [
+        "section-001-redis-historical-mined-spec"
+      ]
+    }
+  ],
+  "proverDraft": {
+    "language": "lean4",
+    "module": "ClaimLattice",
+    "obligations": [
+      "CoreSurfacePresent",
+      "NoHighSeverityImpossibleFinding",
+      "EveryGoalHasValidationLink",
+      "EveryImplementationDefinedChoiceHasDocumentedPolicy",
+      "ComponentPressureIsJustifiedByGoals"
+    ],
+    "generatedFacts": {
+      "nodeCount": 44,
+      "edgeCount": 43,
+      "findingCount": 0,
+      "highSeverityFindings": 0
+    }
+  }
+}

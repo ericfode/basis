@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import {
+  buildHistoricalSpecExperimentFromGit,
+  writeHistoricalSpecArtifacts
+} from "./historical-spec.mjs";
 
 const NORMATIVE_RE = /\b(MUST(?:\s+NOT)?|REQUIRED|SHOULD(?:\s+NOT)?|RECOMMENDED|MAY|OPTIONAL)\b/g;
 const VAGUE_RE = /\b(appropriate|reasonable|sufficient|enough|typically|generally|as needed|etc\.?|rich|easy|simple|robust|safe|secure|fast)\b/i;
@@ -22,15 +27,59 @@ const TYPE_LABELS = {
   finding: "Finding"
 };
 
-const ALL_PROJECTIONS = ["kumu", "neo4j", "structurizr", "symphony"];
+const LEGACY_PROJECTIONS = ["kumu", "neo4j", "structurizr", "symphony"];
 const PROJECTION_FILES = {
   kumu: ["kumu-elements.csv", "kumu-connections.csv"],
   neo4j: ["neo4j.cypher"],
   structurizr: ["structurizr.dsl"],
   symphony: ["symphony-handoff.md"]
 };
+const PROJECTION_DIR = "projections";
+const PROJECTION_CYCLE_DIR = "projection-cycles";
 const STALE_CORE_FILES = ["graph.json", "critique.md", "SpecImage.lean", "execution-packet.md"];
-const PRIMARY_COMMANDS = new Set(["play", "score", "step", "rollout", "export", "image"]);
+const PRIMARY_COMMANDS = new Set(["play", "score", "step", "rollout", "export", "image", "mine", "train"]);
+const CODE_SOURCE_EXTENSIONS = new Set([
+  ".c", ".cc", ".cpp", ".cs", ".go", ".h", ".hpp", ".java", ".js", ".jsx", ".json",
+  ".mjs", ".proto", ".py", ".rs", ".sh", ".swift", ".toml", ".ts", ".tsx", ".yaml", ".yml"
+]);
+
+export function buildDataifiedSpec(markdown, sourcePath = "inline.md", options = {}) {
+  const normalized = markdown.replace(/\r\n/g, "\n");
+  const lines = normalized.split("\n");
+  const headings = parseHeadings(lines);
+  const title = options.title || (headings[0]?.title ?? path.basename(sourcePath));
+  const blocks = parseMarkdownBlocks(lines);
+  const claimNodes = options.claimNodes ?? [];
+
+  return {
+    schemaVersion: "specgym.dataified-spec.v0",
+    generatedAt: new Date().toISOString(),
+    source: {
+      path: sourcePath,
+      title,
+      lineCount: lines.length,
+      sha256: crypto.createHash("sha256").update(normalized).digest("hex")
+    },
+    reconstruction: {
+      targetForm: "spec_draft",
+      lossPolicy: "preserve_raw_markdown_blocks",
+      unsupportedMarkdownPolicy: "opaque_raw_markdown_block",
+      acceptStepRequired: true
+    },
+    headings: headings.map((heading, index) => ({
+      id: `heading-${String(index + 1).padStart(3, "0")}-${slug(heading.title)}`,
+      title: heading.title,
+      level: heading.level,
+      lineStart: heading.line
+    })),
+    blocks: blocks.map((block) => ({
+      ...block,
+      generatedClaimIds: claimNodes
+        .filter((node) => isSourceClaimNode(node) && rangesOverlap(block, node))
+        .map((node) => node.id)
+    }))
+  };
+}
 
 export function buildSpecGymState(markdown, sourcePath = "inline.md", options = {}) {
   const lines = markdown.replace(/\r\n/g, "\n").split("\n");
@@ -126,6 +175,131 @@ export function buildSpecGymState(markdown, sourcePath = "inline.md", options = 
 }
 
 export const imageSpecification = buildSpecGymState;
+
+function parseMarkdownBlocks(lines) {
+  const blocks = [];
+  let index = 0;
+
+  const pushBlock = (type, start, end, metadata = {}) => {
+    const rawLines = lines.slice(start, end + 1);
+    const rawMarkdown = rawLines.join("\n");
+    blocks.push({
+      id: uniqueBlockId(blocks, type, rawMarkdown),
+      type,
+      lineStart: start + 1,
+      lineEnd: end + 1,
+      rawMarkdown,
+      ...metadata
+    });
+  };
+
+  while (index < lines.length) {
+    const line = lines[index];
+
+    if (index === 0 && line.trim() === "---") {
+      let end = index + 1;
+      while (end < lines.length && lines[end].trim() !== "---") end += 1;
+      pushBlock("front_matter", index, Math.min(end, lines.length - 1));
+      index = Math.min(end + 1, lines.length);
+      continue;
+    }
+
+    const fence = /^(\s*)(`{3,}|~{3,})/.exec(line);
+    if (fence) {
+      const marker = fence[2][0];
+      let end = index + 1;
+      while (end < lines.length && !new RegExp(`^\\s*${marker}{3,}`).test(lines[end])) end += 1;
+      pushBlock("fenced_code", index, Math.min(end, lines.length - 1));
+      index = Math.min(end + 1, lines.length);
+      continue;
+    }
+
+    const heading = /^(#{1,6})\s+(.+?)\s*$/.exec(line);
+    if (heading) {
+      pushBlock("heading", index, index, {
+        level: heading[1].length,
+        title: heading[2].replace(/`/g, ""),
+        semanticRole: classifySection(heading[2])
+      });
+      index += 1;
+      continue;
+    }
+
+    if (!line.trim()) {
+      const start = index;
+      while (index + 1 < lines.length && !lines[index + 1].trim()) index += 1;
+      pushBlock("blank", start, index);
+      index += 1;
+      continue;
+    }
+
+    if (/^\s*(?:[-*]|\d+[.)])\s+/.test(line)) {
+      const start = index;
+      index += 1;
+      while (
+        index < lines.length &&
+        (lines[index].trim() === "" || /^\s+(?!#{1,6}\s).+/.test(lines[index]) || /^\s*(?:[-*]|\d+[.)])\s+/.test(lines[index]))
+      ) {
+        if (lines[index].trim() === "" && (index + 1 >= lines.length || !/^\s/.test(lines[index + 1]))) break;
+        index += 1;
+      }
+      pushBlock("list", start, index - 1);
+      continue;
+    }
+
+    if (/^\s*>/.test(line)) {
+      const start = index;
+      while (index + 1 < lines.length && /^\s*>/.test(lines[index + 1])) index += 1;
+      pushBlock("blockquote", start, index);
+      index += 1;
+      continue;
+    }
+
+    if (line.includes("|") && index + 1 < lines.length && /^\s*\|?[\s:-]+\|[\s|:-]*$/.test(lines[index + 1])) {
+      const start = index;
+      index += 2;
+      while (index < lines.length && lines[index].includes("|")) index += 1;
+      pushBlock("table", start, index - 1);
+      continue;
+    }
+
+    const start = index;
+    index += 1;
+    while (
+      index < lines.length &&
+      lines[index].trim() &&
+      !/^(#{1,6})\s+/.test(lines[index]) &&
+      !/^\s*(?:[-*]|\d+[.)])\s+/.test(lines[index]) &&
+      !/^\s*>/.test(lines[index]) &&
+      !/^(\s*)(`{3,}|~{3,})/.test(lines[index])
+    ) {
+      index += 1;
+    }
+    pushBlock("paragraph", start, index - 1);
+  }
+
+  return blocks;
+}
+
+function uniqueBlockId(blocks, type, rawMarkdown) {
+  const base = `block-${String(blocks.length + 1).padStart(4, "0")}-${type}-${slug(shortTitle(rawMarkdown || type))}`;
+  let candidate = base;
+  let suffix = 2;
+  const existing = new Set(blocks.map((block) => block.id));
+  while (existing.has(candidate)) {
+    candidate = `${base}-${suffix}`;
+    suffix += 1;
+  }
+  return candidate;
+}
+
+function isSourceClaimNode(node) {
+  return !["spec", "section", "finding"].includes(node.type);
+}
+
+function rangesOverlap(left, right) {
+  return left.lineStart <= right.lineEnd && right.lineStart <= left.lineEnd;
+}
 
 function parseHeadings(lines) {
   return lines.flatMap((line, index) => {
@@ -765,6 +939,7 @@ Resolve the highest-value viability finding before prototype work proceeds.
 ## Input Artifacts
 
 - Source spec: \`${image.source.path}\`
+- Dataified spec: \`dataified-spec.json\`
 - Canonical graph: \`claim-lattice.json\`
 - Critique: \`viability-critique.md\`
 - Lean mock model: \`ClaimLattice.lean\`
@@ -777,7 +952,7 @@ ${findingLines.length ? findingLines.join("\n") : "No current findings."}
 
 ## Player Procedure
 
-1. Load \`viability-critique.md\` and \`claim-lattice.json\`.
+1. Load \`viability-critique.md\`, \`dataified-spec.json\`, and \`claim-lattice.json\`.
 2. Pick exactly one finding, preferring high severity over broad cleanup.
 3. Trace its evidence nodes back to source lines.
 4. Patch the source specification, add a recorded design decision, or reject the idea with evidence.
@@ -796,7 +971,7 @@ lean out/symphony/ClaimLattice.lean
 ## Acceptance
 
 - The selected finding is resolved or explicitly reclassified with evidence.
-- The claim lattice artifacts regenerate deterministically.
+- Regenerated artifacts include source anchors and enough provenance to review differences.
 - The Lean mock model still type-checks.
 - No new high-severity finding is introduced.
 `;
@@ -916,7 +1091,13 @@ function parseArgs(argv) {
     action: undefined,
     actor: "human",
     claim: undefined,
-    policy: undefined
+    policy: undefined,
+    branch: undefined,
+    since: undefined,
+    forwardProjection: undefined,
+    reverseProjection: undefined,
+    samples: 12,
+    iterations: 4
   };
   for (let index = 0; index < rest.length; index += 1) {
     const arg = rest[index];
@@ -926,7 +1107,7 @@ function parseArgs(argv) {
     } else if (arg === "--title") {
       options.title = rest[index + 1];
       index += 1;
-    } else if (arg === "--projection") {
+    } else if (arg === "--projection" || arg === "--derive") {
       options.projections.push(rest[index + 1]);
       index += 1;
     } else if (arg === "--all-projections") {
@@ -943,6 +1124,24 @@ function parseArgs(argv) {
     } else if (arg === "--policy") {
       options.policy = rest[index + 1];
       index += 1;
+    } else if (arg === "--forward") {
+      options.forwardProjection = rest[index + 1];
+      index += 1;
+    } else if (arg === "--reverse") {
+      options.reverseProjection = rest[index + 1];
+      index += 1;
+    } else if (arg === "--branch") {
+      options.branch = rest[index + 1];
+      index += 1;
+    } else if (arg === "--since" || arg === "--from-root") {
+      options.since = rest[index + 1];
+      index += 1;
+    } else if (arg === "--samples") {
+      options.samples = Number(rest[index + 1]);
+      index += 1;
+    } else if (arg === "--iterations") {
+      options.iterations = Number(rest[index + 1]);
+      index += 1;
     } else {
       throw new Error(`Unknown argument: ${arg}`);
     }
@@ -950,32 +1149,103 @@ function parseArgs(argv) {
   return options;
 }
 
-function normalizeProjections(projections) {
+function parseProjectionMarkdown(markdown, filePath) {
+  const match = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/m.exec(markdown);
+  if (!match) {
+    throw new Error(`Projection file lacks front matter: ${filePath}`);
+  }
+  const metadata = {};
+  for (const rawLine of match[1].split("\n")) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#")) continue;
+    const field = /^([A-Za-z0-9_-]+):\s*(.*?)\s*$/.exec(line);
+    if (!field) continue;
+    metadata[field[1]] = parseFrontMatterValue(field[2]);
+  }
+  if (!metadata.id) {
+    throw new Error(`Projection file lacks id: ${filePath}`);
+  }
+  return {
+    ...metadata,
+    description: match[2].trim(),
+    path: filePath
+  };
+}
+
+function parseFrontMatterValue(value) {
+  if (/^\[.*\]$/.test(value)) {
+    const inner = value.slice(1, -1).trim();
+    if (!inner) return [];
+    return inner.split(",").map((item) => item.trim().replace(/^["']|["']$/g, "")).filter(Boolean);
+  }
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return value.replace(/^["']|["']$/g, "");
+}
+
+function loadProjectionSpecs(rootDir = process.cwd()) {
+  const projectionDir = path.join(rootDir, PROJECTION_DIR);
+  if (!fs.existsSync(projectionDir)) return new Map();
+  const specs = new Map();
+  for (const file of fs.readdirSync(projectionDir).filter((item) => item.endsWith(".md")).sort()) {
+    const filePath = path.join(projectionDir, file);
+    const spec = parseProjectionMarkdown(fs.readFileSync(filePath, "utf8"), filePath);
+    specs.set(spec.id, spec);
+  }
+  return specs;
+}
+
+function normalizeProjectionId(id) {
+  return String(id).trim().toLowerCase().replace(/_/g, "-");
+}
+
+function projectionIncludedInAll(spec) {
+  return spec.includeInAll !== false;
+}
+
+function normalizeProjections(projections, projectionSpecs = loadProjectionSpecs()) {
   const selected = new Set();
+  const dynamicProjectionIds = Array.from(projectionSpecs.keys());
+  const allDynamicProjectionIds = Array.from(projectionSpecs.entries())
+    .filter(([, spec]) => projectionIncludedInAll(spec))
+    .map(([id]) => id);
+  const known = LEGACY_PROJECTIONS.concat(dynamicProjectionIds);
+  const allKnown = LEGACY_PROJECTIONS.concat(allDynamicProjectionIds);
   for (const projection of projections) {
     if (!projection) continue;
     for (const item of String(projection).split(",")) {
-      const normalized = item.trim().toLowerCase();
+      const normalized = normalizeProjectionId(item);
       if (!normalized) continue;
       if (normalized === "all") {
-        ALL_PROJECTIONS.forEach((name) => selected.add(name));
-      } else if (ALL_PROJECTIONS.includes(normalized)) {
+        allKnown.forEach((name) => selected.add(name));
+      } else if (known.includes(normalized)) {
         selected.add(normalized);
       } else {
-        throw new Error(`Unknown projection: ${normalized}. Known projections: ${ALL_PROJECTIONS.join(", ")}, all`);
+        throw new Error(`Unknown projection: ${normalized}. Known projections: ${known.join(", ")}, all`);
       }
     }
   }
   return selected;
 }
 
-function removeStaleProjectionFiles(outDir, projections) {
+function removeStaleProjectionFiles(outDir, projections, projectionSpecs = new Map()) {
   for (const [projection, files] of Object.entries(PROJECTION_FILES)) {
     if (projections.has(projection)) continue;
     for (const file of files) {
       const target = path.join(outDir, file);
       if (fs.existsSync(target)) fs.rmSync(target);
     }
+  }
+  for (const [projection, spec] of projectionSpecs.entries()) {
+    if (projections.has(projection)) continue;
+    const target = path.join(outDir, spec.outputPath);
+    if (fs.existsSync(target)) fs.rmSync(target);
+    const callDir = path.join(outDir, "llm-calls", projection);
+    if (fs.existsSync(callDir)) fs.rmSync(callDir, { recursive: true, force: true });
+  }
+  if (!Array.from(projections).some((projection) => projectionSpecs.has(projection))) {
+    const runPath = path.join(outDir, "llm-projection-run.json");
+    if (fs.existsSync(runPath)) fs.rmSync(runPath);
   }
 }
 
@@ -986,30 +1256,607 @@ function removeStaleCoreFiles(outDir) {
   }
 }
 
-function writeCoreArtifacts(outDir, image) {
+function writeCoreArtifacts(outDir, image, dataifiedSpec) {
+  fs.writeFileSync(path.join(outDir, "dataified-spec.json"), `${JSON.stringify(dataifiedSpec, null, 2)}\n`);
   fs.writeFileSync(path.join(outDir, "claim-lattice.json"), `${JSON.stringify(image, null, 2)}\n`);
   fs.writeFileSync(path.join(outDir, "viability-critique.md"), renderCritique(image));
   fs.writeFileSync(path.join(outDir, "ClaimLattice.lean"), renderLean(image));
   fs.writeFileSync(path.join(outDir, "refinement-packet.md"), renderRefinementPacket(image));
 }
 
+function buildCodeSourcePack(rootDir) {
+  const files = [];
+  collectCodeFiles(rootDir, rootDir, files);
+  return {
+    schemaVersion: "specgym.code-source-pack.v0",
+    source: {
+      path: rootDir,
+      fileCount: files.length
+    },
+    files: files.slice(0, 160).map((file) => {
+      const text = fs.readFileSync(file.absolutePath, "utf8");
+      const lines = text.replace(/\r\n/g, "\n").split("\n");
+      return {
+        path: file.relativePath,
+        language: languageForPath(file.relativePath),
+        lineCount: lines.length,
+        excerptLineStart: 1,
+        excerptLineEnd: Math.min(lines.length, 120),
+        excerpt: lines.slice(0, 120).join("\n")
+      };
+    })
+  };
+}
+
+function collectCodeFiles(rootDir, currentDir, files) {
+  for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
+    if (entry.name.startsWith(".") || ["node_modules", "out", "target", "dist", "build"].includes(entry.name)) continue;
+    const absolutePath = path.join(currentDir, entry.name);
+    if (entry.isDirectory()) {
+      collectCodeFiles(rootDir, absolutePath, files);
+      continue;
+    }
+    if (!entry.isFile()) continue;
+    if (!CODE_SOURCE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) continue;
+    const stats = fs.statSync(absolutePath);
+    if (stats.size > 256_000) continue;
+    files.push({
+      absolutePath,
+      relativePath: path.relative(rootDir, absolutePath)
+    });
+  }
+}
+
+function languageForPath(filePath) {
+  const extension = path.extname(filePath).replace(".", "");
+  if (extension === "mjs") return "js";
+  return extension || "text";
+}
+
+function renderCodeSourceMarkdown(pack) {
+  const lines = [
+    "# Code Source Pack",
+    "",
+    `Source: \`${pack.source.path}\``,
+    `Files: ${pack.source.fileCount}`,
+    "",
+    "This generated source pack is input for LLM-only code-to-spec projection calls.",
+    ""
+  ];
+  for (const file of pack.files) {
+    lines.push(`## ${file.path}`);
+    lines.push("");
+    lines.push(`Lines: ${file.excerptLineStart}-${file.excerptLineEnd} of ${file.lineCount}`);
+    lines.push("");
+    lines.push(`\`\`\`${file.language}`);
+    lines.push(file.excerpt);
+    lines.push("```");
+    lines.push("");
+  }
+  return lines.join("\n");
+}
+
+function renderProjection(spec, image, dataifiedSpec) {
+  return `${JSON.stringify(buildProjectionPlan(spec, image, dataifiedSpec), null, 2)}\n`;
+}
+
+function buildProjectionPlan(spec, image, dataifiedSpec) {
+  const nodes = selectProjectionNodes(spec, image);
+  const slices = buildProjectionSlices(spec, image, dataifiedSpec, nodes);
+  return {
+    schemaVersion: "specgym.llm-projection-plan.v0",
+    projection: {
+      id: spec.id,
+      title: spec.title,
+      output: spec.output,
+      outputPath: spec.outputPath,
+      types: spec.types ?? [],
+      description: spec.description
+    },
+    source: image.source,
+    inputForms: spec.inputForms ?? [],
+    selection: {
+      matchNodeTypes: spec.matchNodeTypes ?? [],
+      keywords: spec.keywords ?? [],
+      nodeCount: nodes.length
+    },
+    execution: {
+      runner: "codex_app_server",
+      localRole: "focus_and_call_packet_generation_only",
+      contentGeneration: "llm_only",
+      sliceCount: slices.length,
+      mergeRequired: true,
+      determinismTraining: "repeat projection calls, validate against type contracts, and record drift"
+    },
+    calls: slices.map((slice, index) => projectionCall(spec, image, dataifiedSpec, slice, index + 1)),
+    dataifiedSpec: {
+      schemaVersion: dataifiedSpec.schemaVersion,
+      sourceHash: dataifiedSpec.source.sha256,
+      blockCount: dataifiedSpec.blocks.length
+    },
+    unresolvedFindings: image.findings.map((finding) => ({
+      id: finding.id,
+      class: finding.class,
+      severity: finding.severity,
+      title: finding.title,
+      evidenceNodeIds: finding.evidenceNodeIds
+    }))
+  };
+}
+
+function buildProjectionSlices(spec, image, dataifiedSpec, nodes) {
+  const selectedNodes = nodes.length
+    ? nodes
+    : image.nodes.filter((node) => !["spec", "finding"].includes(node.type)).slice(0, 80);
+  const chunkSize = Number(spec.chunkSize ?? 8);
+  const chunks = [];
+  for (let index = 0; index < selectedNodes.length; index += chunkSize) {
+    chunks.push(selectedNodes.slice(index, index + chunkSize));
+  }
+  if (!chunks.length) chunks.push([]);
+  return chunks.map((chunk, index) => {
+    const blocks = blocksForNodes(dataifiedSpec, chunk);
+    return {
+      id: `${spec.id}-slice-${String(index + 1).padStart(3, "0")}`,
+      nodeIds: chunk.map((node) => node.id),
+      nodes: chunk.map((node) => projectionNode(node, image.source.path)),
+      blocks
+    };
+  });
+}
+
+function blocksForNodes(dataifiedSpec, nodes) {
+  if (!nodes.length) return dataifiedSpec.blocks.slice(0, 20).map(projectionBlock);
+  const selected = new Map();
+  for (const node of nodes) {
+    for (const block of dataifiedSpec.blocks) {
+      if (rangesOverlap(block, node)) selected.set(block.id, block);
+    }
+    const heading = nearestHeadingBlock(dataifiedSpec.blocks, node.lineStart);
+    if (heading) selected.set(heading.id, heading);
+  }
+  return Array.from(selected.values())
+    .sort((left, right) => left.lineStart - right.lineStart)
+    .map(projectionBlock);
+}
+
+function nearestHeadingBlock(blocks, line) {
+  return blocks
+    .filter((block) => block.type === "heading" && block.lineStart <= line)
+    .sort((left, right) => right.lineStart - left.lineStart)[0];
+}
+
+function projectionBlock(block) {
+  return {
+    id: block.id,
+    type: block.type,
+    lineStart: block.lineStart,
+    lineEnd: block.lineEnd,
+    semanticRole: block.semanticRole,
+    generatedClaimIds: block.generatedClaimIds ?? [],
+    rawMarkdown: block.rawMarkdown
+  };
+}
+
+function projectionCall(spec, image, dataifiedSpec, slice, callNumber) {
+  return {
+    id: `${spec.id}-call-${String(callNumber).padStart(3, "0")}`,
+    projectionId: spec.id,
+    sliceId: slice.id,
+    runner: "codex_app_server",
+    source: {
+      path: image.source.path,
+      title: image.source.title,
+      hash: dataifiedSpec.source.sha256
+    },
+    expectedOutput: {
+      format: spec.output,
+      finalPath: spec.outputPath,
+      types: spec.types ?? []
+    },
+    sourceNodeIds: slice.nodeIds,
+    blockIds: slice.blocks.map((block) => block.id),
+    prompt: projectionPrompt(spec, slice)
+  };
+}
+
+function projectionPrompt(spec, slice) {
+  return [
+    `You are executing Spec Gym projection \`${spec.id}\`: ${spec.title}.`,
+    "",
+    "Projection instructions:",
+    spec.description,
+    "",
+    "Output contract:",
+    `- Format: ${spec.output}`,
+    `- Final artifact path after merge: ${spec.outputPath}`,
+    `- Type contracts: ${(spec.types ?? []).join(", ") || "none declared"}`,
+    "",
+    "Rules:",
+    "- Use only the source slice below.",
+    "- Preserve source anchors for every emitted item.",
+    "- Mark inferred items explicitly.",
+    "- Do not fill missing facts with invented certainty.",
+    "- Return only the partial projection payload for this slice.",
+    "",
+    "Source nodes:",
+    "```json",
+    JSON.stringify(slice.nodes, null, 2),
+    "```",
+    "",
+    "Source Markdown blocks:",
+    "```json",
+    JSON.stringify(slice.blocks, null, 2),
+    "```"
+  ].join("\n");
+}
+
+function selectProjectionNodes(spec, image) {
+  const nodeTypes = new Set(spec.matchNodeTypes ?? []);
+  const keywords = (spec.keywords ?? []).map((keyword) => String(keyword).toLowerCase());
+  return image.nodes
+    .filter((node) => node.type !== "spec" && node.type !== "section")
+    .filter((node) => !nodeTypes.size || nodeTypes.has(node.type))
+    .filter((node) => {
+      if (!keywords.length) return true;
+      const haystack = `${node.title ?? ""} ${node.excerpt ?? ""}`.toLowerCase();
+      return keywords.some((keyword) => keywordMatches(haystack, keyword));
+    });
+}
+
+function keywordMatches(haystack, keyword) {
+  const escaped = String(keyword).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i").test(haystack);
+}
+
+function projectionNode(node, sourcePath) {
+  return {
+    id: node.id,
+    type: node.type,
+    title: node.title,
+    text: node.excerpt ?? "",
+    normative: node.normative ?? [],
+    source: {
+      path: sourcePath,
+      lineStart: node.lineStart,
+      lineEnd: node.lineEnd
+    }
+  };
+}
+
+function writeProjectionArtifacts(outDir, projections, projectionSpecs, image, dataifiedSpec) {
+  const run = {
+    schemaVersion: "specgym.llm-projection-run.v0",
+    source: image.source,
+    sourceHash: dataifiedSpec.source.sha256,
+    selectedProjectionIds: Array.from(projections).filter((projection) => projectionSpecs.has(projection)),
+    plans: []
+  };
+  for (const projection of projections) {
+    const spec = projectionSpecs.get(projection);
+    if (!spec) continue;
+    const staleFinalOutput = path.join(outDir, spec.outputPath);
+    if (fs.existsSync(staleFinalOutput)) fs.rmSync(staleFinalOutput, { recursive: true, force: true });
+    const plan = buildProjectionPlan(spec, image, dataifiedSpec);
+    run.plans.push({
+      projectionId: spec.id,
+      callCount: plan.calls.length,
+      planPath: path.join("llm-calls", spec.id, "projection-plan.json"),
+      mergePromptPath: path.join("llm-calls", spec.id, "merge.md"),
+      finalOutputPath: spec.outputPath
+    });
+    writeProjectionPlanFiles(outDir, spec, plan);
+  }
+  if (run.plans.length) {
+    fs.writeFileSync(path.join(outDir, "llm-projection-run.json"), `${JSON.stringify(run, null, 2)}\n`);
+  }
+}
+
+function writeProjectionPlanFiles(outDir, spec, plan) {
+  const dir = path.join(outDir, "llm-calls", spec.id);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "projection-plan.json"), `${JSON.stringify(plan, null, 2)}\n`);
+  plan.calls.forEach((call) => {
+    fs.writeFileSync(path.join(dir, `${call.id}.json`), `${JSON.stringify(call, null, 2)}\n`);
+    fs.writeFileSync(path.join(dir, `${call.id}.md`), `${call.prompt}\n`);
+  });
+  fs.writeFileSync(path.join(dir, "merge.md"), `${projectionMergePrompt(spec, plan)}\n`);
+}
+
+function projectionMergePrompt(spec, plan) {
+  return [
+    `You are merging partial LLM outputs for Spec Gym projection \`${spec.id}\`: ${spec.title}.`,
+    "",
+    "Projection instructions:",
+    spec.description,
+    "",
+    "Final output contract:",
+    `- Format: ${spec.output}`,
+    `- Path: ${spec.outputPath}`,
+    `- Types: ${(spec.types ?? []).join(", ") || "none declared"}`,
+    "",
+    "Merge rules:",
+    "- Preserve source anchors.",
+    "- Deduplicate by source anchor and semantic identity.",
+    "- Keep uncertainty explicit.",
+    "- Report conflicts instead of hiding them.",
+    "- Return only the final projection artifact content.",
+    "",
+    "Expected partial call files:",
+    ...plan.calls.map((call) => `- ${call.id}.json / ${call.id}.md`)
+  ].join("\n");
+}
+
+function requireProjectionSpec(id, projectionSpecs, flagName) {
+  const normalized = normalizeProjectionId(id ?? "");
+  if (!normalized) {
+    throw new Error(`Missing ${flagName} projection`);
+  }
+  const spec = projectionSpecs.get(normalized);
+  if (!spec) {
+    throw new Error(`Unknown ${flagName} projection: ${normalized}`);
+  }
+  return spec;
+}
+
+function projectionCycleId(forwardSpec, reverseSpec) {
+  return `${forwardSpec.id}__${reverseSpec.id}`;
+}
+
+function buildProjectionCycleTrainingPlan(forwardSpec, reverseSpec, image, dataifiedSpec, options = {}) {
+  const iterations = Math.max(1, Number(options.iterations ?? 1));
+  const cycleId = projectionCycleId(forwardSpec, reverseSpec);
+  const rounds = [];
+  for (let index = 0; index < iterations; index += 1) {
+    const roundId = `round-${String(index + 1).padStart(3, "0")}`;
+    const roundRoot = path.join(PROJECTION_CYCLE_DIR, cycleId, roundId);
+    rounds.push({
+      id: roundId,
+      forward: {
+        projectionId: forwardSpec.id,
+        planPath: path.join(roundRoot, "forward", "llm-calls", forwardSpec.id, "projection-plan.json"),
+        mergePromptPath: path.join(roundRoot, "forward", "llm-calls", forwardSpec.id, "merge.md"),
+        intermediateArtifactPath: forwardSpec.outputPath
+      },
+      reverse: {
+        projectionId: reverseSpec.id,
+        callPath: path.join(roundRoot, "reverse", `${reverseSpec.id}-call-001.json`),
+        promptPath: path.join(roundRoot, "reverse", `${reverseSpec.id}-call-001.md`),
+        sourceArtifactPath: forwardSpec.outputPath,
+        returnedSpecDraftPath: reverseSpec.outputPath
+      },
+      judge: {
+        callPath: path.join(roundRoot, "judge-call.json"),
+        promptPath: path.join(roundRoot, "judge.md"),
+        driftReportPath: path.join(roundRoot, "drift-report.json")
+      },
+      gates: [
+        `node src/specgym.mjs play ${reverseSpec.outputPath} --out ${path.join(roundRoot, "roundtrip")}`,
+        "npm test"
+      ]
+    });
+  }
+  return {
+    schemaVersion: "specgym.projection-cycle-training-plan.v0",
+    cycleId,
+    objective: "train_bidirectional_projection_consistency",
+    source: image.source,
+    sourceHash: dataifiedSpec.source.sha256,
+    iterations,
+    forward: projectionCycleEndpoint(forwardSpec),
+    reverse: projectionCycleEndpoint(reverseSpec),
+    rounds,
+    acceptance: {
+      deterministicOutputRequired: false,
+      compare: [
+        "original dataified-spec.json against returned draft dataified-spec.json",
+        "original claim-lattice.json against returned draft claim-lattice.json",
+        "source anchors preserved, renamed, retired, lost, or invented",
+        "intermediate artifact assumptions and open questions carried back into the draft",
+        "findings disappeared only with an explicit correction record"
+      ],
+      rejectOn: [
+        "missing required source anchors",
+        "unsupported certainty introduced by either direction",
+        "intermediate artifact content ignored by reverse projection",
+        "round-trip drift report absent"
+      ]
+    }
+  };
+}
+
+function projectionCycleEndpoint(spec) {
+  return {
+    projectionId: spec.id,
+    title: spec.title,
+    inputForms: spec.inputForms ?? [],
+    output: spec.output,
+    outputPath: spec.outputPath,
+    types: spec.types ?? [],
+    explicitOnly: spec.includeInAll === false
+  };
+}
+
+function writeProjectionCycleTrainingArtifacts(outDir, forwardSpec, reverseSpec, image, dataifiedSpec, options = {}) {
+  const plan = buildProjectionCycleTrainingPlan(forwardSpec, reverseSpec, image, dataifiedSpec, options);
+  const cycleRoot = path.join(outDir, PROJECTION_CYCLE_DIR, plan.cycleId);
+  if (fs.existsSync(cycleRoot)) fs.rmSync(cycleRoot, { recursive: true, force: true });
+  fs.writeFileSync(path.join(outDir, "projection-cycle-training-plan.json"), `${JSON.stringify(plan, null, 2)}\n`);
+  for (const round of plan.rounds) {
+    const roundDir = path.join(cycleRoot, round.id);
+    fs.mkdirSync(roundDir, { recursive: true });
+
+    const forwardPlan = buildProjectionPlan(forwardSpec, image, dataifiedSpec);
+    writeProjectionPlanFiles(path.join(roundDir, "forward"), forwardSpec, forwardPlan);
+
+    const reverseCall = projectionCycleReverseCall(forwardSpec, reverseSpec, image, dataifiedSpec, round);
+    const reverseDir = path.join(roundDir, "reverse");
+    fs.mkdirSync(reverseDir, { recursive: true });
+    fs.writeFileSync(path.join(reverseDir, `${reverseSpec.id}-call-001.json`), `${JSON.stringify(reverseCall, null, 2)}\n`);
+    fs.writeFileSync(path.join(reverseDir, `${reverseSpec.id}-call-001.md`), `${reverseCall.prompt}\n`);
+
+    const judgeCall = projectionCycleJudgeCall(plan, forwardSpec, reverseSpec, round);
+    fs.writeFileSync(path.join(roundDir, "judge-call.json"), `${JSON.stringify(judgeCall, null, 2)}\n`);
+    fs.writeFileSync(path.join(roundDir, "judge.md"), `${judgeCall.prompt}\n`);
+  }
+  return plan;
+}
+
+function projectionCycleReverseCall(forwardSpec, reverseSpec, image, dataifiedSpec, round) {
+  const prompt = projectionCycleReversePrompt(forwardSpec, reverseSpec, round);
+  return {
+    schemaVersion: "specgym.llm-projection-call.v0",
+    id: `${reverseSpec.id}-call-001`,
+    projectionId: reverseSpec.id,
+    roundId: round.id,
+    runner: "codex_app_server",
+    sourceArtifact: {
+      path: forwardSpec.outputPath,
+      producedByProjectionId: forwardSpec.id,
+      producedByRoundId: round.id
+    },
+    originalSourceReference: {
+      path: image.source.path,
+      title: image.source.title,
+      hash: dataifiedSpec.source.sha256,
+      contentAvailableToReverseCall: false
+    },
+    expectedOutput: {
+      format: reverseSpec.output,
+      finalPath: reverseSpec.outputPath,
+      types: reverseSpec.types ?? []
+    },
+    prompt
+  };
+}
+
+function projectionCycleReversePrompt(forwardSpec, reverseSpec, round) {
+  return [
+    `You are executing reverse Spec Gym projection \`${reverseSpec.id}\`: ${reverseSpec.title}.`,
+    "",
+    `Training round: ${round.id}`,
+    "",
+    "Source artifact contract:",
+    `- Read the intermediate artifact produced by \`${forwardSpec.id}\`.`,
+    `- Intermediate artifact path: ${forwardSpec.outputPath}`,
+    "- Use only that intermediate artifact content for reconstruction.",
+    "- Do not use the original spec content; the judge handles comparison later.",
+    "",
+    "Reverse projection instructions:",
+    reverseSpec.description,
+    "",
+    "Output contract:",
+    `- Format: ${reverseSpec.output}`,
+    `- Final artifact path after merge: ${reverseSpec.outputPath}`,
+    `- Type contracts: ${(reverseSpec.types ?? []).join(", ") || "none declared"}`,
+    "",
+    "Rules:",
+    "- Preserve source anchors from the intermediate artifact when present.",
+    "- Mark inferred product intent explicitly.",
+    "- Carry assumptions and open questions forward instead of collapsing them into certainty.",
+    "- Return only the reverse projection artifact content."
+  ].join("\n");
+}
+
+function projectionCycleJudgeCall(plan, forwardSpec, reverseSpec, round) {
+  const prompt = [
+    `You are judging Spec Gym projection cycle \`${plan.cycleId}\` for ${round.id}.`,
+    "",
+    "Inputs the runner must attach:",
+    "- original dataified-spec.json",
+    "- original claim-lattice.json",
+    `- intermediate artifact from \`${forwardSpec.id}\`: ${forwardSpec.outputPath}`,
+    `- returned spec draft from \`${reverseSpec.id}\`: ${reverseSpec.outputPath}`,
+    "- regenerated dataified-spec.json from the returned spec draft",
+    "- regenerated claim-lattice.json from the returned spec draft",
+    "",
+    "Judge task:",
+    "- Compare semantic coverage, not byte equality.",
+    "- Identify source anchors preserved, renamed, retired, lost, or invented.",
+    "- Identify claims lost, claims invented, and claims weakened.",
+    "- Identify assumptions or open questions that disappeared.",
+    "- Identify test or architecture facts that came back as unsupported spec certainty.",
+    "- Decide whether this round should be accepted for training data.",
+    "",
+    "Return JSON only with fields:",
+    "`cycleId`, `roundId`, `acceptedForTraining`, `coverageScore`, `driftScore`, `lostAnchors`, `inventedClaims`, `weakenedClaims`, `collapsedUncertainty`, `notes`."
+  ].join("\n");
+  return {
+    schemaVersion: "specgym.llm-cycle-judge-call.v0",
+    id: `${plan.cycleId}-${round.id}-judge`,
+    cycleId: plan.cycleId,
+    roundId: round.id,
+    runner: "codex_app_server",
+    outputPath: round.judge.driftReportPath,
+    prompt
+  };
+}
+
 async function main(argv) {
   const args = parseArgs(argv);
   if (!PRIMARY_COMMANDS.has(args.command) || !args.input) {
-    process.stderr.write("Usage: node src/specgym.mjs <play|score|step|rollout|export> <spec.md> [--out out/specgym] [--title Title]\n");
+    process.stderr.write("Usage: node src/specgym.mjs <play|score|step|rollout|export|mine|train> <spec.md|repo> [--out out/specgym] [--title Title]\n");
     process.exitCode = 2;
     return;
   }
 
   const inputPath = path.resolve(args.input);
   const outDir = path.resolve(args.outDir);
-  const markdown = fs.readFileSync(inputPath, "utf8");
+
+  if (args.command === "mine") {
+    const experiment = buildHistoricalSpecExperimentFromGit(inputPath, {
+      branch: args.branch,
+      since: args.since,
+      samples: args.samples,
+      iterations: args.iterations
+    });
+    fs.mkdirSync(outDir, { recursive: true });
+    removeStaleCoreFiles(outDir);
+    writeHistoricalSpecArtifacts(outDir, experiment);
+    const minedSpecPath = path.join(outDir, "mined-spec.md");
+    const image = buildSpecGymState(experiment.bestSpec.markdown, minedSpecPath, { title: args.title });
+    const dataifiedSpec = buildDataifiedSpec(experiment.bestSpec.markdown, minedSpecPath, { title: args.title, claimNodes: image.nodes });
+    writeCoreArtifacts(outDir, image, dataifiedSpec);
+    process.stdout.write(`Spec Gym mine artifacts written to ${outDir}\n`);
+    process.stdout.write(`repo=${experiment.source.repo}\n`);
+    process.stdout.write(`root=${experiment.source.root} target=${experiment.source.target}\n`);
+    process.stdout.write(`samples=${experiment.source.selectedSampleCount} firstParentCommits=${experiment.source.totalFirstParentCommits}\n`);
+    process.stdout.write(`bestPrompt=${experiment.bestSpec.promptId} reward=${experiment.bestSpec.reward}\n`);
+    process.stdout.write(`nodes=${image.stats.nodeCount} edges=${image.stats.edgeCount} findings=${image.stats.findingCount}\n`);
+    return;
+  }
+
+  const inputStats = fs.statSync(inputPath);
+  const codeSourcePack = inputStats.isDirectory() ? buildCodeSourcePack(inputPath) : null;
+  const markdown = codeSourcePack ? renderCodeSourceMarkdown(codeSourcePack) : fs.readFileSync(inputPath, "utf8");
   const image = buildSpecGymState(markdown, inputPath, { title: args.title });
-  const projections = normalizeProjections(args.projections);
+  const dataifiedSpec = buildDataifiedSpec(markdown, inputPath, { title: args.title, claimNodes: image.nodes });
+  const projectionSpecs = loadProjectionSpecs(process.cwd());
   fs.mkdirSync(outDir, { recursive: true });
   removeStaleCoreFiles(outDir);
-  removeStaleProjectionFiles(outDir, projections);
-  writeCoreArtifacts(outDir, image);
+  writeCoreArtifacts(outDir, image, dataifiedSpec);
+  if (codeSourcePack) {
+    fs.writeFileSync(path.join(outDir, "code-source-pack.json"), `${JSON.stringify(codeSourcePack, null, 2)}\n`);
+  }
+
+  if (args.command === "train") {
+    const forwardSpec = requireProjectionSpec(args.forwardProjection, projectionSpecs, "--forward");
+    const reverseSpec = requireProjectionSpec(args.reverseProjection, projectionSpecs, "--reverse");
+    removeStaleProjectionFiles(outDir, new Set(), projectionSpecs);
+    const cyclePlan = writeProjectionCycleTrainingArtifacts(outDir, forwardSpec, reverseSpec, image, dataifiedSpec, {
+      iterations: args.iterations
+    });
+    process.stdout.write(`Spec Gym train cycle written to ${outDir}\n`);
+    process.stdout.write(`cycle=${cyclePlan.cycleId}\n`);
+    process.stdout.write(`rounds=${cyclePlan.rounds.length}\n`);
+    process.stdout.write(`nodes=${image.stats.nodeCount} edges=${image.stats.edgeCount} findings=${image.stats.findingCount}\n`);
+    process.stdout.write(`score=${image.environment.score}\n`);
+    return;
+  }
+
+  const projections = normalizeProjections(args.projections, projectionSpecs);
+  removeStaleProjectionFiles(outDir, projections, projectionSpecs);
+  writeProjectionArtifacts(outDir, projections, projectionSpecs, image, dataifiedSpec);
 
   if (projections.has("kumu")) {
     fs.writeFileSync(path.join(outDir, "kumu-elements.csv"), renderKumuElements(image));
@@ -1057,5 +1904,8 @@ export {
   renderLean,
   renderNeo4jCypher,
   renderStructurizr,
+  loadProjectionSpecs,
+  renderProjection,
+  buildProjectionCycleTrainingPlan,
   normalizeProjections
 };

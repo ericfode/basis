@@ -1,0 +1,29 @@
+{
+  "id": "protobuf-schema-call-004",
+  "projectionId": "protobuf-schema",
+  "sliceId": "protobuf-schema-slice-004",
+  "runner": "codex_app_server",
+  "source": {
+    "path": "/Users/ericfode/Documents/New project 4/spec.md",
+    "title": "Spec Gym Specification",
+    "hash": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583"
+  },
+  "expectedOutput": {
+    "format": "proto",
+    "finalPath": "spec.proto",
+    "types": [
+      "protobuf-schema",
+      "data-type",
+      "protocol"
+    ]
+  },
+  "sourceNodeIds": [
+    "claim-11-projection-boundary-input-schema-version",
+    "dependency-11-projection-boundary-emitted-files-or-api-calls"
+  ],
+  "blockIds": [
+    "block-0329-heading-11-projection-boundary",
+    "block-0339-list-capability-served-input-schema-version-emitted-files-or-api-calls-import-or-e"
+  ],
+  "prompt": "You are executing Spec Gym projection `protobuf-schema`: Protobuf Schema.\n\nProjection instructions:\n# Protobuf Schema\n\nDerive a `.proto` schema from explicit data, protocol, request, response, and\nevent claims in the spec.\n\nThe projection should keep uncertain message or field names as comments or\nquestions rather than silently committing to an invented interface.\n\nOutput contract:\n- Format: proto\n- Final artifact path after merge: spec.proto\n- Type contracts: protobuf-schema, data-type, protocol\n\nRules:\n- Use only the source slice below.\n- Preserve source anchors for every emitted item.\n- Mark inferred items explicitly.\n- Do not fill missing facts with invented certainty.\n- Return only the partial projection payload for this slice.\n\nSource nodes:\n```json\n[\n  {\n    \"id\": \"claim-11-projection-boundary-input-schema-version\",\n    \"type\": \"claim\",\n    \"title\": \"input schema version\",\n    \"text\": \"input schema version\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 739,\n      \"lineEnd\": 739\n    }\n  },\n  {\n    \"id\": \"dependency-11-projection-boundary-emitted-files-or-api-calls\",\n    \"type\": \"dependency\",\n    \"title\": \"emitted files or API calls\",\n    \"text\": \"emitted files or API calls\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 740,\n      \"lineEnd\": 740\n    }\n  }\n]\n```\n\nSource Markdown blocks:\n```json\n[\n  {\n    \"id\": \"block-0329-heading-11-projection-boundary\",\n    \"type\": \"heading\",\n    \"lineStart\": 720,\n    \"lineEnd\": 720,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"## 11. Projection Boundary\"\n  },\n  {\n    \"id\": \"block-0339-list-capability-served-input-schema-version-emitted-files-or-api-calls-import-or-e\",\n    \"type\": \"list\",\n    \"lineStart\": 739,\n    \"lineEnd\": 744,\n    \"generatedClaimIds\": [\n      \"claim-11-projection-boundary-input-schema-version\",\n      \"dependency-11-projection-boundary-emitted-files-or-api-calls\",\n      \"claim-11-projection-boundary-import-or-execution-instructions\",\n      \"claim-11-projection-boundary-lossy-transformations\",\n      \"test-11-projection-boundary-verification-command-or-manual-check\"\n    ],\n    \"rawMarkdown\": \"- capability served\\n- input schema version\\n- emitted files or API calls\\n- import or execution instructions\\n- lossy transformations\\n- verification command or manual check\"\n  }\n]\n```"
+}

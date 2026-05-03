@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "specgym.projection-cycle-training-plan.v0",
+  "cycleId": "aws-architecture__architecture-to-spec",
+  "objective": "train_bidirectional_projection_consistency",
+  "source": {
+    "path": "/Users/ericfode/Documents/New project 4/spec.md",
+    "title": "Spec Gym Specification",
+    "lineCount": 780
+  },
+  "sourceHash": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583",
+  "iterations": 3,
+  "forward": {
+    "projectionId": "aws-architecture",
+    "title": "AWS Architecture Document",
+    "inputForms": [
+      "dataified_spec",
+      "claim"
+    ],
+    "output": "markdown",
+    "outputPath": "architecture.md",
+    "types": [
+      "architecture-document"
+    ],
+    "explicitOnly": false
+  },
+  "reverse": {
+    "projectionId": "architecture-to-spec",
+    "title": "Architecture Document To Spec Draft",
+    "inputForms": [
+      "architecture_document",
+      "markdown"
+    ],
+    "output": "markdown",
+    "outputPath": "spec-draft.md",
+    "types": [
+      "spec-draft"
+    ],
+    "explicitOnly": true
+  },
+  "rounds": [
+    {
+      "id": "round-001",
+      "forward": {
+        "projectionId": "aws-architecture",
+        "planPath": "projection-cycles/aws-architecture__architecture-to-spec/round-001/forward/llm-calls/aws-architecture/projection-plan.json",
+        "mergePromptPath": "projection-cycles/aws-architecture__architecture-to-spec/round-001/forward/llm-calls/aws-architecture/merge.md",
+        "intermediateArtifactPath": "architecture.md"
+      },
+      "reverse": {
+        "projectionId": "architecture-to-spec",
+        "callPath": "projection-cycles/aws-architecture__architecture-to-spec/round-001/reverse/architecture-to-spec-call-001.json",
+        "promptPath": "projection-cycles/aws-architecture__architecture-to-spec/round-001/reverse/architecture-to-spec-call-001.md",
+        "sourceArtifactPath": "architecture.md",
+        "returnedSpecDraftPath": "spec-draft.md"
+      },
+      "judge": {
+        "callPath": "projection-cycles/aws-architecture__architecture-to-spec/round-001/judge-call.json",
+        "promptPath": "projection-cycles/aws-architecture__architecture-to-spec/round-001/judge.md",
+        "driftReportPath": "projection-cycles/aws-architecture__architecture-to-spec/round-001/drift-report.json"
+      },
+      "gates": [
+        "node src/specgym.mjs play spec-draft.md --out projection-cycles/aws-architecture__architecture-to-spec/round-001/roundtrip",
+        "npm test"
+      ]
+    },
+    {
+      "id": "round-002",
+      "forward": {
+        "projectionId": "aws-architecture",
+        "planPath": "projection-cycles/aws-architecture__architecture-to-spec/round-002/forward/llm-calls/aws-architecture/projection-plan.json",
+        "mergePromptPath": "projection-cycles/aws-architecture__architecture-to-spec/round-002/forward/llm-calls/aws-architecture/merge.md",
+        "intermediateArtifactPath": "architecture.md"
+      },
+      "reverse": {
+        "projectionId": "architecture-to-spec",
+        "callPath": "projection-cycles/aws-architecture__architecture-to-spec/round-002/reverse/architecture-to-spec-call-001.json",
+        "promptPath": "projection-cycles/aws-architecture__architecture-to-spec/round-002/reverse/architecture-to-spec-call-001.md",
+        "sourceArtifactPath": "architecture.md",
+        "returnedSpecDraftPath": "spec-draft.md"
+      },
+      "judge": {
+        "callPath": "projection-cycles/aws-architecture__architecture-to-spec/round-002/judge-call.json",
+        "promptPath": "projection-cycles/aws-architecture__architecture-to-spec/round-002/judge.md",
+        "driftReportPath": "projection-cycles/aws-architecture__architecture-to-spec/round-002/drift-report.json"
+      },
+      "gates": [
+        "node src/specgym.mjs play spec-draft.md --out projection-cycles/aws-architecture__architecture-to-spec/round-002/roundtrip",
+        "npm test"
+      ]
+    },
+    {
+      "id": "round-003",
+      "forward": {
+        "projectionId": "aws-architecture",
+        "planPath": "projection-cycles/aws-architecture__architecture-to-spec/round-003/forward/llm-calls/aws-architecture/projection-plan.json",
+        "mergePromptPath": "projection-cycles/aws-architecture__architecture-to-spec/round-003/forward/llm-calls/aws-architecture/merge.md",
+        "intermediateArtifactPath": "architecture.md"
+      },
+      "reverse": {
+        "projectionId": "architecture-to-spec",
+        "callPath": "projection-cycles/aws-architecture__architecture-to-spec/round-003/reverse/architecture-to-spec-call-001.json",
+        "promptPath": "projection-cycles/aws-architecture__architecture-to-spec/round-003/reverse/architecture-to-spec-call-001.md",
+        "sourceArtifactPath": "architecture.md",
+        "returnedSpecDraftPath": "spec-draft.md"
+      },
+      "judge": {
+        "callPath": "projection-cycles/aws-architecture__architecture-to-spec/round-003/judge-call.json",
+        "promptPath": "projection-cycles/aws-architecture__architecture-to-spec/round-003/judge.md",
+        "driftReportPath": "projection-cycles/aws-architecture__architecture-to-spec/round-003/drift-report.json"
+      },
+      "gates": [
+        "node src/specgym.mjs play spec-draft.md --out projection-cycles/aws-architecture__architecture-to-spec/round-003/roundtrip",
+        "npm test"
+      ]
+    }
+  ],
+  "acceptance": {
+    "deterministicOutputRequired": false,
+    "compare": [
+      "original dataified-spec.json against returned draft dataified-spec.json",
+      "original claim-lattice.json against returned draft claim-lattice.json",
+      "source anchors preserved, renamed, retired, lost, or invented",
+      "intermediate artifact assumptions and open questions carried back into the draft",
+      "findings disappeared only with an explicit correction record"
+    ],
+    "rejectOn": [
+      "missing required source anchors",
+      "unsupported certainty introduced by either direction",
+      "intermediate artifact content ignored by reverse projection",
+      "round-trip drift report absent"
+    ]
+  }
+}

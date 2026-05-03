@@ -1,0 +1,1277 @@
+{
+  "schemaVersion": "specgym.prompt-policy-loop.v0",
+  "objective": "maximize temporal validity from the initial commit while covering stable project essence",
+  "best": {
+    "episode": 2,
+    "prompt": {
+      "id": "genesis-stable-essence-stricter-1:e2",
+      "requireRoot": true,
+      "minPresence": 0.8799999999999999,
+      "maxClaims": 10,
+      "detailPenalty": 0.0015,
+      "writerPrompt": "Write a compact as-built spec from the first snapshot. Include only high-essence claims that are evidenced at the root and remain stable through later snapshots. Tighten to claims with stronger temporal support.",
+      "judgePrompt": "Reward temporal validity first, then essence coverage. Penalize claims absent from the first snapshot."
+    },
+    "candidate": {
+      "promptId": "genesis-stable-essence-stricter-1:e2",
+      "writerPrompt": "Write a compact as-built spec from the first snapshot. Include only high-essence claims that are evidenced at the root and remain stable through later snapshots. Tighten to claims with stronger temporal support.",
+      "judgePrompt": "Reward temporal validity first, then essence coverage. Penalize claims absent from the first snapshot.",
+      "policy": {
+        "requireRoot": true,
+        "minPresence": 0.8799999999999999,
+        "maxClaims": 10,
+        "detailPenalty": 0.0015
+      },
+      "selectedFeatureIds": [
+        "networked_command_server",
+        "in_memory_primary_dataset",
+        "typed_data_structures",
+        "key_value_namespace",
+        "rdb_persistence",
+        "redis_protocol",
+        "replication",
+        "test_suite",
+        "configuration_file",
+        "client_cli"
+      ],
+      "selectedFeatures": [
+        {
+          "id": "networked_command_server",
+          "title": "Networked command server",
+          "category": "core",
+          "claim": "Redis MUST provide a long-running network server that accepts client commands over the Redis protocol.",
+          "essenceWeight": 10,
+          "presence": 1,
+          "presentSnapshots": [
+            "ed9b544e10b8",
+            "90fdc8269782",
+            "dab5332f95bd",
+            "90e99a208277",
+            "8f52173b2cdf",
+            "4082c38a60ee",
+            "e91f0ea1b3b1",
+            "448d696549dc",
+            "b42466b92586",
+            "7e5a6313f0ad",
+            "fba15850e5c3",
+            "c1bd61a4a502",
+            "9a2c6ba4e7be",
+            "2432f55278b8"
+          ],
+          "firstSeenCommit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "firstSeenDate": "2009-03-22 10:30:00 +0100",
+          "evidencePaths": [
+            "ae.c",
+            "anet.c",
+            "doc/ProtocolSpecification.html",
+            "redis.c",
+            "src/ae.c",
+            "src/anet.c",
+            "src/networking.c",
+            "src/server.c"
+          ]
+        },
+        {
+          "id": "in_memory_primary_dataset",
+          "title": "In-memory primary dataset",
+          "category": "core",
+          "claim": "Redis MUST keep the active dataset in memory while serving commands.",
+          "essenceWeight": 10,
+          "presence": 1,
+          "presentSnapshots": [
+            "ed9b544e10b8",
+            "90fdc8269782",
+            "dab5332f95bd",
+            "90e99a208277",
+            "8f52173b2cdf",
+            "4082c38a60ee",
+            "e91f0ea1b3b1",
+            "448d696549dc",
+            "b42466b92586",
+            "7e5a6313f0ad",
+            "fba15850e5c3",
+            "c1bd61a4a502",
+            "9a2c6ba4e7be",
+            "2432f55278b8"
+          ],
+          "firstSeenCommit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "firstSeenDate": "2009-03-22 10:30:00 +0100",
+          "evidencePaths": [
+            "dict.c",
+            "redis.c",
+            "src/dict.c",
+            "src/server.c"
+          ]
+        },
+        {
+          "id": "typed_data_structures",
+          "title": "Typed data structures",
+          "category": "core",
+          "claim": "Redis MUST treat values as data structures rather than only opaque strings.",
+          "essenceWeight": 10,
+          "presence": 1,
+          "presentSnapshots": [
+            "ed9b544e10b8",
+            "90fdc8269782",
+            "dab5332f95bd",
+            "90e99a208277",
+            "8f52173b2cdf",
+            "4082c38a60ee",
+            "e91f0ea1b3b1",
+            "448d696549dc",
+            "b42466b92586",
+            "7e5a6313f0ad",
+            "fba15850e5c3",
+            "c1bd61a4a502",
+            "9a2c6ba4e7be",
+            "2432f55278b8"
+          ],
+          "firstSeenCommit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "firstSeenDate": "2009-03-22 10:30:00 +0100",
+          "evidencePaths": [
+            "doc/SaddCommand.html",
+            "doc/RpoplpushCommand.html",
+            "src/t_hash.c",
+            "src/t_list.c",
+            "src/t_set.c",
+            "src/t_string.c",
+            "src/t_zset.c",
+            "src/t_stream.c"
+          ]
+        },
+        {
+          "id": "key_value_namespace",
+          "title": "Key-value namespace",
+          "category": "core",
+          "claim": "Redis MUST expose a key-addressed namespace where string keys are associated with typed values.",
+          "essenceWeight": 9,
+          "presence": 1,
+          "presentSnapshots": [
+            "ed9b544e10b8",
+            "90fdc8269782",
+            "dab5332f95bd",
+            "90e99a208277",
+            "8f52173b2cdf",
+            "4082c38a60ee",
+            "e91f0ea1b3b1",
+            "448d696549dc",
+            "b42466b92586",
+            "7e5a6313f0ad",
+            "fba15850e5c3",
+            "c1bd61a4a502",
+            "9a2c6ba4e7be",
+            "2432f55278b8"
+          ],
+          "firstSeenCommit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "firstSeenDate": "2009-03-22 10:30:00 +0100",
+          "evidencePaths": [
+            "doc/DbsizeCommand.html",
+            "doc/DelCommand.html",
+            "doc/ExistsCommand.html",
+            "doc/KeysCommand.html",
+            "doc/HdelCommand.html",
+            "doc/HexistsCommand.html",
+            "src/commands/dbsize.json",
+            "src/commands/del.json"
+          ]
+        },
+        {
+          "id": "rdb_persistence",
+          "title": "Snapshot persistence",
+          "category": "durability",
+          "claim": "Redis MUST support snapshot persistence that can reload the dataset after restart.",
+          "essenceWeight": 9,
+          "presence": 1,
+          "presentSnapshots": [
+            "ed9b544e10b8",
+            "90fdc8269782",
+            "dab5332f95bd",
+            "90e99a208277",
+            "8f52173b2cdf",
+            "4082c38a60ee",
+            "e91f0ea1b3b1",
+            "448d696549dc",
+            "b42466b92586",
+            "7e5a6313f0ad",
+            "fba15850e5c3",
+            "c1bd61a4a502",
+            "9a2c6ba4e7be",
+            "2432f55278b8"
+          ],
+          "firstSeenCommit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "firstSeenDate": "2009-03-22 10:30:00 +0100",
+          "evidencePaths": [
+            "doc/BgsaveCommand.html",
+            "src/rdb.c",
+            "src/commands/bgsave.json",
+            "src/commands/lastsave.json",
+            "src/commands/save.json"
+          ]
+        },
+        {
+          "id": "redis_protocol",
+          "title": "Redis protocol",
+          "category": "interface",
+          "claim": "Redis MUST define a client/server protocol with parseable command requests and explicit replies.",
+          "essenceWeight": 8,
+          "presence": 1,
+          "presentSnapshots": [
+            "ed9b544e10b8",
+            "90fdc8269782",
+            "dab5332f95bd",
+            "90e99a208277",
+            "8f52173b2cdf",
+            "4082c38a60ee",
+            "e91f0ea1b3b1",
+            "448d696549dc",
+            "b42466b92586",
+            "7e5a6313f0ad",
+            "fba15850e5c3",
+            "c1bd61a4a502",
+            "9a2c6ba4e7be",
+            "2432f55278b8"
+          ],
+          "firstSeenCommit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "firstSeenDate": "2009-03-22 10:30:00 +0100",
+          "evidencePaths": [
+            "doc/ProtocolSpecification.html",
+            "redis.c",
+            "src/networking.c",
+            "src/resp_parser.c"
+          ]
+        },
+        {
+          "id": "replication",
+          "title": "Replication",
+          "category": "durability",
+          "claim": "Redis SHOULD support master-replica replication for availability and data-copy propagation.",
+          "essenceWeight": 8,
+          "presence": 1,
+          "presentSnapshots": [
+            "ed9b544e10b8",
+            "90fdc8269782",
+            "dab5332f95bd",
+            "90e99a208277",
+            "8f52173b2cdf",
+            "4082c38a60ee",
+            "e91f0ea1b3b1",
+            "448d696549dc",
+            "b42466b92586",
+            "7e5a6313f0ad",
+            "fba15850e5c3",
+            "c1bd61a4a502",
+            "9a2c6ba4e7be",
+            "2432f55278b8"
+          ],
+          "firstSeenCommit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "firstSeenDate": "2009-03-22 10:30:00 +0100",
+          "evidencePaths": [
+            "doc/SlaveofCommand.html",
+            "src/replication.c",
+            "src/commands/psync.json",
+            "src/commands/replicaof.json",
+            "src/commands/slaveof.json",
+            "src/commands/sync.json"
+          ]
+        },
+        {
+          "id": "test_suite",
+          "title": "Regression test suite",
+          "category": "validation",
+          "claim": "Redis SHOULD preserve executable tests or scripted validation for command behavior.",
+          "essenceWeight": 7,
+          "presence": 1,
+          "presentSnapshots": [
+            "ed9b544e10b8",
+            "90fdc8269782",
+            "dab5332f95bd",
+            "90e99a208277",
+            "8f52173b2cdf",
+            "4082c38a60ee",
+            "e91f0ea1b3b1",
+            "448d696549dc",
+            "b42466b92586",
+            "7e5a6313f0ad",
+            "fba15850e5c3",
+            "c1bd61a4a502",
+            "9a2c6ba4e7be",
+            "2432f55278b8"
+          ],
+          "firstSeenCommit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "firstSeenDate": "2009-03-22 10:30:00 +0100",
+          "evidencePaths": [
+            "client-libraries/erlang/test/Makefile",
+            "client-libraries/erlang/test/erldis_tests.erl",
+            "client-libraries/erlang/test/proto_tests.erl",
+            "test-redis.tcl",
+            "tests/assets/default.conf",
+            "tests/integration/aof.tcl",
+            "tests/integration/replication.tcl",
+            "tests/support/redis.tcl"
+          ]
+        },
+        {
+          "id": "configuration_file",
+          "title": "Configuration file",
+          "category": "interface",
+          "claim": "Redis SHOULD allow server behavior to be selected through a configuration file while retaining built-in defaults.",
+          "essenceWeight": 6,
+          "presence": 1,
+          "presentSnapshots": [
+            "ed9b544e10b8",
+            "90fdc8269782",
+            "dab5332f95bd",
+            "90e99a208277",
+            "8f52173b2cdf",
+            "4082c38a60ee",
+            "e91f0ea1b3b1",
+            "448d696549dc",
+            "b42466b92586",
+            "7e5a6313f0ad",
+            "fba15850e5c3",
+            "c1bd61a4a502",
+            "9a2c6ba4e7be",
+            "2432f55278b8"
+          ],
+          "firstSeenCommit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "firstSeenDate": "2009-03-22 10:30:00 +0100",
+          "evidencePaths": [
+            "redis.conf",
+            "src/config.c"
+          ]
+        },
+        {
+          "id": "client_cli",
+          "title": "Interactive client",
+          "category": "tooling",
+          "claim": "Redis SHOULD ship client tooling for interactive or scripted command execution.",
+          "essenceWeight": 5,
+          "presence": 1,
+          "presentSnapshots": [
+            "ed9b544e10b8",
+            "90fdc8269782",
+            "dab5332f95bd",
+            "90e99a208277",
+            "8f52173b2cdf",
+            "4082c38a60ee",
+            "e91f0ea1b3b1",
+            "448d696549dc",
+            "b42466b92586",
+            "7e5a6313f0ad",
+            "fba15850e5c3",
+            "c1bd61a4a502",
+            "9a2c6ba4e7be",
+            "2432f55278b8"
+          ],
+          "firstSeenCommit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "firstSeenDate": "2009-03-22 10:30:00 +0100",
+          "evidencePaths": [
+            "redis-cli.c",
+            "src/redis-cli.c"
+          ]
+        }
+      ],
+      "rejectedFeatureIds": [
+        "atomic_commands",
+        "benchmark_tool",
+        "lua_scripting",
+        "append_only_file",
+        "transactions",
+        "pubsub",
+        "cluster_mode",
+        "sentinel",
+        "modules",
+        "streams",
+        "acl_security",
+        "tls_transport"
+      ]
+    },
+    "judgement": {
+      "reward": 0.8547,
+      "validSnapshots": 14,
+      "totalSnapshots": 14,
+      "timeValidity": 1,
+      "totalDurationDays": 6248,
+      "validThrough": {
+        "commit": "2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8",
+        "date": "2026-04-30 21:38:25 +0800",
+        "sampleIndex": 13
+      },
+      "firstInvalid": null,
+      "averageCoverage": 0.6729,
+      "stability": 1,
+      "genesisCoverage": 0.7692,
+      "compactness": 0.3162,
+      "snapshotResults": [
+        {
+          "commit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+          "short": "ed9b544e10b8",
+          "date": "2009-03-22 10:30:00 +0100",
+          "valid": true,
+          "coverage": 0.837,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "90fdc82697823a4e8228ae7e5c5ada0f56d160d7",
+          "short": "90fdc8269782",
+          "date": "2010-05-26 17:55:28 +0200",
+          "valid": true,
+          "coverage": 0.739,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "dab5332f95bd2f4fabf8e746b0998cd5bc37e448",
+          "short": "dab5332f95bd",
+          "date": "2011-11-09 21:59:27 +0100",
+          "valid": true,
+          "coverage": 0.732,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "90e99a208277d976a7682f4249fa873295c65de8",
+          "short": "90e99a208277",
+          "date": "2013-03-14 21:27:12 +0100",
+          "valid": true,
+          "coverage": 0.707,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "8f52173b2cdf47b7ef5ceda831ff44bf481d2090",
+          "short": "8f52173b2cdf",
+          "date": "2014-03-27 15:01:24 +0100",
+          "valid": true,
+          "coverage": 0.707,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "4082c38a60eedd524c78ef48c1b241105f4ddc50",
+          "short": "4082c38a60ee",
+          "date": "2015-05-25 12:06:25 +0200",
+          "valid": true,
+          "coverage": 0.707,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "e91f0ea1b3b1fa6237ec6b359a2665ab0f472989",
+          "short": "e91f0ea1b3b1",
+          "date": "2017-01-10 11:33:50 +0100",
+          "valid": true,
+          "coverage": 0.683,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "448d696549dc156fc26f93208d4e2a52d655dcea",
+          "short": "448d696549dc",
+          "date": "2018-09-25 12:31:46 +0200",
+          "valid": true,
+          "coverage": 0.661,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "b42466b92586d1adfeec54bda14d4ad54b0764d6",
+          "short": "b42466b92586",
+          "date": "2019-11-19 11:23:43 +0100",
+          "valid": true,
+          "coverage": 0.626,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "7e5a6313f0add995c723351532d994118e3e8a6d",
+          "short": "7e5a6313f0ad",
+          "date": "2020-11-24 17:58:10 +0200",
+          "valid": true,
+          "coverage": 0.626,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "fba15850e5c31666e4c3560a3be7fd034fa7e2b6",
+          "short": "fba15850e5c3",
+          "date": "2021-10-04 12:10:31 +0300",
+          "valid": true,
+          "coverage": 0.626,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "c1bd61a4a50225982d4a9bc7c66fec913b0c9af2",
+          "short": "c1bd61a4a502",
+          "date": "2022-08-24 12:51:36 +0300",
+          "valid": true,
+          "coverage": 0.59,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "9a2c6ba4e7be4121044a1ef048e953333535caf5",
+          "short": "9a2c6ba4e7be",
+          "date": "2024-06-04 20:35:26 +0800",
+          "valid": true,
+          "coverage": 0.59,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        },
+        {
+          "commit": "2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8",
+          "short": "2432f55278b8",
+          "date": "2026-04-30 21:38:25 +0800",
+          "valid": true,
+          "coverage": 0.59,
+          "supportedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "missingFeatureIds": []
+        }
+      ]
+    }
+  },
+  "episodes": [
+    {
+      "episode": 1,
+      "results": [
+        {
+          "promptId": "genesis-stable-essence:e1",
+          "reward": 0.8396,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting"
+          ],
+          "validSnapshots": 13,
+          "totalSnapshots": 14,
+          "timeValidity": 0.9149,
+          "averageCoverage": 0.7359,
+          "firstInvalid": {
+            "commit": "90fdc82697823a4e8228ae7e5c5ada0f56d160d7",
+            "date": "2010-05-26 17:55:28 +0200",
+            "sampleIndex": 1,
+            "missingFeatureIds": [
+              "lua_scripting"
+            ]
+          }
+        },
+        {
+          "promptId": "broad-root-contract:e1",
+          "reward": 0.8276,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting"
+          ],
+          "validSnapshots": 13,
+          "totalSnapshots": 14,
+          "timeValidity": 0.9149,
+          "averageCoverage": 0.7359,
+          "firstInvalid": {
+            "commit": "90fdc82697823a4e8228ae7e5c5ada0f56d160d7",
+            "date": "2010-05-26 17:55:28 +0200",
+            "sampleIndex": 1,
+            "missingFeatureIds": [
+              "lua_scripting"
+            ]
+          }
+        },
+        {
+          "promptId": "future-aware-project-spec:e1",
+          "reward": 0.686,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting",
+            "append_only_file",
+            "transactions",
+            "pubsub",
+            "cluster_mode",
+            "sentinel",
+            "modules"
+          ],
+          "validSnapshots": 8,
+          "totalSnapshots": 14,
+          "timeValidity": 0.5438,
+          "averageCoverage": 0.9394,
+          "firstInvalid": {
+            "commit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+            "date": "2009-03-22 10:30:00 +0100",
+            "sampleIndex": 0,
+            "missingFeatureIds": [
+              "append_only_file",
+              "transactions",
+              "pubsub",
+              "cluster_mode",
+              "sentinel",
+              "modules"
+            ]
+          }
+        },
+        {
+          "promptId": "minimal-constitution:e1",
+          "reward": 0.8231,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite"
+          ],
+          "validSnapshots": 14,
+          "totalSnapshots": 14,
+          "timeValidity": 1,
+          "averageCoverage": 0.5827,
+          "firstInvalid": null
+        }
+      ]
+    },
+    {
+      "episode": 2,
+      "results": [
+        {
+          "promptId": "genesis-stable-essence-keep:e2",
+          "reward": 0.8396,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting"
+          ],
+          "validSnapshots": 13,
+          "totalSnapshots": 14,
+          "timeValidity": 0.9149,
+          "averageCoverage": 0.7359,
+          "firstInvalid": {
+            "commit": "90fdc82697823a4e8228ae7e5c5ada0f56d160d7",
+            "date": "2010-05-26 17:55:28 +0200",
+            "sampleIndex": 1,
+            "missingFeatureIds": [
+              "lua_scripting"
+            ]
+          }
+        },
+        {
+          "promptId": "genesis-stable-essence-wider-1:e2",
+          "reward": 0.8276,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting"
+          ],
+          "validSnapshots": 13,
+          "totalSnapshots": 14,
+          "timeValidity": 0.9149,
+          "averageCoverage": 0.7359,
+          "firstInvalid": {
+            "commit": "90fdc82697823a4e8228ae7e5c5ada0f56d160d7",
+            "date": "2010-05-26 17:55:28 +0200",
+            "sampleIndex": 1,
+            "missingFeatureIds": [
+              "lua_scripting"
+            ]
+          }
+        },
+        {
+          "promptId": "genesis-stable-essence-stricter-1:e2",
+          "reward": 0.8547,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "validSnapshots": 14,
+          "totalSnapshots": 14,
+          "timeValidity": 1,
+          "averageCoverage": 0.6729,
+          "firstInvalid": null
+        },
+        {
+          "promptId": "genesis-stable-essence-probe-future-1:e2",
+          "reward": 0.7828,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting",
+            "append_only_file",
+            "transactions",
+            "pubsub",
+            "cluster_mode",
+            "sentinel"
+          ],
+          "validSnapshots": 11,
+          "totalSnapshots": 14,
+          "timeValidity": 0.7675,
+          "averageCoverage": 0.922,
+          "firstInvalid": {
+            "commit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+            "date": "2009-03-22 10:30:00 +0100",
+            "sampleIndex": 0,
+            "missingFeatureIds": [
+              "append_only_file",
+              "transactions",
+              "pubsub",
+              "cluster_mode",
+              "sentinel"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "episode": 3,
+      "results": [
+        {
+          "promptId": "genesis-stable-essence-stricter-1-keep:e3",
+          "reward": 0.8547,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "validSnapshots": 14,
+          "totalSnapshots": 14,
+          "timeValidity": 1,
+          "averageCoverage": 0.6729,
+          "firstInvalid": null
+        },
+        {
+          "promptId": "genesis-stable-essence-stricter-1-wider-2:e3",
+          "reward": 0.8336,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting"
+          ],
+          "validSnapshots": 13,
+          "totalSnapshots": 14,
+          "timeValidity": 0.9149,
+          "averageCoverage": 0.7359,
+          "firstInvalid": {
+            "commit": "90fdc82697823a4e8228ae7e5c5ada0f56d160d7",
+            "date": "2010-05-26 17:55:28 +0200",
+            "sampleIndex": 1,
+            "missingFeatureIds": [
+              "lua_scripting"
+            ]
+          }
+        },
+        {
+          "promptId": "genesis-stable-essence-stricter-1-stricter-2:e3",
+          "reward": 0.8231,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite"
+          ],
+          "validSnapshots": 14,
+          "totalSnapshots": 14,
+          "timeValidity": 1,
+          "averageCoverage": 0.5827,
+          "firstInvalid": null
+        },
+        {
+          "promptId": "genesis-stable-essence-stricter-1-probe-future-2:e3",
+          "reward": 0.8226,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting",
+            "append_only_file",
+            "transactions",
+            "pubsub",
+            "cluster_mode"
+          ],
+          "validSnapshots": 12,
+          "totalSnapshots": 14,
+          "timeValidity": 0.8461,
+          "averageCoverage": 0.8974,
+          "firstInvalid": {
+            "commit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+            "date": "2009-03-22 10:30:00 +0100",
+            "sampleIndex": 0,
+            "missingFeatureIds": [
+              "append_only_file",
+              "transactions",
+              "pubsub",
+              "cluster_mode"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "episode": 4,
+      "results": [
+        {
+          "promptId": "genesis-stable-essence-stricter-1-keep:e4",
+          "reward": 0.8547,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "validSnapshots": 14,
+          "totalSnapshots": 14,
+          "timeValidity": 1,
+          "averageCoverage": 0.6729,
+          "firstInvalid": null
+        },
+        {
+          "promptId": "genesis-stable-essence-stricter-1-wider-3:e4",
+          "reward": 0.8336,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting"
+          ],
+          "validSnapshots": 13,
+          "totalSnapshots": 14,
+          "timeValidity": 0.9149,
+          "averageCoverage": 0.7359,
+          "firstInvalid": {
+            "commit": "90fdc82697823a4e8228ae7e5c5ada0f56d160d7",
+            "date": "2010-05-26 17:55:28 +0200",
+            "sampleIndex": 1,
+            "missingFeatureIds": [
+              "lua_scripting"
+            ]
+          }
+        },
+        {
+          "promptId": "genesis-stable-essence-stricter-1-stricter-3:e4",
+          "reward": 0.8231,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite"
+          ],
+          "validSnapshots": 14,
+          "totalSnapshots": 14,
+          "timeValidity": 1,
+          "averageCoverage": 0.5827,
+          "firstInvalid": null
+        },
+        {
+          "promptId": "genesis-stable-essence-stricter-1-probe-future-3:e4",
+          "reward": 0.8226,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting",
+            "append_only_file",
+            "transactions",
+            "pubsub",
+            "cluster_mode"
+          ],
+          "validSnapshots": 12,
+          "totalSnapshots": 14,
+          "timeValidity": 0.8461,
+          "averageCoverage": 0.8974,
+          "firstInvalid": {
+            "commit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+            "date": "2009-03-22 10:30:00 +0100",
+            "sampleIndex": 0,
+            "missingFeatureIds": [
+              "append_only_file",
+              "transactions",
+              "pubsub",
+              "cluster_mode"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "episode": 5,
+      "results": [
+        {
+          "promptId": "genesis-stable-essence-stricter-1-keep:e5",
+          "reward": 0.8547,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli"
+          ],
+          "validSnapshots": 14,
+          "totalSnapshots": 14,
+          "timeValidity": 1,
+          "averageCoverage": 0.6729,
+          "firstInvalid": null
+        },
+        {
+          "promptId": "genesis-stable-essence-stricter-1-wider-4:e5",
+          "reward": 0.8336,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting"
+          ],
+          "validSnapshots": 13,
+          "totalSnapshots": 14,
+          "timeValidity": 0.9149,
+          "averageCoverage": 0.7359,
+          "firstInvalid": {
+            "commit": "90fdc82697823a4e8228ae7e5c5ada0f56d160d7",
+            "date": "2010-05-26 17:55:28 +0200",
+            "sampleIndex": 1,
+            "missingFeatureIds": [
+              "lua_scripting"
+            ]
+          }
+        },
+        {
+          "promptId": "genesis-stable-essence-stricter-1-stricter-4:e5",
+          "reward": 0.8231,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite"
+          ],
+          "validSnapshots": 14,
+          "totalSnapshots": 14,
+          "timeValidity": 1,
+          "averageCoverage": 0.5827,
+          "firstInvalid": null
+        },
+        {
+          "promptId": "genesis-stable-essence-stricter-1-probe-future-4:e5",
+          "reward": 0.8226,
+          "selectedFeatureIds": [
+            "networked_command_server",
+            "in_memory_primary_dataset",
+            "typed_data_structures",
+            "key_value_namespace",
+            "rdb_persistence",
+            "redis_protocol",
+            "replication",
+            "test_suite",
+            "configuration_file",
+            "client_cli",
+            "benchmark_tool",
+            "lua_scripting",
+            "append_only_file",
+            "transactions",
+            "pubsub",
+            "cluster_mode"
+          ],
+          "validSnapshots": 12,
+          "totalSnapshots": 14,
+          "timeValidity": 0.8461,
+          "averageCoverage": 0.8974,
+          "firstInvalid": {
+            "commit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+            "date": "2009-03-22 10:30:00 +0100",
+            "sampleIndex": 0,
+            "missingFeatureIds": [
+              "append_only_file",
+              "transactions",
+              "pubsub",
+              "cluster_mode"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

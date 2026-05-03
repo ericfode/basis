@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "specgym.llm-projection-call.v0",
+  "id": "architecture-to-spec-call-001",
+  "projectionId": "architecture-to-spec",
+  "roundId": "round-003",
+  "runner": "codex_app_server",
+  "sourceArtifact": {
+    "path": "architecture.md",
+    "producedByProjectionId": "aws-architecture",
+    "producedByRoundId": "round-003"
+  },
+  "originalSourceReference": {
+    "path": "/Users/ericfode/Documents/New project 4/spec.md",
+    "title": "Spec Gym Specification",
+    "hash": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583",
+    "contentAvailableToReverseCall": false
+  },
+  "expectedOutput": {
+    "format": "markdown",
+    "finalPath": "spec-draft.md",
+    "types": [
+      "spec-draft"
+    ]
+  },
+  "prompt": "You are executing reverse Spec Gym projection `architecture-to-spec`: Architecture Document To Spec Draft.\n\nTraining round: round-003\n\nSource artifact contract:\n- Read the intermediate artifact produced by `aws-architecture`.\n- Intermediate artifact path: architecture.md\n- Use only that intermediate artifact content for reconstruction.\n- Do not use the original spec content; the judge handles comparison later.\n\nReverse projection instructions:\n# Architecture Document To Spec Draft\n\nInfer a reviewable `spec.md` draft from an architecture document.\n\nThe projection should preserve architecture sections, source anchors, open\nquestions, assumptions, and unsupported mappings. It should reconstruct\nproblem, goals, requirements, components, dependencies, validation, risks, and\nopen questions only when they are supported by the architecture source. It must\nmark inferred product intent explicitly.\n\nOutput contract:\n- Format: markdown\n- Final artifact path after merge: spec-draft.md\n- Type contracts: spec-draft\n\nRules:\n- Preserve source anchors from the intermediate artifact when present.\n- Mark inferred product intent explicitly.\n- Carry assumptions and open questions forward instead of collapsing them into certainty.\n- Return only the reverse projection artifact content."
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "specgym.llm-projection-call.v0",
+  "id": "tests-to-spec-call-001",
+  "projectionId": "tests-to-spec",
+  "roundId": "round-002",
+  "runner": "codex_app_server",
+  "sourceArtifact": {
+    "path": "tests/spec-derived-tests.md",
+    "producedByProjectionId": "spec-tests",
+    "producedByRoundId": "round-002"
+  },
+  "originalSourceReference": {
+    "path": "/Users/ericfode/Documents/New project 4/spec.md",
+    "title": "Spec Gym Specification",
+    "hash": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583",
+    "contentAvailableToReverseCall": false
+  },
+  "expectedOutput": {
+    "format": "markdown",
+    "finalPath": "spec-draft.md",
+    "types": [
+      "spec-draft"
+    ]
+  },
+  "prompt": "You are executing reverse Spec Gym projection `tests-to-spec`: Tests To Spec Draft.\n\nTraining round: round-002\n\nSource artifact contract:\n- Read the intermediate artifact produced by `spec-tests`.\n- Intermediate artifact path: tests/spec-derived-tests.md\n- Use only that intermediate artifact content for reconstruction.\n- Do not use the original spec content; the judge handles comparison later.\n\nReverse projection instructions:\n# Tests To Spec Draft\n\nInfer a reviewable `spec.md` draft from focused tests or test-plan slices.\n\nThe projection should describe behavior proven by tests, behavior implied by\nfixtures, explicit negative cases, missing product intent, and open questions.\nIt must distinguish observed test behavior from inferred requirements and keep\nfile, line, or case anchors.\n\nOutput contract:\n- Format: markdown\n- Final artifact path after merge: spec-draft.md\n- Type contracts: spec-draft\n\nRules:\n- Preserve source anchors from the intermediate artifact when present.\n- Mark inferred product intent explicitly.\n- Carry assumptions and open questions forward instead of collapsing them into certainty.\n- Return only the reverse projection artifact content."
+}

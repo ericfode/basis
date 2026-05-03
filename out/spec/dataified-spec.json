@@ -1,0 +1,3662 @@
+{
+  "schemaVersion": "specgym.dataified-spec.v0",
+  "generatedAt": "2026-05-03T02:34:27.115Z",
+  "source": {
+    "path": "/Users/ericfode/Documents/New project 4/spec.md",
+    "title": "Spec Gym Specification",
+    "lineCount": 780,
+    "sha256": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583"
+  },
+  "reconstruction": {
+    "targetForm": "spec_draft",
+    "lossPolicy": "preserve_raw_markdown_blocks",
+    "unsupportedMarkdownPolicy": "opaque_raw_markdown_block",
+    "acceptStepRequired": true
+  },
+  "headings": [
+    {
+      "id": "heading-001-spec-gym-specification",
+      "title": "Spec Gym Specification",
+      "level": 1,
+      "lineStart": 1
+    },
+    {
+      "id": "heading-002-normative-language",
+      "title": "Normative Language",
+      "level": 2,
+      "lineStart": 10
+    },
+    {
+      "id": "heading-003-1-problem-statement",
+      "title": "1. Problem Statement",
+      "level": 2,
+      "lineStart": 64
+    },
+    {
+      "id": "heading-004-2-goals-and-non-goals",
+      "title": "2. Goals and Non-Goals",
+      "level": 2,
+      "lineStart": 86
+    },
+    {
+      "id": "heading-005-2-1-goals",
+      "title": "2.1 Goals",
+      "level": 3,
+      "lineStart": 88
+    },
+    {
+      "id": "heading-006-2-2-non-goals",
+      "title": "2.2 Non-Goals",
+      "level": 3,
+      "lineStart": 125
+    },
+    {
+      "id": "heading-007-3-transform-model",
+      "title": "3. Transform Model",
+      "level": 2,
+      "lineStart": 146
+    },
+    {
+      "id": "heading-008-3-1-form-registry",
+      "title": "3.1 Form Registry",
+      "level": 3,
+      "lineStart": 157
+    },
+    {
+      "id": "heading-009-3-2-projection-registry",
+      "title": "3.2 Projection Registry",
+      "level": 3,
+      "lineStart": 188
+    },
+    {
+      "id": "heading-010-3-3-type-registry",
+      "title": "3.3 Type Registry",
+      "level": 3,
+      "lineStart": 236
+    },
+    {
+      "id": "heading-011-3-4-transform-request",
+      "title": "3.4 Transform Request",
+      "level": 3,
+      "lineStart": 255
+    },
+    {
+      "id": "heading-012-3-5-transform-record",
+      "title": "3.5 Transform Record",
+      "level": 3,
+      "lineStart": 296
+    },
+    {
+      "id": "heading-013-3-6-dataified-spec-contract",
+      "title": "3.6 Dataified Spec Contract",
+      "level": 3,
+      "lineStart": 322
+    },
+    {
+      "id": "heading-014-3-7-reverse-transform-dataified-spec-to-spec-draft",
+      "title": "3.7 Reverse Transform: Dataified Spec to Spec Draft",
+      "level": 3,
+      "lineStart": 357
+    },
+    {
+      "id": "heading-015-3-8-lossy-reverse-transform-claim-to-spec-draft",
+      "title": "3.8 Lossy Reverse Transform: Claim to Spec Draft",
+      "level": 3,
+      "lineStart": 389
+    },
+    {
+      "id": "heading-016-3-9-llm-projection-process",
+      "title": "3.9 LLM Projection Process",
+      "level": 3,
+      "lineStart": 431
+    },
+    {
+      "id": "heading-017-3-10-projection-composition-and-determinism-training",
+      "title": "3.10 Projection Composition And Determinism Training",
+      "level": 3,
+      "lineStart": 456
+    },
+    {
+      "id": "heading-018-3-11-historical-spec-mining",
+      "title": "3.11 Historical Spec Mining",
+      "level": 3,
+      "lineStart": 505
+    },
+    {
+      "id": "heading-019-3-12-registry-changes",
+      "title": "3.12 Registry Changes",
+      "level": 3,
+      "lineStart": 535
+    },
+    {
+      "id": "heading-020-4-core-artifacts",
+      "title": "4. Core Artifacts",
+      "level": 2,
+      "lineStart": 542
+    },
+    {
+      "id": "heading-021-5-claim-lattice",
+      "title": "5. Claim Lattice",
+      "level": 2,
+      "lineStart": 560
+    },
+    {
+      "id": "heading-022-5-1-node-types",
+      "title": "5.1 Node Types",
+      "level": 3,
+      "lineStart": 562
+    },
+    {
+      "id": "heading-023-5-2-edge-types",
+      "title": "5.2 Edge Types",
+      "level": 3,
+      "lineStart": 576
+    },
+    {
+      "id": "heading-024-5-3-stability",
+      "title": "5.3 Stability",
+      "level": 3,
+      "lineStart": 584
+    },
+    {
+      "id": "heading-025-6-codex-app-server-runner",
+      "title": "6. Codex App-Server Runner",
+      "level": 2,
+      "lineStart": 593
+    },
+    {
+      "id": "heading-026-7-environment-boundary",
+      "title": "7. Environment Boundary",
+      "level": 2,
+      "lineStart": 647
+    },
+    {
+      "id": "heading-027-8-bad-idea-pressure",
+      "title": "8. Bad-Idea Pressure",
+      "level": 2,
+      "lineStart": 667
+    },
+    {
+      "id": "heading-028-9-refinement-packet",
+      "title": "9. Refinement Packet",
+      "level": 2,
+      "lineStart": 689
+    },
+    {
+      "id": "heading-029-10-formalization-boundary",
+      "title": "10. Formalization Boundary",
+      "level": 2,
+      "lineStart": 704
+    },
+    {
+      "id": "heading-030-11-projection-boundary",
+      "title": "11. Projection Boundary",
+      "level": 2,
+      "lineStart": 720
+    },
+    {
+      "id": "heading-031-12-reference-inputs",
+      "title": "12. Reference Inputs",
+      "level": 2,
+      "lineStart": 749
+    },
+    {
+      "id": "heading-032-13-definition-of-done-for-current-increment",
+      "title": "13. Definition of Done for Current Increment",
+      "level": 2,
+      "lineStart": 762
+    }
+  ],
+  "blocks": [
+    {
+      "id": "block-0001-heading-spec-gym-specification",
+      "type": "heading",
+      "lineStart": 1,
+      "lineEnd": 1,
+      "rawMarkdown": "# Spec Gym Specification",
+      "level": 1,
+      "title": "Spec Gym Specification",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0002-blank-blank",
+      "type": "blank",
+      "lineStart": 2,
+      "lineEnd": 2,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0003-paragraph-status-draft-v0-3",
+      "type": "paragraph",
+      "lineStart": 3,
+      "lineEnd": 3,
+      "rawMarkdown": "Status: Draft v0.3",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0004-blank-blank",
+      "type": "blank",
+      "lineStart": 4,
+      "lineEnd": 4,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0005-paragraph-purpose-define-a-small-artifact-first-spec-projection-tool-for-turning-spec-md-i",
+      "type": "paragraph",
+      "lineStart": 5,
+      "lineEnd": 8,
+      "rawMarkdown": "Purpose: Define a small, artifact-first spec projection tool for turning\n`spec.md` into reviewable data formats: low-loss structured specs, typed claim\nlattices, JSON requirement files, architecture documents, protobuf schemas, and\nother explicitly requested projections.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0006-blank-blank",
+      "type": "blank",
+      "lineStart": 9,
+      "lineEnd": 9,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0007-heading-normative-language",
+      "type": "heading",
+      "lineStart": 10,
+      "lineEnd": 10,
+      "rawMarkdown": "## Normative Language",
+      "level": 2,
+      "title": "Normative Language",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0008-blank-blank",
+      "type": "blank",
+      "lineStart": 11,
+      "lineEnd": 11,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-normative-language-the-key-words-must-must-not-required-should-should-not"
+      ]
+    },
+    {
+      "id": "block-0009-paragraph-the-key-words-must-must-not-required-should-should-not-recommended-may-and-opt",
+      "type": "paragraph",
+      "lineStart": 12,
+      "lineEnd": 14,
+      "rawMarkdown": "The key words `MUST`, `MUST NOT`, `REQUIRED`, `SHOULD`, `SHOULD NOT`,\n`RECOMMENDED`, `MAY`, and `OPTIONAL` in this document are to be interpreted as\ndescribed in RFC 2119.",
+      "generatedClaimIds": [
+        "requirement-normative-language-recommended-may-and-optional-in-this-document-are-to-be-interpreted-as"
+      ]
+    },
+    {
+      "id": "block-0010-blank-blank",
+      "type": "blank",
+      "lineStart": 15,
+      "lineEnd": 15,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0011-paragraph-spec-gym-means-the-environment-and-cli-surface",
+      "type": "paragraph",
+      "lineStart": 16,
+      "lineEnd": 16,
+      "rawMarkdown": "`Spec Gym` means the environment and CLI surface.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0012-blank-blank",
+      "type": "blank",
+      "lineStart": 17,
+      "lineEnd": 17,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0013-paragraph-spec-projector-is-the-product-role-a-tool-that-reads-spec-md-builds-intermediate",
+      "type": "paragraph",
+      "lineStart": 18,
+      "lineEnd": 19,
+      "rawMarkdown": "`Spec projector` is the product role: a tool that reads `spec.md`, builds\nintermediate forms, and emits named projections.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0014-blank-blank",
+      "type": "blank",
+      "lineStart": 20,
+      "lineEnd": 20,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0015-paragraph-form-means-a-named-representation-of-a-specification-such-as-spec-dataifiedspec-",
+      "type": "paragraph",
+      "lineStart": 21,
+      "lineEnd": 22,
+      "rawMarkdown": "`Form` means a named representation of a specification, such as `spec`,\n`dataified_spec`, `claim`, `critique`, `refinement`, or `prover_mock`.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0016-blank-blank",
+      "type": "blank",
+      "lineStart": 23,
+      "lineEnd": 23,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0017-paragraph-projection-means-a-named-output-artifact-produced-from-a-spec-form-such-as-requi",
+      "type": "paragraph",
+      "lineStart": 24,
+      "lineEnd": 26,
+      "rawMarkdown": "`Projection` means a named output artifact produced from a spec form, such as\n`requirements.json`, `architecture.md`, a `.proto` file, a graph import file, or\nan execution handoff packet.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0018-blank-blank",
+      "type": "blank",
+      "lineStart": 27,
+      "lineEnd": 27,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0019-paragraph-transform-means-a-bounded-operation-that-reads-one-form-emits-another-form-and-r",
+      "type": "paragraph",
+      "lineStart": 28,
+      "lineEnd": 29,
+      "rawMarkdown": "`Transform` means a bounded operation that reads one form, emits another form,\nand records enough evidence to validate or replay the result.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0020-blank-blank",
+      "type": "blank",
+      "lineStart": 30,
+      "lineEnd": 30,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0021-paragraph-historical-spec-mining-means-a-transform-over-a-git-repository-that-samples-snap",
+      "type": "paragraph",
+      "lineStart": 31,
+      "lineEnd": 33,
+      "rawMarkdown": "`Historical spec mining` means a transform over a Git repository that samples\nsnapshots, infers source-backed claims, writes candidate as-built specs, and\njudges those candidates by temporal validity and essence coverage.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0022-blank-blank",
+      "type": "blank",
+      "lineStart": 34,
+      "lineEnd": 34,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0023-paragraph-spec-form-means-the-normalized-source-markdown-document-with-title-heading-tree-",
+      "type": "paragraph",
+      "lineStart": 35,
+      "lineEnd": 36,
+      "rawMarkdown": "`Spec form` means the normalized source Markdown document with title, heading\ntree, source path, source hash, line anchors, and raw excerpts.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0024-blank-blank",
+      "type": "blank",
+      "lineStart": 37,
+      "lineEnd": 37,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0025-paragraph-dataified-spec-form-means-a-structured-machine-editable-representation-of-the-ma",
+      "type": "paragraph",
+      "lineStart": 38,
+      "lineEnd": 41,
+      "rawMarkdown": "`Dataified spec form` means a structured, machine-editable representation of\nthe Markdown spec that preserves source order, raw Markdown blocks, source\nanchors, semantic roles, and derived claim IDs so it can regenerate `spec.md`\nwith as little loss as possible.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0026-blank-blank",
+      "type": "blank",
+      "lineStart": 42,
+      "lineEnd": 42,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0027-paragraph-spec-draft-form-means-generated-markdown-derived-from-another-form-it-can-become",
+      "type": "paragraph",
+      "lineStart": 43,
+      "lineEnd": 44,
+      "rawMarkdown": "`Spec draft form` means generated Markdown derived from another form. It can\nbecome source `spec` form only after an explicit accept step.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0028-blank-blank",
+      "type": "blank",
+      "lineStart": 45,
+      "lineEnd": 45,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0029-paragraph-claim-form-means-the-canonical-claim-lattice-generated-from-a-spec-or-dataified-",
+      "type": "paragraph",
+      "lineStart": 46,
+      "lineEnd": 47,
+      "rawMarkdown": "`Claim form` means the canonical claim lattice generated from a spec or\ndataified spec.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0030-blank-blank",
+      "type": "blank",
+      "lineStart": 48,
+      "lineEnd": 48,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0031-paragraph-claim-lattice-means-the-canonical-model-claims-refinements-obligations-evidence",
+      "type": "paragraph",
+      "lineStart": 49,
+      "lineEnd": 51,
+      "rawMarkdown": "`Claim lattice` means the canonical model: claims, refinements, obligations,\nevidence, verification surfaces, critiques, actors, reward signals, and terminal\nstates.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0032-blank-blank",
+      "type": "blank",
+      "lineStart": 52,
+      "lineEnd": 52,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0033-paragraph-runner-means-the-execution-surface-used-for-a-transform-a-runner-can-be-a-local-",
+      "type": "paragraph",
+      "lineStart": 53,
+      "lineEnd": 55,
+      "rawMarkdown": "`Runner` means the execution surface used for a transform. A runner can be a\nlocal parser, a scripted renderer, or a model-assisted Codex `app-server`\nsession.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0034-blank-blank",
+      "type": "blank",
+      "lineStart": 56,
+      "lineEnd": 56,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0035-paragraph-codex-app-server-runner-means-the-adapter-that-launches-and-communicates-with-th",
+      "type": "paragraph",
+      "lineStart": 57,
+      "lineEnd": 58,
+      "rawMarkdown": "`Codex app-server runner` means the adapter that launches and communicates with\nthe targeted Codex `app-server` protocol for model-assisted transforms.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0036-blank-blank",
+      "type": "blank",
+      "lineStart": 59,
+      "lineEnd": 59,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0037-paragraph-adapter-means-the-implementation-surface-used-to-write-a-projection-into-a-parti",
+      "type": "paragraph",
+      "lineStart": 60,
+      "lineEnd": 62,
+      "rawMarkdown": "`Adapter` means the implementation surface used to write a projection into a\nparticular tool, file format, API, or workflow. Adapters are implementation\nsurfaces, not the core model.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0038-blank-blank",
+      "type": "blank",
+      "lineStart": 63,
+      "lineEnd": 63,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0039-heading-1-problem-statement",
+      "type": "heading",
+      "lineStart": 64,
+      "lineEnd": 64,
+      "rawMarkdown": "## 1. Problem Statement",
+      "level": 2,
+      "title": "1. Problem Statement",
+      "semanticRole": "problem",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0040-blank-blank",
+      "type": "blank",
+      "lineStart": 65,
+      "lineEnd": 65,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0041-paragraph-teams-often-write-specifications-as-unstructured-text-then-translate-them-into-c",
+      "type": "paragraph",
+      "lineStart": 66,
+      "lineEnd": 70,
+      "rawMarkdown": "Teams often write specifications as unstructured text, then translate them into\nclaims, protobufs, architecture notes, JSON requirement files, diagrams,\ntickets, critique, tests, proof sketches, or agent prompts by hand. Those\ntranslations are usually chat residue or local convention, so they are hard to\ncompare, replay, validate, or reject.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0042-blank-blank",
+      "type": "blank",
+      "lineStart": 71,
+      "lineEnd": 71,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0043-paragraph-spec-gym-exists-to-make-those-translations-explicit-it-turns-a-prose-specificati",
+      "type": "paragraph",
+      "lineStart": 72,
+      "lineEnd": 75,
+      "rawMarkdown": "Spec Gym exists to make those translations explicit. It turns a prose\nspecification into typed forms where humans, agents, provers, test runners,\nadapters, and future learned policies can play durable refinement moves against\nthe same state.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0044-blank-blank",
+      "type": "blank",
+      "lineStart": 76,
+      "lineEnd": 76,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0045-paragraph-the-point-is-not-to-prove-the-whole-idea-automatically-the-point-is-to-make-the-",
+      "type": "paragraph",
+      "lineStart": 77,
+      "lineEnd": 79,
+      "rawMarkdown": "The point is not to prove the whole idea automatically. The point is to make the\nverifiable parts explicit: claims, source anchors, evidence, tests, proof\nobligations, contradictions, missing validation, and rejection pressure.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0046-blank-blank",
+      "type": "blank",
+      "lineStart": 80,
+      "lineEnd": 80,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0047-paragraph-spec-gym-is-not-a-diagram-product-project-management-system-prover-whiteboard-gr",
+      "type": "paragraph",
+      "lineStart": 81,
+      "lineEnd": 84,
+      "rawMarkdown": "Spec Gym is not a diagram product, project-management system, prover,\nwhiteboard, graph database, interface-definition language, or agent runner. It\ncan emit projections for those systems, but it MUST preserve a tool-neutral\ncore.",
+      "generatedClaimIds": [
+        "requirement-1-problem-statement-can-emit-projections-for-those-systems-but-it-must-preserve-a-tool-neutral"
+      ]
+    },
+    {
+      "id": "block-0048-blank-blank",
+      "type": "blank",
+      "lineStart": 85,
+      "lineEnd": 85,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0049-heading-2-goals-and-non-goals",
+      "type": "heading",
+      "lineStart": 86,
+      "lineEnd": 86,
+      "rawMarkdown": "## 2. Goals and Non-Goals",
+      "level": 2,
+      "title": "2. Goals and Non-Goals",
+      "semanticRole": "non_goal",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0050-blank-blank",
+      "type": "blank",
+      "lineStart": 87,
+      "lineEnd": 87,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0051-heading-2-1-goals",
+      "type": "heading",
+      "lineStart": 88,
+      "lineEnd": 88,
+      "rawMarkdown": "### 2.1 Goals",
+      "level": 3,
+      "title": "2.1 Goals",
+      "semanticRole": "goal",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0052-blank-blank",
+      "type": "blank",
+      "lineStart": 89,
+      "lineEnd": 89,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice"
+      ]
+    },
+    {
+      "id": "block-0053-list-parse-markdown-specifications-into-a-canonical-claim-lattice-treat-spec-to-datai",
+      "type": "list",
+      "lineStart": 90,
+      "lineEnd": 123,
+      "rawMarkdown": "- Parse Markdown specifications into a canonical claim lattice.\n- Treat `spec` to `dataified_spec` as the mandatory first transform.\n- Treat `dataified_spec` to `claim` as the first semantic transform.\n- Support the opposite direction by turning `dataified_spec` form into\n  reviewable `spec_draft` form with minimal loss.\n- Support `claim` to `spec_draft` only as a lossy reconstruction when the richer\n  dataified spec is unavailable.\n- Support trainable projection cycles such as `spec.md <-> architecture.md`,\n  `spec.md <-> tests`, and `code <-> spec.md` by emitting explicit forward,\n  reverse, and judge call packets.\n- Validate round trips by comparing the original claim form with the claim form\n  regenerated from a spec draft and, when available, comparing the original\n  dataified spec with the dataified spec regenerated from the draft.\n- Mine as-built spec drafts from Git history by optimizing writer/judge\n  prompt-policy loops against sampled repository snapshots.\n- Define a small form registry with explicit input, output, lossiness, and\n  validation rules.\n- Accept transform requests that name source form, target form, runner, output\n  directory, and verification gates.\n- Preserve source structure and line-level evidence.\n- Extract addressable claims from headings, bullets, and normative sentences.\n- Classify claims into a small, stable ontology.\n- Detect early bad-idea pressure with explainable evidence.\n- Emit named projections for concrete target formats, beginning with\n  `requirements.json`, `architecture.md`, and protobuf schemas.\n- Emit a viability critique for human and agent review.\n- Emit a refinement packet for the next narrow correction.\n- Emit a prover-facing model that can become sharper over time.\n- Expose an environment boundary suitable for future RL: observation, action,\n  actor, reward, done state, and safety invariant.\n- Use Codex `app-server` for model-assisted transforms while keeping durable\n  artifacts, not thread transcripts, authoritative.\n- Support optional projections for collaboration, graph query, architecture\n  documentation, knowledge vaults, formal models, and execution queues.",
+      "generatedClaimIds": [
+        "goal-2-1-goals-treat-spec-to-dataifiedspec-as-the-mandatory-first-transform",
+        "goal-2-1-goals-treat-dataifiedspec-to-claim-as-the-first-semantic-transform",
+        "goal-2-1-goals-support-the-opposite-direction-by-turning-dataifiedspec-form-into-reviewable-spe",
+        "goal-2-1-goals-support-claim-to-specdraft-only-as-a-lossy-reconstruction-when-the-richer-dataif",
+        "goal-2-1-goals-support-trainable-projection-cycles-such-as-spec-md-architecture-md-spec-md",
+        "goal-2-1-goals-validate-round-trips-by-comparing-the-original-claim-form-with-the-claim-form-re",
+        "goal-2-1-goals-mine-as-built-spec-drafts-from-git-history-by-optimizing-writer-judge-prompt-pol",
+        "goal-2-1-goals-define-a-small-form-registry-with-explicit-input-output-lossiness-and-validation",
+        "goal-2-1-goals-accept-transform-requests-that-name-source-form-target-form-runner-output-direct",
+        "goal-2-1-goals-preserve-source-structure-and-line-level-evidence",
+        "goal-2-1-goals-extract-addressable-claims-from-headings-bullets-and-normative-sentences",
+        "goal-2-1-goals-classify-claims-into-a-small-stable-ontology",
+        "goal-2-1-goals-detect-early-bad-idea-pressure-with-explainable-evidence",
+        "goal-2-1-goals-emit-named-projections-for-concrete-target-formats-beginning-with-requirements-j",
+        "goal-2-1-goals-emit-a-viability-critique-for-human-and-agent-review",
+        "goal-2-1-goals-emit-a-refinement-packet-for-the-next-narrow-correction",
+        "goal-2-1-goals-emit-a-prover-facing-model-that-can-become-sharper-over-time",
+        "goal-2-1-goals-expose-an-environment-boundary-suitable-for-future-rl-observation-action-actor-r",
+        "goal-2-1-goals-use-codex-app-server-for-model-assisted-transforms-while-keeping-durable-artifac",
+        "goal-2-1-goals-support-optional-projections-for-collaboration-graph-query-architecture-document"
+      ]
+    },
+    {
+      "id": "block-0054-blank-blank",
+      "type": "blank",
+      "lineStart": 124,
+      "lineEnd": 124,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0055-heading-2-2-non-goals",
+      "type": "heading",
+      "lineStart": 125,
+      "lineEnd": 125,
+      "rawMarkdown": "### 2.2 Non-Goals",
+      "level": 3,
+      "title": "2.2 Non-Goals",
+      "semanticRole": "non_goal",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0056-blank-blank",
+      "type": "blank",
+      "lineStart": 126,
+      "lineEnd": 126,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "non_goal-2-2-non-goals-owning-multiplayer-canvas-infrastructure"
+      ]
+    },
+    {
+      "id": "block-0057-list-owning-multiplayer-canvas-infrastructure-owning-identity-comments-permissions",
+      "type": "list",
+      "lineStart": 127,
+      "lineEnd": 144,
+      "rawMarkdown": "- Owning multiplayer canvas infrastructure.\n- Owning identity, comments, permissions, or live cursors.\n- Owning a graph database.\n- Owning protobuf runtime libraries or generated application code.\n- Requiring a specific issue tracker, diagram tool, prover, or agent runner.\n- Owning the Codex `app-server` wire protocol.\n- Treating a Codex thread transcript as canonical specification state.\n- Treating projection output as canonical specification state.\n- Treating mined as-built specs as authoritative project intent without human\n  review.\n- Generating final projection content with local heuristics instead of LLM calls.\n- Allowing model output to overwrite the source specification unless the\n  requested transform explicitly targets a source edit.\n- Pretending `claim` to `spec_draft` can recover prose that was not preserved in\n  the claim form.\n- Adding new forms to the registry without an explicit product decision.\n- Replacing human judgment or domain expertise.\n- Making reward metrics authoritative over recorded rationale.",
+      "generatedClaimIds": [
+        "non_goal-2-2-non-goals-owning-identity-comments-permissions-or-live-cursors",
+        "non_goal-2-2-non-goals-owning-a-graph-database",
+        "non_goal-2-2-non-goals-owning-protobuf-runtime-libraries-or-generated-application-code",
+        "non_goal-2-2-non-goals-requiring-a-specific-issue-tracker-diagram-tool-prover-or-agent-runner",
+        "non_goal-2-2-non-goals-owning-the-codex-app-server-wire-protocol",
+        "non_goal-2-2-non-goals-treating-a-codex-thread-transcript-as-canonical-specification-state",
+        "non_goal-2-2-non-goals-treating-projection-output-as-canonical-specification-state",
+        "non_goal-2-2-non-goals-treating-mined-as-built-specs-as-authoritative-project-intent-without-human-revi",
+        "non_goal-2-2-non-goals-generating-final-projection-content-with-local-heuristics-instead-of-llm-calls",
+        "non_goal-2-2-non-goals-allowing-model-output-to-overwrite-the-source-specification-unless-the-requested",
+        "non_goal-2-2-non-goals-pretending-claim-to-specdraft-can-recover-prose-that-was-not-preserved-in-the-cl",
+        "non_goal-2-2-non-goals-adding-new-forms-to-the-registry-without-an-explicit-product-decision",
+        "non_goal-2-2-non-goals-replacing-human-judgment-or-domain-expertise",
+        "non_goal-2-2-non-goals-making-reward-metrics-authoritative-over-recorded-rationale"
+      ]
+    },
+    {
+      "id": "block-0058-blank-blank",
+      "type": "blank",
+      "lineStart": 145,
+      "lineEnd": 145,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0059-heading-3-transform-model",
+      "type": "heading",
+      "lineStart": 146,
+      "lineEnd": 146,
+      "rawMarkdown": "## 3. Transform Model",
+      "level": 2,
+      "title": "3. Transform Model",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0060-blank-blank",
+      "type": "blank",
+      "lineStart": 147,
+      "lineEnd": 147,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0061-paragraph-a-transform-is-the-smallest-meaningful-unit-of-work-it-reads-one-or-more-input-f",
+      "type": "paragraph",
+      "lineStart": 148,
+      "lineEnd": 150,
+      "rawMarkdown": "A transform is the smallest meaningful unit of work. It reads one or more input\nforms, writes one target form, validates the target form, and records enough\nmetadata for a later operator to know what happened.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0062-blank-blank",
+      "type": "blank",
+      "lineStart": 151,
+      "lineEnd": 151,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-transform-model-transforms-must-be-treated-as-non-deterministic-at-the-product-boundary"
+      ]
+    },
+    {
+      "id": "block-0063-paragraph-transforms-must-be-treated-as-non-deterministic-at-the-product-boundary-even-whe",
+      "type": "paragraph",
+      "lineStart": 152,
+      "lineEnd": 155,
+      "rawMarkdown": "Transforms MUST be treated as non-deterministic at the product boundary. Even\nwhen one implementation path uses local code, users MUST NOT rely on byte-for-\nbyte identical output from repeated runs. The durable contract is provenance,\ntraceability, reviewability, and measured loss, not deterministic replay.",
+      "generatedClaimIds": [
+        "requirement-3-transform-model-when-one-implementation-path-uses-local-code-users-must-not-rely-on-byte-for"
+      ]
+    },
+    {
+      "id": "block-0064-blank-blank",
+      "type": "blank",
+      "lineStart": 156,
+      "lineEnd": 156,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0065-heading-3-1-form-registry",
+      "type": "heading",
+      "lineStart": 157,
+      "lineEnd": 157,
+      "rawMarkdown": "### 3.1 Form Registry",
+      "level": 3,
+      "title": "3.1 Form Registry",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0066-blank-blank",
+      "type": "blank",
+      "lineStart": 158,
+      "lineEnd": 158,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-1-form-registry-a-form-declaration-must-include"
+      ]
+    },
+    {
+      "id": "block-0067-paragraph-a-form-declaration-must-include",
+      "type": "paragraph",
+      "lineStart": 159,
+      "lineEnd": 159,
+      "rawMarkdown": "A form declaration MUST include:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0068-blank-blank",
+      "type": "blank",
+      "lineStart": 160,
+      "lineEnd": 160,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-1-form-registry-form-id"
+      ]
+    },
+    {
+      "id": "block-0069-list-form-id-purpose-accepted-input-forms-emitted-artifact-or-api-shape-schema-v",
+      "type": "list",
+      "lineStart": 161,
+      "lineEnd": 167,
+      "rawMarkdown": "- form ID\n- purpose\n- accepted input forms\n- emitted artifact or API shape\n- schema version when machine-readable\n- lossy transformations\n- validation command or manual check",
+      "generatedClaimIds": [
+        "claim-3-1-form-registry-purpose",
+        "claim-3-1-form-registry-accepted-input-forms",
+        "dependency-3-1-form-registry-emitted-artifact-or-api-shape",
+        "claim-3-1-form-registry-schema-version-when-machine-readable",
+        "claim-3-1-form-registry-lossy-transformations",
+        "test-3-1-form-registry-validation-command-or-manual-check"
+      ]
+    },
+    {
+      "id": "block-0070-blank-blank",
+      "type": "blank",
+      "lineStart": 168,
+      "lineEnd": 168,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0071-paragraph-the-initial-form-registry-contains",
+      "type": "paragraph",
+      "lineStart": 169,
+      "lineEnd": 169,
+      "rawMarkdown": "The initial form registry contains:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0072-blank-blank",
+      "type": "blank",
+      "lineStart": 170,
+      "lineEnd": 170,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-1-form-registry-spec-normalized-markdown-input-with-source-anchors"
+      ]
+    },
+    {
+      "id": "block-0073-list-spec-normalized-markdown-input-with-source-anchors-dataifiedspec-low-loss-stru",
+      "type": "list",
+      "lineStart": 171,
+      "lineEnd": 181,
+      "rawMarkdown": "- `spec`: normalized Markdown input with source anchors.\n- `dataified_spec`: low-loss structured spec with raw Markdown preservation.\n- `spec_draft`: generated Markdown awaiting review or acceptance as source.\n- `claim`: typed claim lattice and source-backed graph.\n- `critique`: bad-idea pressure over the claim form.\n- `refinement`: the next narrow correction packet.\n- `prover_mock`: prover-facing model derived from the claim form.\n- `architecture_document`: architecture Markdown or structured architecture\n  extracted from the spec or used as reverse input.\n- `test_suite`: test plan, executable-test outline, or focused test slices used\n  as projection output or reverse input.",
+      "generatedClaimIds": [
+        "claim-3-1-form-registry-dataifiedspec-low-loss-structured-spec-with-raw-markdown-preservation",
+        "claim-3-1-form-registry-specdraft-generated-markdown-awaiting-review-or-acceptance-as-source",
+        "claim-3-1-form-registry-claim-typed-claim-lattice-and-source-backed-graph",
+        "claim-3-1-form-registry-critique-bad-idea-pressure-over-the-claim-form",
+        "claim-3-1-form-registry-refinement-the-next-narrow-correction-packet",
+        "claim-3-1-form-registry-provermock-prover-facing-model-derived-from-the-claim-form",
+        "claim-3-1-form-registry-architecturedocument-architecture-markdown-or-structured-architecture-extracted-",
+        "test-3-1-form-registry-testsuite-test-plan-executable-test-outline-or-focused-test-slices-used-as-proje"
+      ]
+    },
+    {
+      "id": "block-0074-blank-blank",
+      "type": "blank",
+      "lineStart": 182,
+      "lineEnd": 182,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0075-paragraph-dataifiedspec-is-the-first-canonical-target-form-claim-is-the-first-semantic-tar",
+      "type": "paragraph",
+      "lineStart": 183,
+      "lineEnd": 186,
+      "rawMarkdown": "`dataified_spec` is the first canonical target form. `claim` is the first\nsemantic target form. `spec_draft` is the first reverse target form. Other forms\nare downstream of `claim` unless their form declaration explicitly states\notherwise.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0076-blank-blank",
+      "type": "blank",
+      "lineStart": 187,
+      "lineEnd": 187,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0077-heading-3-2-projection-registry",
+      "type": "heading",
+      "lineStart": 188,
+      "lineEnd": 188,
+      "rawMarkdown": "### 3.2 Projection Registry",
+      "level": 3,
+      "title": "3.2 Projection Registry",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0078-blank-blank",
+      "type": "blank",
+      "lineStart": 189,
+      "lineEnd": 189,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-2-projection-registry-a-projection-declaration-must-be-a-markdown-file-under-projections-with"
+      ]
+    },
+    {
+      "id": "block-0079-paragraph-a-projection-declaration-must-be-a-markdown-file-under-projections-with-front-ma",
+      "type": "paragraph",
+      "lineStart": 190,
+      "lineEnd": 191,
+      "rawMarkdown": "A projection declaration MUST be a Markdown file under `projections/` with\nfront matter and explanatory instructions.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0080-blank-blank",
+      "type": "blank",
+      "lineStart": 192,
+      "lineEnd": 192,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-2-projection-registry-a-projection-declaration-must-include"
+      ]
+    },
+    {
+      "id": "block-0081-paragraph-a-projection-declaration-must-include",
+      "type": "paragraph",
+      "lineStart": 193,
+      "lineEnd": 193,
+      "rawMarkdown": "A projection declaration MUST include:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0082-blank-blank",
+      "type": "blank",
+      "lineStart": 194,
+      "lineEnd": 194,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-2-projection-registry-projection-id"
+      ]
+    },
+    {
+      "id": "block-0083-list-projection-id-purpose-accepted-input-forms-emitted-files-or-api-calls-targe",
+      "type": "list",
+      "lineStart": 195,
+      "lineEnd": 205,
+      "rawMarkdown": "- projection ID\n- purpose\n- accepted input forms\n- emitted files or API calls\n- target artifact contract\n- lossy transformations\n- validation command or manual check\n- focus strategy for small source slices\n- merge strategy for partial LLM outputs\n- whether it is included by `--projection all`; reverse-direction projections\n  such as code-to-spec SHOULD be explicit-only",
+      "generatedClaimIds": [
+        "claim-3-2-projection-registry-purpose",
+        "claim-3-2-projection-registry-accepted-input-forms",
+        "dependency-3-2-projection-registry-emitted-files-or-api-calls",
+        "claim-3-2-projection-registry-target-artifact-contract",
+        "claim-3-2-projection-registry-lossy-transformations",
+        "test-3-2-projection-registry-validation-command-or-manual-check",
+        "claim-3-2-projection-registry-focus-strategy-for-small-source-slices",
+        "claim-3-2-projection-registry-merge-strategy-for-partial-llm-outputs",
+        "requirement-3-2-projection-registry-whether-it-is-included-by-projection-all-reverse-direction-projections-such-as-c"
+      ]
+    },
+    {
+      "id": "block-0084-blank-blank",
+      "type": "blank",
+      "lineStart": 206,
+      "lineEnd": 206,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0085-paragraph-the-initial-projection-registry-contains",
+      "type": "paragraph",
+      "lineStart": 207,
+      "lineEnd": 207,
+      "rawMarkdown": "The initial projection registry contains:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0086-blank-blank",
+      "type": "blank",
+      "lineStart": 208,
+      "lineEnd": 208,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-2-projection-registry-requirementsjson-emits-requirements-json-from-requirement-goal-non-goal-risk-and"
+      ]
+    },
+    {
+      "id": "block-0087-list-requirementsjson-emits-requirements-json-from-requirement-goal-non-goal-risk-a",
+      "type": "list",
+      "lineStart": 209,
+      "lineEnd": 219,
+      "rawMarkdown": "- `requirements_json`: emits `requirements.json` from requirement, goal,\n  non-goal, risk, and validation claims.\n- `architecture_markdown`: emits `architecture.md` from component, dependency,\n  risk, and validation claims.\n- `protobuf_schema`: emits a `.proto` schema for the selected spec interface or\n  interchange model.\n- `graph_dataset`: emits graph import files for graph-query or collaborative\n  map tools.\n- `prover_model`: emits prover-facing facts and mock models.\n- `execution_packet`: emits work packets for humans, agents, or orchestration\n  systems.",
+      "generatedClaimIds": [
+        "claim-3-2-projection-registry-architecturemarkdown-emits-architecture-md-from-component-dependency-risk-and-va",
+        "claim-3-2-projection-registry-protobufschema-emits-a-proto-schema-for-the-selected-spec-interface-or-interchan",
+        "claim-3-2-projection-registry-graphdataset-emits-graph-import-files-for-graph-query-or-collaborative-map-tools",
+        "claim-3-2-projection-registry-provermodel-emits-prover-facing-facts-and-mock-models",
+        "claim-3-2-projection-registry-executionpacket-emits-work-packets-for-humans-agents-or-orchestration-systems"
+      ]
+    },
+    {
+      "id": "block-0088-blank-blank",
+      "type": "blank",
+      "lineStart": 220,
+      "lineEnd": 220,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0089-paragraph-example-projection-files-include",
+      "type": "paragraph",
+      "lineStart": 221,
+      "lineEnd": 221,
+      "rawMarkdown": "Example projection files include:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0090-blank-blank",
+      "type": "blank",
+      "lineStart": 222,
+      "lineEnd": 222,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-2-projection-registry-projections-all-data-types-md"
+      ]
+    },
+    {
+      "id": "block-0091-list-projections-all-data-types-md-projections-all-protocols-md-projections-network",
+      "type": "list",
+      "lineStart": 223,
+      "lineEnd": 231,
+      "rawMarkdown": "- `projections/all-data-types.md`\n- `projections/all-protocols.md`\n- `projections/network-requirements.md`\n- `projections/aws-architecture.md`\n- `projections/architecture-to-spec.md`\n- `projections/implementation-questions.md`\n- `projections/spec-tests.md`\n- `projections/tests-to-spec.md`\n- `projections/code-to-spec.md`",
+      "generatedClaimIds": [
+        "claim-3-2-projection-registry-projections-all-protocols-md",
+        "claim-3-2-projection-registry-projections-network-requirements-md",
+        "claim-3-2-projection-registry-projections-aws-architecture-md",
+        "claim-3-2-projection-registry-projections-architecture-to-spec-md",
+        "claim-3-2-projection-registry-projections-implementation-questions-md",
+        "claim-3-2-projection-registry-projections-spec-tests-md",
+        "claim-3-2-projection-registry-projections-tests-to-spec-md",
+        "claim-3-2-projection-registry-projections-code-to-spec-md"
+      ]
+    },
+    {
+      "id": "block-0092-blank-blank",
+      "type": "blank",
+      "lineStart": 232,
+      "lineEnd": 232,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-2-projection-registry-new-projection-files-may-be-added-when-they-describe-an-output-view-over-the"
+      ]
+    },
+    {
+      "id": "block-0093-paragraph-new-projection-files-may-be-added-when-they-describe-an-output-view-over-the-sam",
+      "type": "paragraph",
+      "lineStart": 233,
+      "lineEnd": 234,
+      "rawMarkdown": "New projection files MAY be added when they describe an output view over the\nsame spec state. New internal forms still require an explicit product decision.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0094-blank-blank",
+      "type": "blank",
+      "lineStart": 235,
+      "lineEnd": 235,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0095-heading-3-3-type-registry",
+      "type": "heading",
+      "lineStart": 236,
+      "lineEnd": 236,
+      "rawMarkdown": "### 3.3 Type Registry",
+      "level": 3,
+      "title": "3.3 Type Registry",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0096-blank-blank",
+      "type": "blank",
+      "lineStart": 237,
+      "lineEnd": 237,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-3-type-registry-projection-output-types-must-be-described-under-types"
+      ]
+    },
+    {
+      "id": "block-0097-paragraph-projection-output-types-must-be-described-under-types",
+      "type": "paragraph",
+      "lineStart": 238,
+      "lineEnd": 238,
+      "rawMarkdown": "Projection output types MUST be described under `types/`.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0098-blank-blank",
+      "type": "blank",
+      "lineStart": 239,
+      "lineEnd": 239,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0099-paragraph-the-initial-type-registry-includes",
+      "type": "paragraph",
+      "lineStart": 240,
+      "lineEnd": 240,
+      "rawMarkdown": "The initial type registry includes:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0100-blank-blank",
+      "type": "blank",
+      "lineStart": 241,
+      "lineEnd": 241,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-3-type-registry-types-data-type-schema-json"
+      ]
+    },
+    {
+      "id": "block-0101-list-types-data-type-schema-json-types-protocol-schema-json-types-requirement-schema",
+      "type": "list",
+      "lineStart": 242,
+      "lineEnd": 250,
+      "rawMarkdown": "- `types/data-type.schema.json`\n- `types/protocol.schema.json`\n- `types/requirement.schema.json`\n- `types/architecture-document.schema.json`\n- `types/implementation-question.schema.json`\n- `types/protobuf-schema.schema.json`\n- `types/spec-draft.schema.json`\n- `types/test-suite.schema.json`\n- `types/projection-cycle.schema.json`",
+      "generatedClaimIds": [
+        "claim-3-3-type-registry-types-protocol-schema-json",
+        "claim-3-3-type-registry-types-requirement-schema-json",
+        "claim-3-3-type-registry-types-architecture-document-schema-json",
+        "claim-3-3-type-registry-types-implementation-question-schema-json",
+        "claim-3-3-type-registry-types-protobuf-schema-schema-json",
+        "claim-3-3-type-registry-types-spec-draft-schema-json",
+        "test-3-3-type-registry-types-test-suite-schema-json",
+        "claim-3-3-type-registry-types-projection-cycle-schema-json"
+      ]
+    },
+    {
+      "id": "block-0102-blank-blank",
+      "type": "blank",
+      "lineStart": 251,
+      "lineEnd": 251,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-3-type-registry-projection-files-should-reference-these-types-so-repeated-transformations-have"
+      ]
+    },
+    {
+      "id": "block-0103-paragraph-projection-files-should-reference-these-types-so-repeated-transformations-have-a",
+      "type": "paragraph",
+      "lineStart": 252,
+      "lineEnd": 253,
+      "rawMarkdown": "Projection files SHOULD reference these types so repeated transformations have\na stable target contract to train against.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0104-blank-blank",
+      "type": "blank",
+      "lineStart": 254,
+      "lineEnd": 254,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0105-heading-3-4-transform-request",
+      "type": "heading",
+      "lineStart": 255,
+      "lineEnd": 255,
+      "rawMarkdown": "### 3.4 Transform Request",
+      "level": 3,
+      "title": "3.4 Transform Request",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0106-blank-blank",
+      "type": "blank",
+      "lineStart": 256,
+      "lineEnd": 256,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-4-transform-request-a-transform-request-should-be-representable-as-data"
+      ]
+    },
+    {
+      "id": "block-0107-paragraph-a-transform-request-should-be-representable-as-data",
+      "type": "paragraph",
+      "lineStart": 257,
+      "lineEnd": 257,
+      "rawMarkdown": "A transform request SHOULD be representable as data:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0108-blank-blank",
+      "type": "blank",
+      "lineStart": 258,
+      "lineEnd": 258,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0109-fenced_code-json-source-form-spec-path-spec-md-targetform-dataifiedspec",
+      "type": "fenced_code",
+      "lineStart": 259,
+      "lineEnd": 273,
+      "rawMarkdown": "```json\n{\n  \"source\": {\n    \"form\": \"spec\",\n    \"path\": \"spec.md\"\n  },\n  \"targetForm\": \"dataified_spec\",\n  \"runner\": \"codex_app_server\",\n  \"out\": \"out/spec\",\n  \"gates\": [\n    \"node --check src/specgym.mjs\",\n    \"npm test\"\n  ]\n}\n```",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0110-blank-blank",
+      "type": "blank",
+      "lineStart": 274,
+      "lineEnd": 274,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-4-transform-request-the-opposite-transform-should-use-the-same-envelope"
+      ]
+    },
+    {
+      "id": "block-0111-paragraph-the-opposite-transform-should-use-the-same-envelope",
+      "type": "paragraph",
+      "lineStart": 275,
+      "lineEnd": 275,
+      "rawMarkdown": "The opposite transform SHOULD use the same envelope:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0112-blank-blank",
+      "type": "blank",
+      "lineStart": 276,
+      "lineEnd": 276,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0113-fenced_code-json-source-form-dataifiedspec-path-out-spec-dataified-spec-json",
+      "type": "fenced_code",
+      "lineStart": 277,
+      "lineEnd": 291,
+      "rawMarkdown": "```json\n{\n  \"source\": {\n    \"form\": \"dataified_spec\",\n    \"path\": \"out/spec/dataified-spec.json\"\n  },\n  \"targetForm\": \"spec_draft\",\n  \"runner\": \"codex_app_server\",\n  \"out\": \"out/spec-draft\",\n  \"gates\": [\n    \"node src/specgym.mjs play out/spec-draft/spec.md --out out/spec-draft/roundtrip\",\n    \"npm test\"\n  ]\n}\n```",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0114-blank-blank",
+      "type": "blank",
+      "lineStart": 292,
+      "lineEnd": 292,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-4-transform-request-the-request-must-not-rely-on-conversation-context-that-is-absent-from-the-source"
+      ]
+    },
+    {
+      "id": "block-0115-paragraph-the-request-must-not-rely-on-conversation-context-that-is-absent-from-the-source",
+      "type": "paragraph",
+      "lineStart": 293,
+      "lineEnd": 294,
+      "rawMarkdown": "The request MUST NOT rely on conversation context that is absent from the source\nartifact or transform request.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0116-blank-blank",
+      "type": "blank",
+      "lineStart": 295,
+      "lineEnd": 295,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0117-heading-3-5-transform-record",
+      "type": "heading",
+      "lineStart": 296,
+      "lineEnd": 296,
+      "rawMarkdown": "### 3.5 Transform Record",
+      "level": 3,
+      "title": "3.5 Transform Record",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0118-blank-blank",
+      "type": "blank",
+      "lineStart": 297,
+      "lineEnd": 297,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-5-transform-record-model-assisted-transforms-should-emit-a-transform-record-alongside-the-target"
+      ]
+    },
+    {
+      "id": "block-0119-paragraph-model-assisted-transforms-should-emit-a-transform-record-alongside-the-target-ar",
+      "type": "paragraph",
+      "lineStart": 298,
+      "lineEnd": 299,
+      "rawMarkdown": "Model-assisted transforms SHOULD emit a transform record alongside the target\nartifact. The record SHOULD include:",
+      "generatedClaimIds": [
+        "requirement-3-5-transform-record-the-record-should-include"
+      ]
+    },
+    {
+      "id": "block-0120-blank-blank",
+      "type": "blank",
+      "lineStart": 300,
+      "lineEnd": 300,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-5-transform-record-source-path"
+      ]
+    },
+    {
+      "id": "block-0121-list-source-path-source-hash-source-form-target-form-target-schema-version-run",
+      "type": "list",
+      "lineStart": 301,
+      "lineEnd": 312,
+      "rawMarkdown": "- source path\n- source hash\n- source form\n- target form\n- target schema version\n- runner\n- runner command\n- Codex `app-server` protocol evidence or generated schema path when available\n- prompt or instruction digest\n- output artifact paths\n- validation gates\n- failure state when the transform is rejected",
+      "generatedClaimIds": [
+        "claim-3-5-transform-record-source-hash",
+        "claim-3-5-transform-record-source-form",
+        "claim-3-5-transform-record-target-form",
+        "claim-3-5-transform-record-target-schema-version",
+        "claim-3-5-transform-record-runner",
+        "claim-3-5-transform-record-runner-command",
+        "claim-3-5-transform-record-codex-app-server-protocol-evidence-or-generated-schema-path-when-available",
+        "claim-3-5-transform-record-prompt-or-instruction-digest",
+        "claim-3-5-transform-record-output-artifact-paths",
+        "claim-3-5-transform-record-validation-gates",
+        "claim-3-5-transform-record-failure-state-when-the-transform-is-rejected"
+      ]
+    },
+    {
+      "id": "block-0122-blank-blank",
+      "type": "blank",
+      "lineStart": 313,
+      "lineEnd": 313,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0123-paragraph-the-transform-record-is-evidence-the-emitted-form-remains-the-artifact-under-rev",
+      "type": "paragraph",
+      "lineStart": 314,
+      "lineEnd": 315,
+      "rawMarkdown": "The transform record is evidence. The emitted form remains the artifact under\nreview.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0124-blank-blank",
+      "type": "blank",
+      "lineStart": 316,
+      "lineEnd": 316,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-5-transform-record-the-transform-record-must-not-claim-that-a-later-run-will-reproduce-identical"
+      ]
+    },
+    {
+      "id": "block-0125-paragraph-the-transform-record-must-not-claim-that-a-later-run-will-reproduce-identical-ou",
+      "type": "paragraph",
+      "lineStart": 317,
+      "lineEnd": 320,
+      "rawMarkdown": "The transform record MUST NOT claim that a later run will reproduce identical\noutput. It SHOULD make later differences explainable by recording source\nhashes, schema versions, runner configuration, prompt or instruction digests,\nvalidation gates, and emitted artifact paths.",
+      "generatedClaimIds": [
+        "requirement-3-5-transform-record-it-should-make-later-differences-explainable-by-recording-source"
+      ]
+    },
+    {
+      "id": "block-0126-blank-blank",
+      "type": "blank",
+      "lineStart": 321,
+      "lineEnd": 321,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0127-heading-3-6-dataified-spec-contract",
+      "type": "heading",
+      "lineStart": 322,
+      "lineEnd": 322,
+      "rawMarkdown": "### 3.6 Dataified Spec Contract",
+      "level": 3,
+      "title": "3.6 Dataified Spec Contract",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0128-blank-blank",
+      "type": "blank",
+      "lineStart": 323,
+      "lineEnd": 323,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0129-paragraph-the-dataifiedspec-form-is-the-loss-minimizing-interchange-form-for-rebuilding-sp",
+      "type": "paragraph",
+      "lineStart": 324,
+      "lineEnd": 325,
+      "rawMarkdown": "The `dataified_spec` form is the loss-minimizing interchange form for rebuilding\n`spec.md`.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0130-blank-blank",
+      "type": "blank",
+      "lineStart": 326,
+      "lineEnd": 326,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-6-dataified-spec-contract-it-must-preserve"
+      ]
+    },
+    {
+      "id": "block-0131-paragraph-it-must-preserve",
+      "type": "paragraph",
+      "lineStart": 327,
+      "lineEnd": 327,
+      "rawMarkdown": "It MUST preserve:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0132-blank-blank",
+      "type": "blank",
+      "lineStart": 328,
+      "lineEnd": 328,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-6-dataified-spec-contract-document-order"
+      ]
+    },
+    {
+      "id": "block-0133-list-document-order-heading-hierarchy-raw-markdown-for-every-source-block-normaliz",
+      "type": "list",
+      "lineStart": 329,
+      "lineEnd": 338,
+      "rawMarkdown": "- document order\n- heading hierarchy\n- raw Markdown for every source block\n- normalized block type\n- source path and source hash\n- line anchors when available\n- source-anchored block IDs for review and diffing\n- semantic role when known\n- generated claim IDs when available\n- unresolved findings or review notes attached to affected blocks",
+      "generatedClaimIds": [
+        "claim-3-6-dataified-spec-contract-heading-hierarchy",
+        "claim-3-6-dataified-spec-contract-raw-markdown-for-every-source-block",
+        "claim-3-6-dataified-spec-contract-normalized-block-type",
+        "claim-3-6-dataified-spec-contract-source-path-and-source-hash",
+        "claim-3-6-dataified-spec-contract-line-anchors-when-available",
+        "claim-3-6-dataified-spec-contract-source-anchored-block-ids-for-review-and-diffing",
+        "claim-3-6-dataified-spec-contract-semantic-role-when-known",
+        "claim-3-6-dataified-spec-contract-generated-claim-ids-when-available",
+        "claim-3-6-dataified-spec-contract-unresolved-findings-or-review-notes-attached-to-affected-blocks"
+      ]
+    },
+    {
+      "id": "block-0134-blank-blank",
+      "type": "blank",
+      "lineStart": 339,
+      "lineEnd": 339,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-6-dataified-spec-contract-it-should-preserve-markdown-constructs-as-first-class-blocks-when-present"
+      ]
+    },
+    {
+      "id": "block-0135-paragraph-it-should-preserve-markdown-constructs-as-first-class-blocks-when-present",
+      "type": "paragraph",
+      "lineStart": 340,
+      "lineEnd": 340,
+      "rawMarkdown": "It SHOULD preserve Markdown constructs as first-class blocks when present:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0136-blank-blank",
+      "type": "blank",
+      "lineStart": 341,
+      "lineEnd": 341,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-6-dataified-spec-contract-paragraphs"
+      ]
+    },
+    {
+      "id": "block-0137-list-paragraphs-headings-bullets-and-ordered-lists-fenced-code-blocks-tables-b",
+      "type": "list",
+      "lineStart": 342,
+      "lineEnd": 349,
+      "rawMarkdown": "- paragraphs\n- headings\n- bullets and ordered lists\n- fenced code blocks\n- tables\n- block quotes\n- links and reference definitions\n- front matter",
+      "generatedClaimIds": [
+        "claim-3-6-dataified-spec-contract-headings",
+        "claim-3-6-dataified-spec-contract-bullets-and-ordered-lists",
+        "claim-3-6-dataified-spec-contract-fenced-code-blocks",
+        "claim-3-6-dataified-spec-contract-tables",
+        "claim-3-6-dataified-spec-contract-block-quotes",
+        "claim-3-6-dataified-spec-contract-links-and-reference-definitions",
+        "claim-3-6-dataified-spec-contract-front-matter"
+      ]
+    },
+    {
+      "id": "block-0138-blank-blank",
+      "type": "blank",
+      "lineStart": 350,
+      "lineEnd": 350,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-6-dataified-spec-contract-unknown-or-unsupported-markdown-constructs-must-be-retained-as-opaque-raw"
+      ]
+    },
+    {
+      "id": "block-0139-paragraph-unknown-or-unsupported-markdown-constructs-must-be-retained-as-opaque-raw-markdo",
+      "type": "paragraph",
+      "lineStart": 351,
+      "lineEnd": 352,
+      "rawMarkdown": "Unknown or unsupported Markdown constructs MUST be retained as opaque raw\nMarkdown blocks rather than dropped or rewritten.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0140-blank-blank",
+      "type": "blank",
+      "lineStart": 353,
+      "lineEnd": 353,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0141-paragraph-the-dataifiedspec-form-reduces-loss-it-does-not-make-the-reverse-transform-deter",
+      "type": "paragraph",
+      "lineStart": 354,
+      "lineEnd": 355,
+      "rawMarkdown": "The `dataified_spec` form reduces loss. It does not make the reverse transform\ndeterministic.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0142-blank-blank",
+      "type": "blank",
+      "lineStart": 356,
+      "lineEnd": 356,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0143-heading-3-7-reverse-transform-dataified-spec-to-spec-draft",
+      "type": "heading",
+      "lineStart": 357,
+      "lineEnd": 357,
+      "rawMarkdown": "### 3.7 Reverse Transform: Dataified Spec to Spec Draft",
+      "level": 3,
+      "title": "3.7 Reverse Transform: Dataified Spec to Spec Draft",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0144-blank-blank",
+      "type": "blank",
+      "lineStart": 358,
+      "lineEnd": 358,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0145-paragraph-the-dataifiedspec-to-specdraft-transform-reconstructs-a-readable-markdown-specif",
+      "type": "paragraph",
+      "lineStart": 359,
+      "lineEnd": 360,
+      "rawMarkdown": "The `dataified_spec` to `spec_draft` transform reconstructs a readable Markdown\nspecification from the structured representation.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0146-blank-blank",
+      "type": "blank",
+      "lineStart": 361,
+      "lineEnd": 361,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-7-reverse-transform-dataified-spec-to-spec-draft-the-output-must-be-reviewable-markdown-not-a-silent-patch-to-the-original"
+      ]
+    },
+    {
+      "id": "block-0147-paragraph-the-output-must-be-reviewable-markdown-not-a-silent-patch-to-the-original-source",
+      "type": "paragraph",
+      "lineStart": 362,
+      "lineEnd": 363,
+      "rawMarkdown": "The output MUST be reviewable Markdown, not a silent patch to the original\nsource file.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0148-blank-blank",
+      "type": "blank",
+      "lineStart": 364,
+      "lineEnd": 364,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-7-reverse-transform-dataified-spec-to-spec-draft-the-output-should-preserve-source-wording-ordering-headings-code-fences"
+      ]
+    },
+    {
+      "id": "block-0149-paragraph-the-output-should-preserve-source-wording-ordering-headings-code-fences-tables-e",
+      "type": "paragraph",
+      "lineStart": 365,
+      "lineEnd": 368,
+      "rawMarkdown": "The output SHOULD preserve source wording, ordering, headings, code fences,\ntables, examples, and unknown raw blocks unless the request explicitly asks for\na rewrite. This is a loss-minimization goal, not a promise of byte-identical\nregeneration.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0150-blank-blank",
+      "type": "blank",
+      "lineStart": 369,
+      "lineEnd": 369,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-7-reverse-transform-dataified-spec-to-spec-draft-the-output-must-preserve-traceability-by-including-one-of"
+      ]
+    },
+    {
+      "id": "block-0151-paragraph-the-output-must-preserve-traceability-by-including-one-of",
+      "type": "paragraph",
+      "lineStart": 370,
+      "lineEnd": 370,
+      "rawMarkdown": "The output MUST preserve traceability by including one of:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0152-blank-blank",
+      "type": "blank",
+      "lineStart": 371,
+      "lineEnd": 371,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-7-reverse-transform-dataified-spec-to-spec-draft-source-anchored-block-or-claim-ids-in-generated-markdown-anchors"
+      ]
+    },
+    {
+      "id": "block-0153-list-source-anchored-block-or-claim-ids-in-generated-markdown-anchors-a-sidecar-map-f",
+      "type": "list",
+      "lineStart": 372,
+      "lineEnd": 374,
+      "rawMarkdown": "- source-anchored block or claim IDs in generated Markdown anchors\n- a sidecar map from generated Markdown line ranges to block or claim IDs\n- both anchors and a sidecar map",
+      "generatedClaimIds": [
+        "claim-3-7-reverse-transform-dataified-spec-to-spec-draft-a-sidecar-map-from-generated-markdown-line-ranges-to-block-or-claim-ids",
+        "claim-3-7-reverse-transform-dataified-spec-to-spec-draft-both-anchors-and-a-sidecar-map"
+      ]
+    },
+    {
+      "id": "block-0154-blank-blank",
+      "type": "blank",
+      "lineStart": 375,
+      "lineEnd": 375,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0155-paragraph-the-transform-is-accepted-only-when-regenerating-dataifiedspec-from-the-draft-pr",
+      "type": "paragraph",
+      "lineStart": 376,
+      "lineEnd": 377,
+      "rawMarkdown": "The transform is accepted only when regenerating `dataified_spec` from the draft\nproduces a round-trip report with:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0156-blank-blank",
+      "type": "blank",
+      "lineStart": 378,
+      "lineEnd": 378,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-7-reverse-transform-dataified-spec-to-spec-draft-previous-block-ids-covered-renamed-or-explicitly-retired"
+      ]
+    },
+    {
+      "id": "block-0157-list-previous-block-ids-covered-renamed-or-explicitly-retired-source-backed-blocks-l",
+      "type": "list",
+      "lineStart": 379,
+      "lineEnd": 384,
+      "rawMarkdown": "- previous block IDs covered, renamed, or explicitly retired\n- source-backed blocks lost from the draft\n- new blocks introduced by generated prose\n- raw Markdown blocks rewritten without permission\n- findings that disappeared without a recorded correction\n- findings that remain unresolved",
+      "generatedClaimIds": [
+        "claim-3-7-reverse-transform-dataified-spec-to-spec-draft-source-backed-blocks-lost-from-the-draft",
+        "claim-3-7-reverse-transform-dataified-spec-to-spec-draft-new-blocks-introduced-by-generated-prose",
+        "claim-3-7-reverse-transform-dataified-spec-to-spec-draft-raw-markdown-blocks-rewritten-without-permission",
+        "claim-3-7-reverse-transform-dataified-spec-to-spec-draft-findings-that-disappeared-without-a-recorded-correction",
+        "claim-3-7-reverse-transform-dataified-spec-to-spec-draft-findings-that-remain-unresolved"
+      ]
+    },
+    {
+      "id": "block-0158-blank-blank",
+      "type": "blank",
+      "lineStart": 385,
+      "lineEnd": 385,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-7-reverse-transform-dataified-spec-to-spec-draft-acceptance-must-not-require-byte-for-byte-equality-with-the-previous-markdown"
+      ]
+    },
+    {
+      "id": "block-0159-paragraph-acceptance-must-not-require-byte-for-byte-equality-with-the-previous-markdown-ac",
+      "type": "paragraph",
+      "lineStart": 386,
+      "lineEnd": 387,
+      "rawMarkdown": "Acceptance MUST NOT require byte-for-byte equality with the previous Markdown.\nAcceptance SHOULD require an explicit loss report bounded for human review.",
+      "generatedClaimIds": [
+        "requirement-3-7-reverse-transform-dataified-spec-to-spec-draft-acceptance-should-require-an-explicit-loss-report-bounded-for-human-review"
+      ]
+    },
+    {
+      "id": "block-0160-blank-blank",
+      "type": "blank",
+      "lineStart": 388,
+      "lineEnd": 388,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0161-heading-3-8-lossy-reverse-transform-claim-to-spec-draft",
+      "type": "heading",
+      "lineStart": 389,
+      "lineEnd": 389,
+      "rawMarkdown": "### 3.8 Lossy Reverse Transform: Claim to Spec Draft",
+      "level": 3,
+      "title": "3.8 Lossy Reverse Transform: Claim to Spec Draft",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0162-blank-blank",
+      "type": "blank",
+      "lineStart": 390,
+      "lineEnd": 390,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0163-paragraph-the-claim-to-specdraft-transform-reconstructs-a-readable-markdown-specification-",
+      "type": "paragraph",
+      "lineStart": 391,
+      "lineEnd": 392,
+      "rawMarkdown": "The `claim` to `spec_draft` transform reconstructs a readable Markdown\nspecification from a claim lattice.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0164-blank-blank",
+      "type": "blank",
+      "lineStart": 393,
+      "lineEnd": 393,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-8-lossy-reverse-transform-claim-to-spec-draft-implementations-should-prefer"
+      ]
+    },
+    {
+      "id": "block-0165-paragraph-this-is-a-lossy-fallback-implementations-should-prefer-dataifiedspec-to-specdraf",
+      "type": "paragraph",
+      "lineStart": 394,
+      "lineEnd": 395,
+      "rawMarkdown": "This is a lossy fallback. Implementations SHOULD prefer\n`dataified_spec` to `spec_draft` whenever dataified spec form is available.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0166-blank-blank",
+      "type": "blank",
+      "lineStart": 396,
+      "lineEnd": 396,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-8-lossy-reverse-transform-claim-to-spec-draft-the-output-must-be-reviewable-markdown-not-a-silent-patch-to-the-original"
+      ]
+    },
+    {
+      "id": "block-0167-paragraph-the-output-must-be-reviewable-markdown-not-a-silent-patch-to-the-original-source",
+      "type": "paragraph",
+      "lineStart": 397,
+      "lineEnd": 398,
+      "rawMarkdown": "The output MUST be reviewable Markdown, not a silent patch to the original\nsource file.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0168-blank-blank",
+      "type": "blank",
+      "lineStart": 399,
+      "lineEnd": 399,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-8-lossy-reverse-transform-claim-to-spec-draft-the-output-must-preserve-traceability-by-including-one-of"
+      ]
+    },
+    {
+      "id": "block-0169-paragraph-the-output-must-preserve-traceability-by-including-one-of",
+      "type": "paragraph",
+      "lineStart": 400,
+      "lineEnd": 400,
+      "rawMarkdown": "The output MUST preserve traceability by including one of:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0170-blank-blank",
+      "type": "blank",
+      "lineStart": 401,
+      "lineEnd": 401,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-8-lossy-reverse-transform-claim-to-spec-draft-source-anchored-claim-ids-in-generated-markdown-anchors"
+      ]
+    },
+    {
+      "id": "block-0171-list-source-anchored-claim-ids-in-generated-markdown-anchors-a-sidecar-map-from-gener",
+      "type": "list",
+      "lineStart": 402,
+      "lineEnd": 404,
+      "rawMarkdown": "- source-anchored claim IDs in generated Markdown anchors\n- a sidecar map from generated Markdown line ranges to claim IDs\n- both anchors and a sidecar map",
+      "generatedClaimIds": [
+        "claim-3-8-lossy-reverse-transform-claim-to-spec-draft-a-sidecar-map-from-generated-markdown-line-ranges-to-claim-ids",
+        "claim-3-8-lossy-reverse-transform-claim-to-spec-draft-both-anchors-and-a-sidecar-map"
+      ]
+    },
+    {
+      "id": "block-0172-blank-blank",
+      "type": "blank",
+      "lineStart": 405,
+      "lineEnd": 405,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-8-lossy-reverse-transform-claim-to-spec-draft-the-output-must-distinguish-source-backed-content-from-synthesized-connective"
+      ]
+    },
+    {
+      "id": "block-0173-paragraph-the-output-must-distinguish-source-backed-content-from-synthesized-connective-pr",
+      "type": "paragraph",
+      "lineStart": 406,
+      "lineEnd": 407,
+      "rawMarkdown": "The output MUST distinguish source-backed content from synthesized connective\nprose when that distinction affects review.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0174-blank-blank",
+      "type": "blank",
+      "lineStart": 408,
+      "lineEnd": 408,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-8-lossy-reverse-transform-claim-to-spec-draft-the-output-must-carry-unresolved-findings-tensions-and-missing-validation"
+      ]
+    },
+    {
+      "id": "block-0175-paragraph-the-output-must-carry-unresolved-findings-tensions-and-missing-validation-forwar",
+      "type": "paragraph",
+      "lineStart": 409,
+      "lineEnd": 410,
+      "rawMarkdown": "The output MUST carry unresolved findings, tensions, and missing validation\nforward instead of dropping them because they are awkward prose.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0176-blank-blank",
+      "type": "blank",
+      "lineStart": 411,
+      "lineEnd": 411,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-8-lossy-reverse-transform-claim-to-spec-draft-the-transform-should-preserve-the-original-heading-order-when-the-claim-lattice"
+      ]
+    },
+    {
+      "id": "block-0177-paragraph-the-transform-should-preserve-the-original-heading-order-when-the-claim-lattice-",
+      "type": "paragraph",
+      "lineStart": 412,
+      "lineEnd": 416,
+      "rawMarkdown": "The transform SHOULD preserve the original heading order when the claim lattice\ncontains source section nodes. If the claim lattice has no reliable section\nstructure, the runner SHOULD emit a conventional order: problem, goals,\nnon-goals, requirements, components, dependencies, risks, validation, and open\nquestions.",
+      "generatedClaimIds": [
+        "requirement-3-8-lossy-reverse-transform-claim-to-spec-draft-structure-the-runner-should-emit-a-conventional-order-problem-goals"
+      ]
+    },
+    {
+      "id": "block-0178-blank-blank",
+      "type": "blank",
+      "lineStart": 417,
+      "lineEnd": 417,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0179-paragraph-the-reverse-transform-is-accepted-only-when-regenerating-claim-form-from-the-dra",
+      "type": "paragraph",
+      "lineStart": 418,
+      "lineEnd": 419,
+      "rawMarkdown": "The reverse transform is accepted only when regenerating `claim` form from the\ndraft produces a round-trip report with:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0180-blank-blank",
+      "type": "blank",
+      "lineStart": 420,
+      "lineEnd": 420,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-8-lossy-reverse-transform-claim-to-spec-draft-previous-claim-ids-covered-renamed-or-explicitly-retired"
+      ]
+    },
+    {
+      "id": "block-0181-list-previous-claim-ids-covered-renamed-or-explicitly-retired-new-claims-introduced",
+      "type": "list",
+      "lineStart": 421,
+      "lineEnd": 425,
+      "rawMarkdown": "- previous claim IDs covered, renamed, or explicitly retired\n- new claims introduced by generated prose\n- source-backed claims lost from the draft\n- findings that disappeared without a recorded correction\n- findings that remain unresolved",
+      "generatedClaimIds": [
+        "claim-3-8-lossy-reverse-transform-claim-to-spec-draft-new-claims-introduced-by-generated-prose",
+        "claim-3-8-lossy-reverse-transform-claim-to-spec-draft-source-backed-claims-lost-from-the-draft",
+        "claim-3-8-lossy-reverse-transform-claim-to-spec-draft-findings-that-disappeared-without-a-recorded-correction",
+        "claim-3-8-lossy-reverse-transform-claim-to-spec-draft-findings-that-remain-unresolved"
+      ]
+    },
+    {
+      "id": "block-0182-blank-blank",
+      "type": "blank",
+      "lineStart": 426,
+      "lineEnd": 426,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-8-lossy-reverse-transform-claim-to-spec-draft-a-claim-to-specdraft-transform-must-fail-with-missingsourceanchor-when"
+      ]
+    },
+    {
+      "id": "block-0183-paragraph-a-claim-to-specdraft-transform-must-fail-with-missingsourceanchor-when-required-",
+      "type": "paragraph",
+      "lineStart": 427,
+      "lineEnd": 429,
+      "rawMarkdown": "A `claim` to `spec_draft` transform MUST fail with `missing_source_anchor` when\nrequired source anchors are absent and the request does not permit synthesized\nstructure.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0184-blank-blank",
+      "type": "blank",
+      "lineStart": 430,
+      "lineEnd": 430,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0185-heading-3-9-llm-projection-process",
+      "type": "heading",
+      "lineStart": 431,
+      "lineEnd": 431,
+      "rawMarkdown": "### 3.9 LLM Projection Process",
+      "level": 3,
+      "title": "3.9 LLM Projection Process",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0186-blank-blank",
+      "type": "blank",
+      "lineStart": 432,
+      "lineEnd": 432,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-9-llm-projection-process-projection-content-must-be-generated-through-llm-calls"
+      ]
+    },
+    {
+      "id": "block-0187-paragraph-projection-content-must-be-generated-through-llm-calls-local-code-may-parse-sour",
+      "type": "paragraph",
+      "lineStart": 433,
+      "lineEnd": 437,
+      "rawMarkdown": "Projection content MUST be generated through LLM calls. Local code may parse\nsource documents, build intermediate forms, select focused slices, write prompts,\nvalidate schemas, and compare drift. Local code MUST NOT synthesize final\nprojection content for requirements, protocols, architecture, protobufs, or\nimplementation questions.",
+      "generatedClaimIds": [
+        "requirement-3-9-llm-projection-process-local-code-must-not-synthesize-final"
+      ]
+    },
+    {
+      "id": "block-0188-blank-blank",
+      "type": "blank",
+      "lineStart": 438,
+      "lineEnd": 438,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-9-llm-projection-process-for-each-selected-projection-the-tool-should"
+      ]
+    },
+    {
+      "id": "block-0189-paragraph-for-each-selected-projection-the-tool-should",
+      "type": "paragraph",
+      "lineStart": 439,
+      "lineEnd": 439,
+      "rawMarkdown": "For each selected projection, the tool SHOULD:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0190-blank-blank",
+      "type": "blank",
+      "lineStart": 440,
+      "lineEnd": 440,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0191-list-1-load-the-projection-markdown-file-and-referenced-type-contracts-2-slice-the-sp",
+      "type": "list",
+      "lineStart": 441,
+      "lineEnd": 450,
+      "rawMarkdown": "1. Load the projection Markdown file and referenced type contracts.\n2. Slice the spec into small source-focused packets using source anchors,\n   headings, matched claims, and raw Markdown blocks.\n3. Emit one Codex `app-server` call packet per projection/slice.\n4. Require each call packet to preserve source anchors and mark inferred\n   content explicitly.\n5. Emit a merge call packet that combines partial LLM outputs into the target\n   artifact.\n6. Validate the merged artifact against its type contract or manual check.\n7. Record drift when the same projection is run repeatedly.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0192-blank-blank",
+      "type": "blank",
+      "lineStart": 451,
+      "lineEnd": 451,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0193-paragraph-the-same-process-applies-to-code-to-spec-projection-the-source-is-code-slices-in",
+      "type": "paragraph",
+      "lineStart": 452,
+      "lineEnd": 454,
+      "rawMarkdown": "The same process applies to code-to-spec projection: the source is code slices\ninstead of Markdown blocks, the target is `spec_draft`, and the merge call\nassembles a reviewable `spec.md` candidate.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0194-blank-blank",
+      "type": "blank",
+      "lineStart": 455,
+      "lineEnd": 455,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0195-heading-3-10-projection-composition-and-determinism-training",
+      "type": "heading",
+      "lineStart": 456,
+      "lineEnd": 456,
+      "rawMarkdown": "### 3.10 Projection Composition And Determinism Training",
+      "level": 3,
+      "title": "3.10 Projection Composition And Determinism Training",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0196-blank-blank",
+      "type": "blank",
+      "lineStart": 457,
+      "lineEnd": 457,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-10-projection-composition-and-determinism-training-the-cli-must-support-applying-one-projection-repeated-projections-or"
+      ]
+    },
+    {
+      "id": "block-0197-paragraph-the-cli-must-support-applying-one-projection-repeated-projections-or-comma-separ",
+      "type": "paragraph",
+      "lineStart": 458,
+      "lineEnd": 459,
+      "rawMarkdown": "The CLI MUST support applying one projection, repeated projections, or\ncomma-separated projection combinations to the same spec document.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0198-blank-blank",
+      "type": "blank",
+      "lineStart": 460,
+      "lineEnd": 460,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-10-projection-composition-and-determinism-training-projection-combinations-should-be-recorded-in-the-transform-record"
+      ]
+    },
+    {
+      "id": "block-0199-paragraph-projection-combinations-should-be-recorded-in-the-transform-record",
+      "type": "paragraph",
+      "lineStart": 461,
+      "lineEnd": 461,
+      "rawMarkdown": "Projection combinations SHOULD be recorded in the transform record.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0200-blank-blank",
+      "type": "blank",
+      "lineStart": 462,
+      "lineEnd": 462,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0201-paragraph-the-system-should-train-toward-consistency-by-running-many-projection-and-revers",
+      "type": "paragraph",
+      "lineStart": 463,
+      "lineEnd": 467,
+      "rawMarkdown": "The system should train toward consistency by running many projection and\nreverse-projection cycles, comparing outputs against type contracts, claim\ncoverage, source anchors, and reviewable loss reports. The goal is not to\nassume deterministic output. The goal is to measure and reduce projection drift\nover repeated transformations.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0202-blank-blank",
+      "type": "blank",
+      "lineStart": 468,
+      "lineEnd": 468,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-10-projection-composition-and-determinism-training-a-cycle-must-name"
+      ]
+    },
+    {
+      "id": "block-0203-paragraph-trainable-cycles-are-first-class-artifacts-a-cycle-must-name",
+      "type": "paragraph",
+      "lineStart": 469,
+      "lineEnd": 469,
+      "rawMarkdown": "Trainable cycles are first-class artifacts. A cycle MUST name:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0204-blank-blank",
+      "type": "blank",
+      "lineStart": 470,
+      "lineEnd": 470,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-10-projection-composition-and-determinism-training-forward-projection"
+      ]
+    },
+    {
+      "id": "block-0205-list-forward-projection-reverse-projection-seed-source-artifact-intermediate-artif",
+      "type": "list",
+      "lineStart": 471,
+      "lineEnd": 478,
+      "rawMarkdown": "- forward projection\n- reverse projection\n- seed source artifact\n- intermediate artifact path\n- returned spec draft path\n- number of attempts or iterations\n- judge prompt and drift report contract\n- gates used to re-parse the returned spec draft",
+      "generatedClaimIds": [
+        "claim-3-10-projection-composition-and-determinism-training-reverse-projection",
+        "claim-3-10-projection-composition-and-determinism-training-seed-source-artifact",
+        "claim-3-10-projection-composition-and-determinism-training-intermediate-artifact-path",
+        "claim-3-10-projection-composition-and-determinism-training-returned-spec-draft-path",
+        "claim-3-10-projection-composition-and-determinism-training-number-of-attempts-or-iterations",
+        "claim-3-10-projection-composition-and-determinism-training-judge-prompt-and-drift-report-contract",
+        "claim-3-10-projection-composition-and-determinism-training-gates-used-to-re-parse-the-returned-spec-draft"
+      ]
+    },
+    {
+      "id": "block-0206-blank-blank",
+      "type": "blank",
+      "lineStart": 479,
+      "lineEnd": 479,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0207-paragraph-examples",
+      "type": "paragraph",
+      "lineStart": 480,
+      "lineEnd": 480,
+      "rawMarkdown": "Examples:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0208-blank-blank",
+      "type": "blank",
+      "lineStart": 481,
+      "lineEnd": 481,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-10-projection-composition-and-determinism-training-spec-md-aws-architecture-architecture-md-architecture-to-spec-spec-draft-md"
+      ]
+    },
+    {
+      "id": "block-0209-list-spec-md-aws-architecture-architecture-md-architecture-to-spec-spec-draf",
+      "type": "list",
+      "lineStart": 482,
+      "lineEnd": 487,
+      "rawMarkdown": "- `spec.md -> aws-architecture -> architecture.md -> architecture-to-spec ->\n  spec-draft.md`\n- `spec.md -> spec-tests -> tests/spec-derived-tests.md -> tests-to-spec ->\n  spec-draft.md`\n- `src/ -> code-to-spec -> spec-draft.md -> spec-tests ->\n  tests/spec-derived-tests.md`",
+      "generatedClaimIds": [
+        "claim-3-10-projection-composition-and-determinism-training-spec-md-spec-tests-tests-spec-derived-tests-md-tests-to-spec-spec-draft-md",
+        "claim-3-10-projection-composition-and-determinism-training-src-code-to-spec-spec-draft-md-spec-tests-tests-spec-derived-tests-md"
+      ]
+    },
+    {
+      "id": "block-0210-blank-blank",
+      "type": "blank",
+      "lineStart": 488,
+      "lineEnd": 488,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-10-projection-composition-and-determinism-training-the-forward-and-reverse-transforms-may-both-be-lossy"
+      ]
+    },
+    {
+      "id": "block-0211-paragraph-the-forward-and-reverse-transforms-may-both-be-lossy-a-training-cycle-is-useful-",
+      "type": "paragraph",
+      "lineStart": 489,
+      "lineEnd": 492,
+      "rawMarkdown": "The forward and reverse transforms MAY both be lossy. A training cycle is useful\nwhen the judge can say what moved: source anchors preserved, claims lost,\nclaims invented, tests no longer grounded, architectural assumptions added, or\nopen questions collapsed into unsupported certainty.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0212-blank-blank",
+      "type": "blank",
+      "lineStart": 493,
+      "lineEnd": 493,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-10-projection-composition-and-determinism-training-the-cli-should-emit-one-directory-per-cycle-round-with"
+      ]
+    },
+    {
+      "id": "block-0213-paragraph-the-cli-should-emit-one-directory-per-cycle-round-with",
+      "type": "paragraph",
+      "lineStart": 494,
+      "lineEnd": 494,
+      "rawMarkdown": "The CLI SHOULD emit one directory per cycle round with:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0214-blank-blank",
+      "type": "blank",
+      "lineStart": 495,
+      "lineEnd": 495,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-10-projection-composition-and-determinism-training-forward-llm-call-packets"
+      ]
+    },
+    {
+      "id": "block-0215-list-forward-llm-call-packets-reverse-llm-call-packet-template-merge-prompts-judge",
+      "type": "list",
+      "lineStart": 496,
+      "lineEnd": 500,
+      "rawMarkdown": "- forward LLM call packets\n- reverse LLM call packet template\n- merge prompts\n- judge prompt\n- expected drift report path",
+      "generatedClaimIds": [
+        "claim-3-10-projection-composition-and-determinism-training-reverse-llm-call-packet-template",
+        "claim-3-10-projection-composition-and-determinism-training-merge-prompts",
+        "claim-3-10-projection-composition-and-determinism-training-judge-prompt",
+        "claim-3-10-projection-composition-and-determinism-training-expected-drift-report-path"
+      ]
+    },
+    {
+      "id": "block-0216-blank-blank",
+      "type": "blank",
+      "lineStart": 501,
+      "lineEnd": 501,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-10-projection-composition-and-determinism-training-the-cycle-runner-must-not-silently-accept-the-returned-draft-as-spec-md"
+      ]
+    },
+    {
+      "id": "block-0217-paragraph-the-cycle-runner-must-not-silently-accept-the-returned-draft-as-spec-md-returned",
+      "type": "paragraph",
+      "lineStart": 502,
+      "lineEnd": 503,
+      "rawMarkdown": "The cycle runner MUST NOT silently accept the returned draft as `spec.md`.\nReturned drafts remain review artifacts until explicitly accepted.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0218-blank-blank",
+      "type": "blank",
+      "lineStart": 504,
+      "lineEnd": 504,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0219-heading-3-11-historical-spec-mining",
+      "type": "heading",
+      "lineStart": 505,
+      "lineEnd": 505,
+      "rawMarkdown": "### 3.11 Historical Spec Mining",
+      "level": 3,
+      "title": "3.11 Historical Spec Mining",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0220-blank-blank",
+      "type": "blank",
+      "lineStart": 506,
+      "lineEnd": 506,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0221-paragraph-historical-spec-mining-samples-a-git-repository-through-time-and-emits-a-reviewa",
+      "type": "paragraph",
+      "lineStart": 507,
+      "lineEnd": 510,
+      "rawMarkdown": "Historical spec mining samples a Git repository through time and emits a\nreviewable `spec_draft` plus judge evidence. It MAY use local heuristics to\ninfer feature claims and score candidate drafts because the output is a mined\ndraft under review, not final projection content.",
+      "generatedClaimIds": [
+        "requirement-3-11-historical-spec-mining-it-may-use-local-heuristics-to"
+      ]
+    },
+    {
+      "id": "block-0222-blank-blank",
+      "type": "blank",
+      "lineStart": 511,
+      "lineEnd": 511,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-11-historical-spec-mining-the-mining-record-should-include"
+      ]
+    },
+    {
+      "id": "block-0223-paragraph-the-mining-record-should-include",
+      "type": "paragraph",
+      "lineStart": 512,
+      "lineEnd": 512,
+      "rawMarkdown": "The mining record SHOULD include:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0224-blank-blank",
+      "type": "blank",
+      "lineStart": 513,
+      "lineEnd": 513,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-3-11-historical-spec-mining-source-repository-path"
+      ]
+    },
+    {
+      "id": "block-0225-list-source-repository-path-root-commit-or-explicit-since-commit-target-branch-or",
+      "type": "list",
+      "lineStart": 514,
+      "lineEnd": 524,
+      "rawMarkdown": "- source repository path\n- root commit or explicit `--since` commit\n- target branch or commit\n- sampled commits\n- writer prompt policies\n- judge prompt policy\n- selected claim IDs or feature IDs\n- temporal validity score\n- coverage score\n- first invalid snapshot, when present\n- later-only features excluded from the root-stable draft",
+      "generatedClaimIds": [
+        "claim-3-11-historical-spec-mining-root-commit-or-explicit-since-commit",
+        "claim-3-11-historical-spec-mining-target-branch-or-commit",
+        "claim-3-11-historical-spec-mining-sampled-commits",
+        "claim-3-11-historical-spec-mining-writer-prompt-policies",
+        "claim-3-11-historical-spec-mining-judge-prompt-policy",
+        "claim-3-11-historical-spec-mining-selected-claim-ids-or-feature-ids",
+        "claim-3-11-historical-spec-mining-temporal-validity-score",
+        "claim-3-11-historical-spec-mining-coverage-score",
+        "claim-3-11-historical-spec-mining-first-invalid-snapshot-when-present",
+        "claim-3-11-historical-spec-mining-later-only-features-excluded-from-the-root-stable-draft"
+      ]
+    },
+    {
+      "id": "block-0226-blank-blank",
+      "type": "blank",
+      "lineStart": 525,
+      "lineEnd": 525,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-11-historical-spec-mining-the-reward-should-prioritize"
+      ]
+    },
+    {
+      "id": "block-0227-paragraph-the-reward-should-prioritize",
+      "type": "paragraph",
+      "lineStart": 526,
+      "lineEnd": 526,
+      "rawMarkdown": "The reward SHOULD prioritize:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0228-blank-blank",
+      "type": "blank",
+      "lineStart": 527,
+      "lineEnd": 527,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0229-list-1-temporal-validity-from-the-first-judged-snapshot-2-coverage-of-high-weight-sta",
+      "type": "list",
+      "lineStart": 528,
+      "lineEnd": 530,
+      "rawMarkdown": "1. temporal validity from the first judged snapshot\n2. coverage of high-weight stable project essence\n3. compactness",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0230-blank-blank",
+      "type": "blank",
+      "lineStart": 531,
+      "lineEnd": 531,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-3-11-historical-spec-mining-a-mined-spec-must-distinguish-root-stable-claims-from-later-only-drift"
+      ]
+    },
+    {
+      "id": "block-0231-paragraph-a-mined-spec-must-distinguish-root-stable-claims-from-later-only-drift-it-must-n",
+      "type": "paragraph",
+      "lineStart": 532,
+      "lineEnd": 533,
+      "rawMarkdown": "A mined spec MUST distinguish root-stable claims from later-only drift. It MUST\nNOT backdate future behavior into the beginning-of-history spec.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0232-blank-blank",
+      "type": "blank",
+      "lineStart": 534,
+      "lineEnd": 534,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0233-heading-3-12-registry-changes",
+      "type": "heading",
+      "lineStart": 535,
+      "lineEnd": 535,
+      "rawMarkdown": "### 3.12 Registry Changes",
+      "level": 3,
+      "title": "3.12 Registry Changes",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0234-blank-blank",
+      "type": "blank",
+      "lineStart": 536,
+      "lineEnd": 536,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0235-paragraph-the-form-and-type-registries-are-intentionally-small-new-internal-forms-or-outpu",
+      "type": "paragraph",
+      "lineStart": 537,
+      "lineEnd": 540,
+      "rawMarkdown": "The form and type registries are intentionally small. New internal forms or\noutput types beyond the registries in this document MUST be proposed and\naccepted before implementation. New projection Markdown files MAY be added when\nthey reuse existing forms and types.",
+      "generatedClaimIds": [
+        "requirement-3-12-registry-changes-output-types-beyond-the-registries-in-this-document-must-be-proposed-and",
+        "requirement-3-12-registry-changes-new-projection-markdown-files-may-be-added-when"
+      ]
+    },
+    {
+      "id": "block-0236-blank-blank",
+      "type": "blank",
+      "lineStart": 541,
+      "lineEnd": 541,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0237-heading-4-core-artifacts",
+      "type": "heading",
+      "lineStart": 542,
+      "lineEnd": 542,
+      "rawMarkdown": "## 4. Core Artifacts",
+      "level": 2,
+      "title": "4. Core Artifacts",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0238-blank-blank",
+      "type": "blank",
+      "lineStart": 543,
+      "lineEnd": 543,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-4-core-artifacts-default-spec-to-dataifiedspec-to-claim-generation-must-emit-only-core"
+      ]
+    },
+    {
+      "id": "block-0239-paragraph-default-spec-to-dataifiedspec-to-claim-generation-must-emit-only-core-artifacts",
+      "type": "paragraph",
+      "lineStart": 544,
+      "lineEnd": 545,
+      "rawMarkdown": "Default `spec` to `dataified_spec` to `claim` generation MUST emit only core\nartifacts:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0240-blank-blank",
+      "type": "blank",
+      "lineStart": 546,
+      "lineEnd": 546,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-4-core-artifacts-dataified-spec-json"
+      ]
+    },
+    {
+      "id": "block-0241-list-dataified-spec-json-claim-lattice-json-viability-critique-md-claimlattice-lea",
+      "type": "list",
+      "lineStart": 547,
+      "lineEnd": 551,
+      "rawMarkdown": "- `dataified-spec.json`\n- `claim-lattice.json`\n- `viability-critique.md`\n- `ClaimLattice.lean`\n- `refinement-packet.md`",
+      "generatedClaimIds": [
+        "claim-4-core-artifacts-claim-lattice-json",
+        "claim-4-core-artifacts-viability-critique-md",
+        "claim-4-core-artifacts-claimlattice-lean",
+        "claim-4-core-artifacts-refinement-packet-md"
+      ]
+    },
+    {
+      "id": "block-0242-blank-blank",
+      "type": "blank",
+      "lineStart": 552,
+      "lineEnd": 552,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-4-core-artifacts-default-generation-must-not-emit-named-adapter-files"
+      ]
+    },
+    {
+      "id": "block-0243-paragraph-default-generation-must-not-emit-named-adapter-files",
+      "type": "paragraph",
+      "lineStart": 553,
+      "lineEnd": 553,
+      "rawMarkdown": "Default generation MUST NOT emit named adapter files.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0244-blank-blank",
+      "type": "blank",
+      "lineStart": 554,
+      "lineEnd": 554,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-4-core-artifacts-named-projection-output-must-be-opt-in"
+      ]
+    },
+    {
+      "id": "block-0245-paragraph-named-projection-output-must-be-opt-in",
+      "type": "paragraph",
+      "lineStart": 555,
+      "lineEnd": 555,
+      "rawMarkdown": "Named projection output MUST be opt-in.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0246-blank-blank",
+      "type": "blank",
+      "lineStart": 556,
+      "lineEnd": 556,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-4-core-artifacts-reverse-generation-must-not-modify-spec-md-by-default"
+      ]
+    },
+    {
+      "id": "block-0247-paragraph-reverse-generation-must-not-modify-spec-md-by-default-it-emits-draft-artifacts-u",
+      "type": "paragraph",
+      "lineStart": 557,
+      "lineEnd": 558,
+      "rawMarkdown": "Reverse generation MUST NOT modify `spec.md` by default. It emits draft\nartifacts under the requested output directory.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0248-blank-blank",
+      "type": "blank",
+      "lineStart": 559,
+      "lineEnd": 559,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0249-heading-5-claim-lattice",
+      "type": "heading",
+      "lineStart": 560,
+      "lineEnd": 560,
+      "rawMarkdown": "## 5. Claim Lattice",
+      "level": 2,
+      "title": "5. Claim Lattice",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0250-blank-blank",
+      "type": "blank",
+      "lineStart": 561,
+      "lineEnd": 561,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0251-heading-5-1-node-types",
+      "type": "heading",
+      "lineStart": 562,
+      "lineEnd": 562,
+      "rawMarkdown": "### 5.1 Node Types",
+      "level": 3,
+      "title": "5.1 Node Types",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0252-blank-blank",
+      "type": "blank",
+      "lineStart": 563,
+      "lineEnd": 563,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-5-1-node-types-spec-root-input-document"
+      ]
+    },
+    {
+      "id": "block-0253-list-spec-root-input-document-section-source-heading-and-line-range-goal-desire",
+      "type": "list",
+      "lineStart": 564,
+      "lineEnd": 574,
+      "rawMarkdown": "- `spec`: root input document.\n- `section`: source heading and line range.\n- `goal`: desired outcome.\n- `non_goal`: explicit boundary.\n- `requirement`: normative claim.\n- `component`: named subsystem, actor, layer, or responsibility.\n- `dependency`: external system, file, tool, API, or host assumption.\n- `test`: validation surface or conformance check.\n- `risk`: safety, recovery, trust, failure, or ambiguity pressure.\n- `claim`: extracted assertion not yet sharpened.\n- `finding`: generated bad-idea pressure.",
+      "generatedClaimIds": [
+        "claim-5-1-node-types-section-source-heading-and-line-range",
+        "claim-5-1-node-types-goal-desired-outcome",
+        "claim-5-1-node-types-nongoal-explicit-boundary",
+        "claim-5-1-node-types-requirement-normative-claim",
+        "claim-5-1-node-types-component-named-subsystem-actor-layer-or-responsibility",
+        "dependency-5-1-node-types-dependency-external-system-file-tool-api-or-host-assumption",
+        "test-5-1-node-types-test-validation-surface-or-conformance-check",
+        "claim-5-1-node-types-risk-safety-recovery-trust-failure-or-ambiguity-pressure",
+        "claim-5-1-node-types-claim-extracted-assertion-not-yet-sharpened",
+        "claim-5-1-node-types-finding-generated-bad-idea-pressure"
+      ]
+    },
+    {
+      "id": "block-0254-blank-blank",
+      "type": "blank",
+      "lineStart": 575,
+      "lineEnd": 575,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0255-heading-5-2-edge-types",
+      "type": "heading",
+      "lineStart": 576,
+      "lineEnd": 576,
+      "rawMarkdown": "### 5.2 Edge Types",
+      "level": 3,
+      "title": "5.2 Edge Types",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0256-blank-blank",
+      "type": "blank",
+      "lineStart": 577,
+      "lineEnd": 577,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-5-2-edge-types-contains-structural-containment"
+      ]
+    },
+    {
+      "id": "block-0257-list-contains-structural-containment-elaborates-source-claim-elaborates-a-section",
+      "type": "list",
+      "lineStart": 578,
+      "lineEnd": 582,
+      "rawMarkdown": "- `contains`: structural containment.\n- `elaborates`: source claim elaborates a section.\n- `evidences`: source node supports a finding.\n- `pressures`: finding pressures a source node.\n- `tensions`: source nodes appear to conflict.",
+      "generatedClaimIds": [
+        "claim-5-2-edge-types-elaborates-source-claim-elaborates-a-section",
+        "claim-5-2-edge-types-evidences-source-node-supports-a-finding",
+        "claim-5-2-edge-types-pressures-finding-pressures-a-source-node",
+        "claim-5-2-edge-types-tensions-source-nodes-appear-to-conflict"
+      ]
+    },
+    {
+      "id": "block-0258-blank-blank",
+      "type": "blank",
+      "lineStart": 583,
+      "lineEnd": 583,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0259-heading-5-3-stability",
+      "type": "heading",
+      "lineStart": 584,
+      "lineEnd": 584,
+      "rawMarkdown": "### 5.3 Stability",
+      "level": 3,
+      "title": "5.3 Stability",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0260-blank-blank",
+      "type": "blank",
+      "lineStart": 585,
+      "lineEnd": 585,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-5-3-stability-node-ids-should-support-review-and-diffing-when-source-anchors-are-available"
+      ]
+    },
+    {
+      "id": "block-0261-paragraph-node-ids-should-support-review-and-diffing-when-source-anchors-are-available-the",
+      "type": "paragraph",
+      "lineStart": 586,
+      "lineEnd": 587,
+      "rawMarkdown": "Node IDs SHOULD support review and diffing when source anchors are available.\nThey MUST NOT be treated as proof that the transform is deterministic.",
+      "generatedClaimIds": [
+        "requirement-5-3-stability-they-must-not-be-treated-as-proof-that-the-transform-is-deterministic"
+      ]
+    },
+    {
+      "id": "block-0262-blank-blank",
+      "type": "blank",
+      "lineStart": 588,
+      "lineEnd": 588,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-5-3-stability-the-schema-must-be-versioned"
+      ]
+    },
+    {
+      "id": "block-0263-paragraph-the-schema-must-be-versioned",
+      "type": "paragraph",
+      "lineStart": 589,
+      "lineEnd": 589,
+      "rawMarkdown": "The schema MUST be versioned.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0264-blank-blank",
+      "type": "blank",
+      "lineStart": 590,
+      "lineEnd": 590,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-5-3-stability-line-references-should-be-preserved-whenever-the-input-format-supports-them"
+      ]
+    },
+    {
+      "id": "block-0265-paragraph-line-references-should-be-preserved-whenever-the-input-format-supports-them",
+      "type": "paragraph",
+      "lineStart": 591,
+      "lineEnd": 591,
+      "rawMarkdown": "Line references SHOULD be preserved whenever the input format supports them.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0266-blank-blank",
+      "type": "blank",
+      "lineStart": 592,
+      "lineEnd": 592,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0267-heading-6-codex-app-server-runner",
+      "type": "heading",
+      "lineStart": 593,
+      "lineEnd": 593,
+      "rawMarkdown": "## 6. Codex App-Server Runner",
+      "level": 2,
+      "title": "6. Codex App-Server Runner",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0268-blank-blank",
+      "type": "blank",
+      "lineStart": 594,
+      "lineEnd": 594,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0269-paragraph-codex-app-server-is-the-first-model-assisted-runner-it-is-a-runner-adapter-not-t",
+      "type": "paragraph",
+      "lineStart": 595,
+      "lineEnd": 596,
+      "rawMarkdown": "Codex `app-server` is the first model-assisted runner. It is a runner adapter,\nnot the claim-lattice schema and not the source of truth.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0270-blank-blank",
+      "type": "blank",
+      "lineStart": 597,
+      "lineEnd": 597,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-6-codex-app-server-runner-the-default-launch-command-should-be-codex-app-server-but-implementations"
+      ]
+    },
+    {
+      "id": "block-0271-paragraph-the-default-launch-command-should-be-codex-app-server-but-implementations-must-a",
+      "type": "paragraph",
+      "lineStart": 598,
+      "lineEnd": 600,
+      "rawMarkdown": "The default launch command SHOULD be `codex app-server`, but implementations\nMUST allow the command, model, sandbox policy, approval policy, timeout, and\ntransport to be configured.",
+      "generatedClaimIds": [
+        "requirement-6-codex-app-server-runner-must-allow-the-command-model-sandbox-policy-approval-policy-timeout-and"
+      ]
+    },
+    {
+      "id": "block-0272-blank-blank",
+      "type": "blank",
+      "lineStart": 601,
+      "lineEnd": 601,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-6-codex-app-server-runner-implementations-must-follow-the-targeted-codex-app-server-protocol"
+      ]
+    },
+    {
+      "id": "block-0273-paragraph-implementations-must-follow-the-targeted-codex-app-server-protocol-this-specific",
+      "type": "paragraph",
+      "lineStart": 602,
+      "lineEnd": 605,
+      "rawMarkdown": "Implementations MUST follow the targeted Codex `app-server` protocol. This\nspecification MUST NOT be treated as the protocol schema. If the targeted Codex\nprotocol conflicts with this document, the Codex protocol controls transport\nand message shape.",
+      "generatedClaimIds": [
+        "requirement-6-codex-app-server-runner-specification-must-not-be-treated-as-the-protocol-schema"
+      ]
+    },
+    {
+      "id": "block-0274-blank-blank",
+      "type": "blank",
+      "lineStart": 606,
+      "lineEnd": 606,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-6-codex-app-server-runner-implementations-should-use-codex-app-server-generate-json-schema-or-the"
+      ]
+    },
+    {
+      "id": "block-0275-paragraph-implementations-should-use-codex-app-server-generate-json-schema-or-the-targeted",
+      "type": "paragraph",
+      "lineStart": 607,
+      "lineEnd": 608,
+      "rawMarkdown": "Implementations SHOULD use `codex app-server generate-json-schema` or the\ntargeted protocol documentation to validate client assumptions.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0276-blank-blank",
+      "type": "blank",
+      "lineStart": 609,
+      "lineEnd": 609,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-6-codex-app-server-runner-the-transform-prompt-sent-through-the-runner-must-include"
+      ]
+    },
+    {
+      "id": "block-0277-paragraph-the-transform-prompt-sent-through-the-runner-must-include",
+      "type": "paragraph",
+      "lineStart": 610,
+      "lineEnd": 610,
+      "rawMarkdown": "The transform prompt sent through the runner MUST include:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0278-blank-blank",
+      "type": "blank",
+      "lineStart": 611,
+      "lineEnd": 611,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-6-codex-app-server-runner-source-artifact-path-or-content"
+      ]
+    },
+    {
+      "id": "block-0279-list-source-artifact-path-or-content-source-form-target-form-target-schema-or-arti",
+      "type": "list",
+      "lineStart": 612,
+      "lineEnd": 619,
+      "rawMarkdown": "- source artifact path or content\n- source form\n- target form\n- target schema or artifact contract\n- allowed mutations\n- required source-anchor preservation\n- validation gates\n- honesty boundary for uncertainty and rejected transforms",
+      "generatedClaimIds": [
+        "claim-6-codex-app-server-runner-source-form",
+        "claim-6-codex-app-server-runner-target-form",
+        "claim-6-codex-app-server-runner-target-schema-or-artifact-contract",
+        "claim-6-codex-app-server-runner-allowed-mutations",
+        "requirement-6-codex-app-server-runner-required-source-anchor-preservation",
+        "claim-6-codex-app-server-runner-validation-gates",
+        "claim-6-codex-app-server-runner-honesty-boundary-for-uncertainty-and-rejected-transforms"
+      ]
+    },
+    {
+      "id": "block-0280-blank-blank",
+      "type": "blank",
+      "lineStart": 620,
+      "lineEnd": 620,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-6-codex-app-server-runner-the-runner-must-reject-output-that-cannot-be-parsed-as-the-target-form-or-that"
+      ]
+    },
+    {
+      "id": "block-0281-paragraph-the-runner-must-reject-output-that-cannot-be-parsed-as-the-target-form-or-that-d",
+      "type": "paragraph",
+      "lineStart": 621,
+      "lineEnd": 622,
+      "rawMarkdown": "The runner MUST reject output that cannot be parsed as the target form or that\ndrops required source anchors.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0282-blank-blank",
+      "type": "blank",
+      "lineStart": 623,
+      "lineEnd": 623,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-6-codex-app-server-runner-the-runner-should-capture-when-exposed-by-the-targeted-protocol"
+      ]
+    },
+    {
+      "id": "block-0283-paragraph-the-runner-should-capture-when-exposed-by-the-targeted-protocol",
+      "type": "paragraph",
+      "lineStart": 624,
+      "lineEnd": 624,
+      "rawMarkdown": "The runner SHOULD capture, when exposed by the targeted protocol:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0284-blank-blank",
+      "type": "blank",
+      "lineStart": 625,
+      "lineEnd": 625,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-6-codex-app-server-runner-thread-id"
+      ]
+    },
+    {
+      "id": "block-0285-list-thread-id-turn-id-model-and-configuration-summary-workspace-directory-app-s",
+      "type": "list",
+      "lineStart": 626,
+      "lineEnd": 632,
+      "rawMarkdown": "- thread ID\n- turn ID\n- model and configuration summary\n- workspace directory\n- app-server process identity\n- token or rate-limit telemetry\n- terminal error state",
+      "generatedClaimIds": [
+        "claim-6-codex-app-server-runner-turn-id",
+        "claim-6-codex-app-server-runner-model-and-configuration-summary",
+        "claim-6-codex-app-server-runner-workspace-directory",
+        "claim-6-codex-app-server-runner-app-server-process-identity",
+        "claim-6-codex-app-server-runner-token-or-rate-limit-telemetry",
+        "claim-6-codex-app-server-runner-terminal-error-state"
+      ]
+    },
+    {
+      "id": "block-0286-blank-blank",
+      "type": "blank",
+      "lineStart": 633,
+      "lineEnd": 633,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-6-codex-app-server-runner-failure-states-should-be-normalized-as"
+      ]
+    },
+    {
+      "id": "block-0287-paragraph-failure-states-should-be-normalized-as",
+      "type": "paragraph",
+      "lineStart": 634,
+      "lineEnd": 634,
+      "rawMarkdown": "Failure states SHOULD be normalized as:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0288-blank-blank",
+      "type": "blank",
+      "lineStart": 635,
+      "lineEnd": 635,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-6-codex-app-server-runner-appserverunavailable"
+      ]
+    },
+    {
+      "id": "block-0289-list-appserverunavailable-protocolmismatch-invalidoutputschema-missingsourceanchor",
+      "type": "list",
+      "lineStart": 636,
+      "lineEnd": 645,
+      "rawMarkdown": "- `app_server_unavailable`\n- `protocol_mismatch`\n- `invalid_output_schema`\n- `missing_source_anchor`\n- `unsafe_source_mutation`\n- `timeout`\n- `runner_rejected`\n- `roundtrip_mismatch`\n- `projection_drift_exceeds_budget`\n- `llm_call_plan_invalid`",
+      "generatedClaimIds": [
+        "claim-6-codex-app-server-runner-protocolmismatch",
+        "claim-6-codex-app-server-runner-invalidoutputschema",
+        "claim-6-codex-app-server-runner-missingsourceanchor",
+        "claim-6-codex-app-server-runner-unsafesourcemutation",
+        "claim-6-codex-app-server-runner-timeout",
+        "claim-6-codex-app-server-runner-runnerrejected",
+        "claim-6-codex-app-server-runner-roundtripmismatch",
+        "claim-6-codex-app-server-runner-projectiondriftexceedsbudget",
+        "claim-6-codex-app-server-runner-llmcallplaninvalid"
+      ]
+    },
+    {
+      "id": "block-0290-blank-blank",
+      "type": "blank",
+      "lineStart": 646,
+      "lineEnd": 646,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0291-heading-7-environment-boundary",
+      "type": "heading",
+      "lineStart": 647,
+      "lineEnd": 647,
+      "rawMarkdown": "## 7. Environment Boundary",
+      "level": 2,
+      "title": "7. Environment Boundary",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0292-blank-blank",
+      "type": "blank",
+      "lineStart": 648,
+      "lineEnd": 648,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-7-environment-boundary-spec-gym-must-treat-the-human-as-a-first-class-player-not-an-external-approver"
+      ]
+    },
+    {
+      "id": "block-0293-paragraph-spec-gym-must-treat-the-human-as-a-first-class-player-not-an-external-approver",
+      "type": "paragraph",
+      "lineStart": 649,
+      "lineEnd": 649,
+      "rawMarkdown": "Spec Gym MUST treat the human as a first-class player, not an external approver.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0294-blank-blank",
+      "type": "blank",
+      "lineStart": 650,
+      "lineEnd": 650,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-7-environment-boundary-the-environment-state-should-expose"
+      ]
+    },
+    {
+      "id": "block-0295-paragraph-the-environment-state-should-expose",
+      "type": "paragraph",
+      "lineStart": 651,
+      "lineEnd": 651,
+      "rawMarkdown": "The environment state SHOULD expose:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0296-blank-blank",
+      "type": "blank",
+      "lineStart": 652,
+      "lineEnd": 652,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-7-environment-boundary-observation-source-spec-source-anchors-claim-lattice-obligation-graph-viability"
+      ]
+    },
+    {
+      "id": "block-0297-list-observation-source-spec-source-anchors-claim-lattice-obligation-graph-viabilit",
+      "type": "list",
+      "lineStart": 653,
+      "lineEnd": 665,
+      "rawMarkdown": "- `observation`: source spec, source anchors, claim lattice, obligation graph,\n  viability critique, verification surfaces, and projection outputs.\n- `action`: split, merge, strengthen, weaken, restate, classify, add evidence,\n  add negative test, add proof obligation, mark non-goal, reject idea, or ask for\n  a narrower experiment.\n- `actor`: human, agent, prover, test runner, projection adapter, or policy.\n- `reward`: verifiability score delta, traceability score delta,\n  falsifiability score delta, contradiction reduction, ambiguity reduction,\n  obligations discharged, negative tests rejected, or invalid idea rejected.\n- `done`: implementation-ready threshold reached, idea rejected, or unresolved\n  state preserved with named missing evidence.\n- `safetyInvariant`: a player cannot improve score by deleting source evidence\n  or weakening the stated problem without recording that tradeoff.",
+      "generatedClaimIds": [
+        "test-7-environment-boundary-action-split-merge-strengthen-weaken-restate-classify-add-evidence-add-negati",
+        "test-7-environment-boundary-actor-human-agent-prover-test-runner-projection-adapter-or-policy",
+        "claim-7-environment-boundary-reward-verifiability-score-delta-traceability-score-delta-falsifiability-score-d",
+        "claim-7-environment-boundary-done-implementation-ready-threshold-reached-idea-rejected-or-unresolved-state-pr",
+        "claim-7-environment-boundary-safetyinvariant-a-player-cannot-improve-score-by-deleting-source-evidence-or-wea"
+      ]
+    },
+    {
+      "id": "block-0298-blank-blank",
+      "type": "blank",
+      "lineStart": 666,
+      "lineEnd": 666,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0299-heading-8-bad-idea-pressure",
+      "type": "heading",
+      "lineStart": 667,
+      "lineEnd": 667,
+      "rawMarkdown": "## 8. Bad-Idea Pressure",
+      "level": 2,
+      "title": "8. Bad-Idea Pressure",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0300-blank-blank",
+      "type": "blank",
+      "lineStart": 668,
+      "lineEnd": 668,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-8-bad-idea-pressure-the-toolkit-should-detect-at-least-these-failure-modes"
+      ]
+    },
+    {
+      "id": "block-0301-paragraph-the-toolkit-should-detect-at-least-these-failure-modes",
+      "type": "paragraph",
+      "lineStart": 669,
+      "lineEnd": 669,
+      "rawMarkdown": "The toolkit SHOULD detect at least these failure modes:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0302-blank-blank",
+      "type": "blank",
+      "lineStart": 670,
+      "lineEnd": 670,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-8-bad-idea-pressure-impossible-constraints-cannot-all-hold-at-once"
+      ]
+    },
+    {
+      "id": "block-0303-list-impossible-constraints-cannot-all-hold-at-once-useless-success-does-not-improv",
+      "type": "list",
+      "lineStart": 671,
+      "lineEnd": 676,
+      "rawMarkdown": "- `impossible`: constraints cannot all hold at once.\n- `useless`: success does not improve the stated problem.\n- `more_complex_than_nothing`: coordination cost exceeds justified value.\n- `misses_problem`: machinery optimizes adjacent work instead of the problem.\n- `underspecified`: behavior-affecting choices are unnamed.\n- `unfalsifiable`: no clear validation could prove the idea wrong.",
+      "generatedClaimIds": [
+        "claim-8-bad-idea-pressure-useless-success-does-not-improve-the-stated-problem",
+        "claim-8-bad-idea-pressure-morecomplexthannothing-coordination-cost-exceeds-justified-value",
+        "claim-8-bad-idea-pressure-missesproblem-machinery-optimizes-adjacent-work-instead-of-the-problem",
+        "claim-8-bad-idea-pressure-underspecified-behavior-affecting-choices-are-unnamed",
+        "claim-8-bad-idea-pressure-unfalsifiable-no-clear-validation-could-prove-the-idea-wrong"
+      ]
+    },
+    {
+      "id": "block-0304-blank-blank",
+      "type": "blank",
+      "lineStart": 677,
+      "lineEnd": 677,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-8-bad-idea-pressure-findings-must-include"
+      ]
+    },
+    {
+      "id": "block-0305-paragraph-findings-must-include",
+      "type": "paragraph",
+      "lineStart": 678,
+      "lineEnd": 678,
+      "rawMarkdown": "Findings MUST include:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0306-blank-blank",
+      "type": "blank",
+      "lineStart": 679,
+      "lineEnd": 679,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-8-bad-idea-pressure-class"
+      ]
+    },
+    {
+      "id": "block-0307-list-class-severity-title-explanation-evidence-node-ids-when-available",
+      "type": "list",
+      "lineStart": 680,
+      "lineEnd": 684,
+      "rawMarkdown": "- class\n- severity\n- title\n- explanation\n- evidence node IDs when available",
+      "generatedClaimIds": [
+        "claim-8-bad-idea-pressure-severity",
+        "claim-8-bad-idea-pressure-title",
+        "claim-8-bad-idea-pressure-explanation",
+        "claim-8-bad-idea-pressure-evidence-node-ids-when-available"
+      ]
+    },
+    {
+      "id": "block-0308-blank-blank",
+      "type": "blank",
+      "lineStart": 685,
+      "lineEnd": 685,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0309-paragraph-findings-are-not-final-authority-they-are-prompts-for-correction-rejection-or-fo",
+      "type": "paragraph",
+      "lineStart": 686,
+      "lineEnd": 687,
+      "rawMarkdown": "Findings are not final authority. They are prompts for correction, rejection, or\nformal elaboration.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0310-blank-blank",
+      "type": "blank",
+      "lineStart": 688,
+      "lineEnd": 688,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0311-heading-9-refinement-packet",
+      "type": "heading",
+      "lineStart": 689,
+      "lineEnd": 689,
+      "rawMarkdown": "## 9. Refinement Packet",
+      "level": 2,
+      "title": "9. Refinement Packet",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0312-blank-blank",
+      "type": "blank",
+      "lineStart": 690,
+      "lineEnd": 690,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0313-paragraph-the-refinement-packet-is-a-tool-neutral-work-instruction-derived-from-the-curren",
+      "type": "paragraph",
+      "lineStart": 691,
+      "lineEnd": 692,
+      "rawMarkdown": "The refinement packet is a tool-neutral work instruction derived from the\ncurrent claim lattice and viability critique.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0314-blank-blank",
+      "type": "blank",
+      "lineStart": 693,
+      "lineEnd": 693,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-9-refinement-packet-it-should"
+      ]
+    },
+    {
+      "id": "block-0315-paragraph-it-should",
+      "type": "paragraph",
+      "lineStart": 694,
+      "lineEnd": 694,
+      "rawMarkdown": "It SHOULD:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0316-blank-blank",
+      "type": "blank",
+      "lineStart": 695,
+      "lineEnd": 695,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-9-refinement-packet-rank-current-findings-by-severity"
+      ]
+    },
+    {
+      "id": "block-0317-list-rank-current-findings-by-severity-identify-evidence-nodes-require-exactly-one-n",
+      "type": "list",
+      "lineStart": 696,
+      "lineEnd": 702,
+      "rawMarkdown": "- rank current findings by severity\n- identify evidence nodes\n- require exactly one narrow correction or rejection move\n- name the actor when known\n- require regeneration of core artifacts\n- require verification gates\n- avoid naming a specific runner unless emitted by a projection adapter",
+      "generatedClaimIds": [
+        "claim-9-refinement-packet-identify-evidence-nodes",
+        "claim-9-refinement-packet-require-exactly-one-narrow-correction-or-rejection-move",
+        "claim-9-refinement-packet-name-the-actor-when-known",
+        "claim-9-refinement-packet-require-regeneration-of-core-artifacts",
+        "claim-9-refinement-packet-require-verification-gates",
+        "claim-9-refinement-packet-avoid-naming-a-specific-runner-unless-emitted-by-a-projection-adapter"
+      ]
+    },
+    {
+      "id": "block-0318-blank-blank",
+      "type": "blank",
+      "lineStart": 703,
+      "lineEnd": 703,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0319-heading-10-formalization-boundary",
+      "type": "heading",
+      "lineStart": 704,
+      "lineEnd": 704,
+      "rawMarkdown": "## 10. Formalization Boundary",
+      "level": 2,
+      "title": "10. Formalization Boundary",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0320-blank-blank",
+      "type": "blank",
+      "lineStart": 705,
+      "lineEnd": 705,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-10-formalization-boundary-the-prover-facing-artifact-should-model-the-algebra-of-the-claim-lattice-rather"
+      ]
+    },
+    {
+      "id": "block-0321-paragraph-the-prover-facing-artifact-should-model-the-algebra-of-the-claim-lattice-rather-",
+      "type": "paragraph",
+      "lineStart": 706,
+      "lineEnd": 707,
+      "rawMarkdown": "The prover-facing artifact SHOULD model the algebra of the claim lattice rather\nthan raw prose.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0322-blank-blank",
+      "type": "blank",
+      "lineStart": 708,
+      "lineEnd": 708,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0323-paragraph-initial-formal-surfaces-include",
+      "type": "paragraph",
+      "lineStart": 709,
+      "lineEnd": 709,
+      "rawMarkdown": "Initial formal surfaces include:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0324-blank-blank",
+      "type": "blank",
+      "lineStart": 710,
+      "lineEnd": 710,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-10-formalization-boundary-bad-idea-classes"
+      ]
+    },
+    {
+      "id": "block-0325-list-bad-idea-classes-severity-graph-counts-core-surface-presence-prototype-read",
+      "type": "list",
+      "lineStart": 711,
+      "lineEnd": 715,
+      "rawMarkdown": "- bad-idea classes\n- severity\n- graph counts\n- core-surface presence\n- prototype-readiness predicates",
+      "generatedClaimIds": [
+        "claim-10-formalization-boundary-severity",
+        "claim-10-formalization-boundary-graph-counts",
+        "claim-10-formalization-boundary-core-surface-presence",
+        "claim-10-formalization-boundary-prototype-readiness-predicates"
+      ]
+    },
+    {
+      "id": "block-0326-blank-blank",
+      "type": "blank",
+      "lineStart": 716,
+      "lineEnd": 716,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-10-formalization-boundary-the-toolkit-should-separate-generated-facts-from-handwritten-theory-once-the"
+      ]
+    },
+    {
+      "id": "block-0327-paragraph-the-toolkit-should-separate-generated-facts-from-handwritten-theory-once-the-for",
+      "type": "paragraph",
+      "lineStart": 717,
+      "lineEnd": 718,
+      "rawMarkdown": "The toolkit SHOULD separate generated facts from handwritten theory once the\nformal model grows beyond the mock stage.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0328-blank-blank",
+      "type": "blank",
+      "lineStart": 719,
+      "lineEnd": 719,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0329-heading-11-projection-boundary",
+      "type": "heading",
+      "lineStart": 720,
+      "lineEnd": 720,
+      "rawMarkdown": "## 11. Projection Boundary",
+      "level": 2,
+      "title": "11. Projection Boundary",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0330-blank-blank",
+      "type": "blank",
+      "lineStart": 721,
+      "lineEnd": 721,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-11-projection-boundary-projections-may-target-specific-tools-files-protocols-or-apis-but-the-core"
+      ]
+    },
+    {
+      "id": "block-0331-paragraph-projections-may-target-specific-tools-files-protocols-or-apis-but-the-core-model",
+      "type": "paragraph",
+      "lineStart": 722,
+      "lineEnd": 723,
+      "rawMarkdown": "Projections MAY target specific tools, files, protocols, or APIs, but the core\nmodel MUST remain tool-neutral.",
+      "generatedClaimIds": [
+        "requirement-11-projection-boundary-model-must-remain-tool-neutral"
+      ]
+    },
+    {
+      "id": "block-0332-blank-blank",
+      "type": "blank",
+      "lineStart": 724,
+      "lineEnd": 724,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0333-paragraph-projection-categories-include",
+      "type": "paragraph",
+      "lineStart": 725,
+      "lineEnd": 725,
+      "rawMarkdown": "Projection categories include:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0334-blank-blank",
+      "type": "blank",
+      "lineStart": 726,
+      "lineEnd": 726,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-11-projection-boundary-collaborativemap"
+      ]
+    },
+    {
+      "id": "block-0335-list-collaborativemap-graphquery-requirementsdata-architecturedocument-interface",
+      "type": "list",
+      "lineStart": 727,
+      "lineEnd": 735,
+      "rawMarkdown": "- `collaborative_map`\n- `graph_query`\n- `requirements_data`\n- `architecture_document`\n- `interface_schema`\n- `knowledge_vault`\n- `formal_model`\n- `execution_queue`\n- `transform_runner`",
+      "generatedClaimIds": [
+        "claim-11-projection-boundary-graphquery",
+        "claim-11-projection-boundary-requirementsdata",
+        "claim-11-projection-boundary-architecturedocument",
+        "claim-11-projection-boundary-interfaceschema",
+        "claim-11-projection-boundary-knowledgevault",
+        "claim-11-projection-boundary-formalmodel",
+        "claim-11-projection-boundary-executionqueue",
+        "claim-11-projection-boundary-transformrunner"
+      ]
+    },
+    {
+      "id": "block-0336-blank-blank",
+      "type": "blank",
+      "lineStart": 736,
+      "lineEnd": 736,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-11-projection-boundary-each-projection-must-state"
+      ]
+    },
+    {
+      "id": "block-0337-paragraph-each-projection-must-state",
+      "type": "paragraph",
+      "lineStart": 737,
+      "lineEnd": 737,
+      "rawMarkdown": "Each projection MUST state:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0338-blank-blank",
+      "type": "blank",
+      "lineStart": 738,
+      "lineEnd": 738,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-11-projection-boundary-capability-served"
+      ]
+    },
+    {
+      "id": "block-0339-list-capability-served-input-schema-version-emitted-files-or-api-calls-import-or-e",
+      "type": "list",
+      "lineStart": 739,
+      "lineEnd": 744,
+      "rawMarkdown": "- capability served\n- input schema version\n- emitted files or API calls\n- import or execution instructions\n- lossy transformations\n- verification command or manual check",
+      "generatedClaimIds": [
+        "claim-11-projection-boundary-input-schema-version",
+        "dependency-11-projection-boundary-emitted-files-or-api-calls",
+        "claim-11-projection-boundary-import-or-execution-instructions",
+        "claim-11-projection-boundary-lossy-transformations",
+        "test-11-projection-boundary-verification-command-or-manual-check"
+      ]
+    },
+    {
+      "id": "block-0340-blank-blank",
+      "type": "blank",
+      "lineStart": 745,
+      "lineEnd": 745,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-11-projection-boundary-a-projection-must-not-introduce-required-core-node-types-or-change"
+      ]
+    },
+    {
+      "id": "block-0341-paragraph-a-projection-must-not-introduce-required-core-node-types-or-change-claim-lattice",
+      "type": "paragraph",
+      "lineStart": 746,
+      "lineEnd": 747,
+      "rawMarkdown": "A projection MUST NOT introduce required core node types or change\nclaim-lattice semantics.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0342-blank-blank",
+      "type": "blank",
+      "lineStart": 748,
+      "lineEnd": 748,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0343-heading-12-reference-inputs",
+      "type": "heading",
+      "lineStart": 749,
+      "lineEnd": 749,
+      "rawMarkdown": "## 12. Reference Inputs",
+      "level": 2,
+      "title": "12. Reference Inputs",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0344-blank-blank",
+      "type": "blank",
+      "lineStart": 750,
+      "lineEnd": 750,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-12-reference-inputs-the-toolkit-should-be-validated-against-specifications-that-are-already-useful"
+      ]
+    },
+    {
+      "id": "block-0345-paragraph-the-toolkit-should-be-validated-against-specifications-that-are-already-useful-a",
+      "type": "paragraph",
+      "lineStart": 751,
+      "lineEnd": 752,
+      "rawMarkdown": "The toolkit SHOULD be validated against specifications that are already useful\nas documents.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0346-blank-blank",
+      "type": "blank",
+      "lineStart": 753,
+      "lineEnd": 753,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0347-paragraph-current-reference-inputs",
+      "type": "paragraph",
+      "lineStart": 754,
+      "lineEnd": 754,
+      "rawMarkdown": "Current reference inputs:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0348-blank-blank",
+      "type": "blank",
+      "lineStart": 755,
+      "lineEnd": 755,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-12-reference-inputs-users-ericfode-src-openai-symphony-spec-md"
+      ]
+    },
+    {
+      "id": "block-0349-list-users-ericfode-src-openai-symphony-spec-md-https-gist-github-com-karpathy-442a",
+      "type": "list",
+      "lineStart": 756,
+      "lineEnd": 757,
+      "rawMarkdown": "- `/Users/ericfode/src/openai-symphony/spec.md`\n- `https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f`",
+      "generatedClaimIds": [
+        "claim-12-reference-inputs-https-gist-github-com-karpathy-442a6bf555914893e9891c11519de94f"
+      ]
+    },
+    {
+      "id": "block-0350-blank-blank",
+      "type": "blank",
+      "lineStart": 758,
+      "lineEnd": 758,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-12-reference-inputs-their-local-tool-choices-must-not-become-toolkit"
+      ]
+    },
+    {
+      "id": "block-0351-paragraph-reference-inputs-are-examples-their-local-tool-choices-must-not-become-toolkit-r",
+      "type": "paragraph",
+      "lineStart": 759,
+      "lineEnd": 760,
+      "rawMarkdown": "Reference inputs are examples. Their local tool choices MUST NOT become toolkit\nrequirements.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0352-blank-blank",
+      "type": "blank",
+      "lineStart": 761,
+      "lineEnd": 761,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0353-heading-13-definition-of-done-for-current-increment",
+      "type": "heading",
+      "lineStart": 762,
+      "lineEnd": 762,
+      "rawMarkdown": "## 13. Definition of Done for Current Increment",
+      "level": 2,
+      "title": "13. Definition of Done for Current Increment",
+      "semanticRole": "test",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0354-blank-blank",
+      "type": "blank",
+      "lineStart": 763,
+      "lineEnd": 763,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0355-paragraph-the-repository-is-acceptable-when",
+      "type": "paragraph",
+      "lineStart": 764,
+      "lineEnd": 764,
+      "rawMarkdown": "The repository is acceptable when:",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0356-blank-blank",
+      "type": "blank",
+      "lineStart": 765,
+      "lineEnd": 765,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "test-13-definition-of-done-for-current-increment-spec-md-is-the-top-level-authoritative-specification"
+      ]
+    },
+    {
+      "id": "block-0357-list-spec-md-is-the-top-level-authoritative-specification-the-primary-cli-is-specgym",
+      "type": "list",
+      "lineStart": 766,
+      "lineEnd": 779,
+      "rawMarkdown": "- `spec.md` is the top-level authoritative specification.\n- The primary CLI is `specgym`.\n- `spec` to `dataified_spec` is defined as the first transform.\n- `dataified_spec` to `spec_draft` is defined as the first reverse transform.\n- `claim` to `spec_draft` is documented as a lossy fallback.\n- Projection execution emits focused LLM call packets instead of locally\n  synthesized projection content.\n- Codex `app-server` participation is bounded by the runner contract.\n- Default generation emits only core artifacts.\n- Named projections are opt-in.\n- The projection boundary is documented.\n- The Symphony service specification can be played as an example input.\n- The Lean mock model type-checks.\n- The local tests pass.",
+      "generatedClaimIds": [
+        "test-13-definition-of-done-for-current-increment-the-primary-cli-is-specgym",
+        "test-13-definition-of-done-for-current-increment-spec-to-dataifiedspec-is-defined-as-the-first-transform",
+        "test-13-definition-of-done-for-current-increment-dataifiedspec-to-specdraft-is-defined-as-the-first-reverse-transform",
+        "test-13-definition-of-done-for-current-increment-claim-to-specdraft-is-documented-as-a-lossy-fallback",
+        "test-13-definition-of-done-for-current-increment-projection-execution-emits-focused-llm-call-packets-instead-of-locally-synthesiz",
+        "test-13-definition-of-done-for-current-increment-codex-app-server-participation-is-bounded-by-the-runner-contract",
+        "test-13-definition-of-done-for-current-increment-default-generation-emits-only-core-artifacts",
+        "test-13-definition-of-done-for-current-increment-named-projections-are-opt-in",
+        "test-13-definition-of-done-for-current-increment-the-projection-boundary-is-documented",
+        "test-13-definition-of-done-for-current-increment-the-symphony-service-specification-can-be-played-as-an-example-input",
+        "test-13-definition-of-done-for-current-increment-the-lean-mock-model-type-checks",
+        "test-13-definition-of-done-for-current-increment-the-local-tests-pass"
+      ]
+    },
+    {
+      "id": "block-0358-blank-blank",
+      "type": "blank",
+      "lineStart": 780,
+      "lineEnd": 780,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    }
+  ]
+}

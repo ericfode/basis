@@ -1,0 +1,453 @@
+{
+  "schemaVersion": "specgym.dataified-spec.v0",
+  "generatedAt": "2026-05-03T02:23:48.320Z",
+  "source": {
+    "path": "/Users/ericfode/Documents/New project 4/out/redis-history/mined-spec.md",
+    "title": "Redis Historical Mined Spec",
+    "lineCount": 81,
+    "sha256": "4ed4141721dc4d94a6189deff80a0c800e294b34ed6c7efb9b9a4c1320daa306"
+  },
+  "reconstruction": {
+    "targetForm": "spec_draft",
+    "lossPolicy": "preserve_raw_markdown_blocks",
+    "unsupportedMarkdownPolicy": "opaque_raw_markdown_block",
+    "acceptStepRequired": true
+  },
+  "headings": [
+    {
+      "id": "heading-001-redis-historical-mined-spec",
+      "title": "Redis Historical Mined Spec",
+      "level": 1,
+      "lineStart": 1
+    },
+    {
+      "id": "heading-002-problem",
+      "title": "Problem",
+      "level": 2,
+      "lineStart": 12
+    },
+    {
+      "id": "heading-003-goals",
+      "title": "Goals",
+      "level": 2,
+      "lineStart": 16
+    },
+    {
+      "id": "heading-004-non-goals",
+      "title": "Non-Goals",
+      "level": 2,
+      "lineStart": 22
+    },
+    {
+      "id": "heading-005-stable-essence-requirements",
+      "title": "Stable Essence Requirements",
+      "level": 2,
+      "lineStart": 28
+    },
+    {
+      "id": "heading-006-validation-surfaces",
+      "title": "Validation Surfaces",
+      "level": 2,
+      "lineStart": 51
+    },
+    {
+      "id": "heading-007-risks",
+      "title": "Risks",
+      "level": 2,
+      "lineStart": 57
+    },
+    {
+      "id": "heading-008-later-feature-drift-not-folded-into-the-genesis-spec",
+      "title": "Later Feature Drift Not Folded Into The Genesis Spec",
+      "level": 2,
+      "lineStart": 63
+    },
+    {
+      "id": "heading-009-judge-result",
+      "title": "Judge Result",
+      "level": 2,
+      "lineStart": 75
+    }
+  ],
+  "blocks": [
+    {
+      "id": "block-0001-heading-redis-historical-mined-spec",
+      "type": "heading",
+      "lineStart": 1,
+      "lineEnd": 1,
+      "rawMarkdown": "# Redis Historical Mined Spec",
+      "level": 1,
+      "title": "Redis Historical Mined Spec",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0002-blank-blank",
+      "type": "blank",
+      "lineStart": 2,
+      "lineEnd": 2,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0003-paragraph-status-generated-as-built-genesis-stable-draft",
+      "type": "paragraph",
+      "lineStart": 3,
+      "lineEnd": 3,
+      "rawMarkdown": "Status: Generated as-built genesis-stable draft",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0004-blank-blank",
+      "type": "blank",
+      "lineStart": 4,
+      "lineEnd": 4,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0005-paragraph-source-repo-private-tmp-testing-rl-external-redis-branch-ref-judged-unstable-roo",
+      "type": "paragraph",
+      "lineStart": 5,
+      "lineEnd": 10,
+      "rawMarkdown": "Source repo: `/private/tmp/testing-rl-external/redis`\nBranch/ref judged: `unstable`\nRoot commit: `ed9b544e10b84cd43348ddfab7068b610a5df1f7` (2009-03-22 10:30:00 +0100, first commit)\nLatest judged commit: `2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8` (2026-04-30 21:38:25 +0800, Fix CI Codecov v6 coverage upload configuration (#15147))\nPrompt policy: `genesis-stable-essence-stricter-1:e2`\nReward: `0.8547`; time validity: `1`; average coverage: `0.6729`",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0006-blank-blank",
+      "type": "blank",
+      "lineStart": 11,
+      "lineEnd": 11,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0007-heading-problem",
+      "type": "heading",
+      "lineStart": 12,
+      "lineEnd": 12,
+      "rawMarkdown": "## Problem",
+      "level": 2,
+      "title": "Problem",
+      "semanticRole": "problem",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0008-blank-blank",
+      "type": "blank",
+      "lineStart": 13,
+      "lineEnd": 13,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0009-paragraph-redis-needs-a-networked-in-memory-data-structure-server-whose-command-protocol-d",
+      "type": "paragraph",
+      "lineStart": 14,
+      "lineEnd": 14,
+      "rawMarkdown": "Redis needs a networked in-memory data-structure server whose command protocol, dataset, persistence, replication, configuration, and tests stay legible across project history.",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0010-blank-blank",
+      "type": "blank",
+      "lineStart": 15,
+      "lineEnd": 15,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0011-heading-goals",
+      "type": "heading",
+      "lineStart": 16,
+      "lineEnd": 16,
+      "rawMarkdown": "## Goals",
+      "level": 2,
+      "title": "Goals",
+      "semanticRole": "goal",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0012-blank-blank",
+      "type": "blank",
+      "lineStart": 17,
+      "lineEnd": 17,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "goal-goals-redis-must-preserve-the-role-of-a-networked-in-memory-data-structure-server-acro"
+      ]
+    },
+    {
+      "id": "block-0013-list-redis-must-preserve-the-role-of-a-networked-in-memory-data-structure-server-acro",
+      "type": "list",
+      "lineStart": 18,
+      "lineEnd": 20,
+      "rawMarkdown": "- Redis MUST preserve the role of a networked in-memory data-structure server across the judged history.\n- Redis MUST keep command behavior addressable through client-visible protocol, configuration, persistence, and validation surfaces.\n- Redis SHOULD prefer stable server semantics over implementation details that churn across files or releases.",
+      "generatedClaimIds": [
+        "goal-goals-redis-must-keep-command-behavior-addressable-through-client-visible-protocol-con",
+        "goal-goals-redis-should-prefer-stable-server-semantics-over-implementation-details-that-chu"
+      ]
+    },
+    {
+      "id": "block-0014-blank-blank",
+      "type": "blank",
+      "lineStart": 21,
+      "lineEnd": 21,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0015-heading-non-goals",
+      "type": "heading",
+      "lineStart": 22,
+      "lineEnd": 22,
+      "rawMarkdown": "## Non-Goals",
+      "level": 2,
+      "title": "Non-Goals",
+      "semanticRole": "non_goal",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0016-blank-blank",
+      "type": "blank",
+      "lineStart": 23,
+      "lineEnd": 23,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "non_goal-non-goals-this-mined-spec-does-not-claim-that-features-introduced-after-the-root-commit-ex"
+      ]
+    },
+    {
+      "id": "block-0017-list-this-mined-spec-does-not-claim-that-features-introduced-after-the-root-commit-ex",
+      "type": "list",
+      "lineStart": 24,
+      "lineEnd": 26,
+      "rawMarkdown": "- This mined spec does not claim that features introduced after the root commit existed at the root commit.\n- This mined spec does not describe every implementation file or every later extension.\n- This mined spec is not a release note, API reference, or proof that Redis has no undocumented behavior.",
+      "generatedClaimIds": [
+        "non_goal-non-goals-this-mined-spec-does-not-describe-every-implementation-file-or-every-later-exten",
+        "non_goal-non-goals-this-mined-spec-is-not-a-release-note-api-reference-or-proof-that-redis-has-no-u"
+      ]
+    },
+    {
+      "id": "block-0018-blank-blank",
+      "type": "blank",
+      "lineStart": 27,
+      "lineEnd": 27,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0019-heading-stable-essence-requirements",
+      "type": "heading",
+      "lineStart": 28,
+      "lineEnd": 28,
+      "rawMarkdown": "## Stable Essence Requirements",
+      "level": 2,
+      "title": "Stable Essence Requirements",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0020-blank-blank",
+      "type": "blank",
+      "lineStart": 29,
+      "lineEnd": 29,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "requirement-stable-essence-requirements-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov"
+      ]
+    },
+    {
+      "id": "block-0021-list-redis-must-provide-a-long-running-network-server-that-accepts-client-commands-ov",
+      "type": "list",
+      "lineStart": 30,
+      "lineEnd": 49,
+      "rawMarkdown": "- Redis MUST provide a long-running network server that accepts client commands over the Redis protocol.\n  Evidence: `ae.c`, `anet.c`, `doc/ProtocolSpecification.html`, `redis.c`, `src/ae.c`, `src/anet.c`, `src/networking.c`, `src/server.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis MUST keep the active dataset in memory while serving commands.\n  Evidence: `dict.c`, `redis.c`, `src/dict.c`, `src/server.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis MUST treat values as data structures rather than only opaque strings.\n  Evidence: `doc/SaddCommand.html`, `doc/RpoplpushCommand.html`, `src/t_hash.c`, `src/t_list.c`, `src/t_set.c`, `src/t_string.c`, `src/t_zset.c`, `src/t_stream.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis MUST expose a key-addressed namespace where string keys are associated with typed values.\n  Evidence: `doc/DbsizeCommand.html`, `doc/DelCommand.html`, `doc/ExistsCommand.html`, `doc/KeysCommand.html`, `doc/HdelCommand.html`, `doc/HexistsCommand.html`, `src/commands/dbsize.json`, `src/commands/del.json`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis MUST support snapshot persistence that can reload the dataset after restart.\n  Evidence: `doc/BgsaveCommand.html`, `src/rdb.c`, `src/commands/bgsave.json`, `src/commands/lastsave.json`, `src/commands/save.json`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis MUST define a client/server protocol with parseable command requests and explicit replies.\n  Evidence: `doc/ProtocolSpecification.html`, `redis.c`, `src/networking.c`, `src/resp_parser.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis SHOULD support master-replica replication for availability and data-copy propagation.\n  Evidence: `doc/SlaveofCommand.html`, `src/replication.c`, `src/commands/psync.json`, `src/commands/replicaof.json`, `src/commands/slaveof.json`, `src/commands/sync.json`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis SHOULD preserve executable tests or scripted validation for command behavior.\n  Evidence: `client-libraries/erlang/test/Makefile`, `client-libraries/erlang/test/erldis_tests.erl`, `client-libraries/erlang/test/proto_tests.erl`, `test-redis.tcl`, `tests/assets/default.conf`, `tests/integration/aof.tcl`, `tests/integration/replication.tcl`, `tests/support/redis.tcl`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis SHOULD allow server behavior to be selected through a configuration file while retaining built-in defaults.\n  Evidence: `redis.conf`, `src/config.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.\n- Redis SHOULD ship client tooling for interactive or scripted command execution.\n  Evidence: `redis-cli.c`, `src/redis-cli.c`. Presence: 100.0% of judged samples; first seen 2009-03-22 10:30:00 +0100.",
+      "generatedClaimIds": [
+        "requirement-stable-essence-requirements-redis-must-keep-the-active-dataset-in-memory-while-serving-commands-evidence-dic",
+        "requirement-stable-essence-requirements-redis-must-treat-values-as-data-structures-rather-than-only-opaque-strings-evide",
+        "requirement-stable-essence-requirements-redis-must-expose-a-key-addressed-namespace-where-string-keys-are-associated-wit",
+        "requirement-stable-essence-requirements-redis-must-support-snapshot-persistence-that-can-reload-the-dataset-after-restar",
+        "requirement-stable-essence-requirements-redis-must-define-a-client-server-protocol-with-parseable-command-requests-and-e",
+        "requirement-stable-essence-requirements-redis-should-support-master-replica-replication-for-availability-and-data-copy-p",
+        "requirement-stable-essence-requirements-redis-should-preserve-executable-tests-or-scripted-validation-for-command-behavi",
+        "requirement-stable-essence-requirements-redis-should-allow-server-behavior-to-be-selected-through-a-configuration-file-w",
+        "requirement-stable-essence-requirements-redis-should-ship-client-tooling-for-interactive-or-scripted-command-execution-e"
+      ]
+    },
+    {
+      "id": "block-0022-blank-blank",
+      "type": "blank",
+      "lineStart": 50,
+      "lineEnd": 50,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0023-heading-validation-surfaces",
+      "type": "heading",
+      "lineStart": 51,
+      "lineEnd": 51,
+      "rawMarkdown": "## Validation Surfaces",
+      "level": 2,
+      "title": "Validation Surfaces",
+      "semanticRole": "test",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0024-blank-blank",
+      "type": "blank",
+      "lineStart": 52,
+      "lineEnd": 52,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "test-validation-surfaces-the-redis-spec-must-be-judged-against-sampled-git-snapshots-without-checking-out"
+      ]
+    },
+    {
+      "id": "block-0025-list-the-redis-spec-must-be-judged-against-sampled-git-snapshots-without-checking-out",
+      "type": "list",
+      "lineStart": 53,
+      "lineEnd": 55,
+      "rawMarkdown": "- The Redis spec MUST be judged against sampled Git snapshots without checking out or modifying the Redis repository.\n- A Redis command, protocol, dataset, persistence, replication, configuration, or test claim is valid for a snapshot only when its mined feature evidence is present in that snapshot.\n- The reward MUST prefer long temporal validity, then coverage of high-weight Redis essence features, then compactness.",
+      "generatedClaimIds": [
+        "test-validation-surfaces-a-redis-command-protocol-dataset-persistence-replication-configuration-or-test",
+        "test-validation-surfaces-the-reward-must-prefer-long-temporal-validity-then-coverage-of-high-weight-redis"
+      ]
+    },
+    {
+      "id": "block-0026-blank-blank",
+      "type": "blank",
+      "lineStart": 56,
+      "lineEnd": 56,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0027-heading-risks",
+      "type": "heading",
+      "lineStart": 57,
+      "lineEnd": 57,
+      "rawMarkdown": "## Risks",
+      "level": 2,
+      "title": "Risks",
+      "semanticRole": "risk",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0028-blank-blank",
+      "type": "blank",
+      "lineStart": 58,
+      "lineEnd": 58,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "risk-risks-a-mined-redis-spec-risks-overfitting-file-names-so-stable-claims-should-keep-sou"
+      ]
+    },
+    {
+      "id": "block-0029-list-a-mined-redis-spec-risks-overfitting-file-names-so-stable-claims-should-keep-sou",
+      "type": "list",
+      "lineStart": 59,
+      "lineEnd": 61,
+      "rawMarkdown": "- A mined Redis spec risks overfitting file names, so stable claims SHOULD keep source-path or source-text evidence.\n- A root-stable Redis spec risks under-covering later features, so later-only features MUST be reported as drift instead of silently backdated.\n- A valid sampled history is not a proof of maintainer intent; human review remains REQUIRED before accepting the mined draft as a project spec.",
+      "generatedClaimIds": [
+        "risk-risks-a-root-stable-redis-spec-risks-under-covering-later-features-so-later-only-featu",
+        "risk-risks-a-valid-sampled-history-is-not-a-proof-of-maintainer-intent-human-review-remains"
+      ]
+    },
+    {
+      "id": "block-0030-blank-blank",
+      "type": "blank",
+      "lineStart": 62,
+      "lineEnd": 62,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0031-heading-later-feature-drift-not-folded-into-the-genesis-spec",
+      "type": "heading",
+      "lineStart": 63,
+      "lineEnd": 63,
+      "rawMarkdown": "## Later Feature Drift Not Folded Into The Genesis Spec",
+      "level": 2,
+      "title": "Later Feature Drift Not Folded Into The Genesis Spec",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0032-blank-blank",
+      "type": "blank",
+      "lineStart": 64,
+      "lineEnd": 64,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-appendonlyfile-append-only-persistence-first-seen-2010-05-26-17-55-28-0200-prese"
+      ]
+    },
+    {
+      "id": "block-0033-list-appendonlyfile-append-only-persistence-first-seen-2010-05-26-17-55-28-0200-pres",
+      "type": "list",
+      "lineStart": 65,
+      "lineEnd": 73,
+      "rawMarkdown": "- `append_only_file`: Append-only persistence; first seen 2010-05-26 17:55:28 +0200; presence 92.9%.\n- `transactions`: Transactions; first seen 2010-05-26 17:55:28 +0200; presence 92.9%.\n- `pubsub`: Pub/sub; first seen 2010-05-26 17:55:28 +0200; presence 92.9%.\n- `cluster_mode`: Cluster mode; first seen 2011-11-09 21:59:27 +0100; presence 85.7%.\n- `sentinel`: Sentinel; first seen 2013-03-14 21:27:12 +0100; presence 78.6%.\n- `modules`: Modules; first seen 2017-01-10 11:33:50 +0100; presence 57.1%.\n- `streams`: Streams; first seen 2018-09-25 12:31:46 +0200; presence 50.0%.\n- `acl_security`: ACL security; first seen 2019-11-19 11:23:43 +0100; presence 42.9%.\n- `tls_transport`: TLS transport; first seen 2019-11-19 11:23:43 +0100; presence 42.9%.",
+      "generatedClaimIds": [
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-transactions-transactions-first-seen-2010-05-26-17-55-28-0200-presence-92-9",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-pubsub-pub-sub-first-seen-2010-05-26-17-55-28-0200-presence-92-9",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-clustermode-cluster-mode-first-seen-2011-11-09-21-59-27-0100-presence-85-7",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-sentinel-sentinel-first-seen-2013-03-14-21-27-12-0100-presence-78-6",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-modules-modules-first-seen-2017-01-10-11-33-50-0100-presence-57-1",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-streams-streams-first-seen-2018-09-25-12-31-46-0200-presence-50-0",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-aclsecurity-acl-security-first-seen-2019-11-19-11-23-43-0100-presence-42-9",
+        "claim-later-feature-drift-not-folded-into-the-genesis-spec-tlstransport-tls-transport-first-seen-2019-11-19-11-23-43-0100-presence-42-9"
+      ]
+    },
+    {
+      "id": "block-0034-blank-blank",
+      "type": "blank",
+      "lineStart": 74,
+      "lineEnd": 74,
+      "rawMarkdown": "",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0035-heading-judge-result",
+      "type": "heading",
+      "lineStart": 75,
+      "lineEnd": 75,
+      "rawMarkdown": "## Judge Result",
+      "level": 2,
+      "title": "Judge Result",
+      "semanticRole": "claim",
+      "generatedClaimIds": []
+    },
+    {
+      "id": "block-0036-blank-blank",
+      "type": "blank",
+      "lineStart": 76,
+      "lineEnd": 76,
+      "rawMarkdown": "",
+      "generatedClaimIds": [
+        "claim-judge-result-valid-sampled-snapshots-14-14"
+      ]
+    },
+    {
+      "id": "block-0037-list-valid-sampled-snapshots-14-14-valid-through-2026-04-30-21-38-25-0800-at-2432f",
+      "type": "list",
+      "lineStart": 77,
+      "lineEnd": 79,
+      "rawMarkdown": "- Valid sampled snapshots: 14/14.\n- Valid through: 2026-04-30 21:38:25 +0800 at `2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8`.\n- First invalid sample: none in the judged sample set.",
+      "generatedClaimIds": [
+        "claim-judge-result-valid-through-2026-04-30-21-38-25-0800-at-2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4",
+        "claim-judge-result-first-invalid-sample-none-in-the-judged-sample-set"
+      ]
+    },
+    {
+      "id": "block-0038-blank-item",
+      "type": "blank",
+      "lineStart": 80,
+      "lineEnd": 81,
+      "rawMarkdown": "\n",
+      "generatedClaimIds": []
+    }
+  ]
+}

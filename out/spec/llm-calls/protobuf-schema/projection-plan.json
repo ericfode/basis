@@ -1,0 +1,252 @@
+{
+  "schemaVersion": "specgym.llm-projection-plan.v0",
+  "projection": {
+    "id": "protobuf-schema",
+    "title": "Protobuf Schema",
+    "output": "proto",
+    "outputPath": "spec.proto",
+    "types": [
+      "protobuf-schema",
+      "data-type",
+      "protocol"
+    ],
+    "description": "# Protobuf Schema\n\nDerive a `.proto` schema from explicit data, protocol, request, response, and\nevent claims in the spec.\n\nThe projection should keep uncertain message or field names as comments or\nquestions rather than silently committing to an invented interface."
+  },
+  "source": {
+    "path": "/Users/ericfode/Documents/New project 4/spec.md",
+    "title": "Spec Gym Specification",
+    "lineCount": 780
+  },
+  "inputForms": [
+    "dataified_spec",
+    "claim"
+  ],
+  "selection": {
+    "matchNodeTypes": [
+      "claim",
+      "requirement",
+      "component",
+      "dependency"
+    ],
+    "keywords": [
+      "proto",
+      "protobuf",
+      "message",
+      "enum",
+      "schema",
+      "field",
+      "type",
+      "api",
+      "request",
+      "response",
+      "event"
+    ],
+    "nodeCount": 26
+  },
+  "execution": {
+    "runner": "codex_app_server",
+    "localRole": "focus_and_call_packet_generation_only",
+    "contentGeneration": "llm_only",
+    "sliceCount": 4,
+    "mergeRequired": true,
+    "determinismTraining": "repeat projection calls, validate against type contracts, and record drift"
+  },
+  "calls": [
+    {
+      "id": "protobuf-schema-call-001",
+      "projectionId": "protobuf-schema",
+      "sliceId": "protobuf-schema-slice-001",
+      "runner": "codex_app_server",
+      "source": {
+        "path": "/Users/ericfode/Documents/New project 4/spec.md",
+        "title": "Spec Gym Specification",
+        "hash": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583"
+      },
+      "expectedOutput": {
+        "format": "proto",
+        "finalPath": "spec.proto",
+        "types": [
+          "protobuf-schema",
+          "data-type",
+          "protocol"
+        ]
+      },
+      "sourceNodeIds": [
+        "dependency-3-1-form-registry-emitted-artifact-or-api-shape",
+        "claim-3-1-form-registry-schema-version-when-machine-readable",
+        "dependency-3-2-projection-registry-emitted-files-or-api-calls",
+        "claim-3-2-projection-registry-protobufschema-emits-a-proto-schema-for-the-selected-spec-interface-or-interchan",
+        "claim-3-3-type-registry-types-data-type-schema-json",
+        "claim-3-3-type-registry-types-protocol-schema-json",
+        "claim-3-3-type-registry-types-requirement-schema-json",
+        "claim-3-3-type-registry-types-architecture-document-schema-json"
+      ],
+      "blockIds": [
+        "block-0065-heading-3-1-form-registry",
+        "block-0069-list-form-id-purpose-accepted-input-forms-emitted-artifact-or-api-shape-schema-v",
+        "block-0077-heading-3-2-projection-registry",
+        "block-0083-list-projection-id-purpose-accepted-input-forms-emitted-files-or-api-calls-targe",
+        "block-0087-list-requirementsjson-emits-requirements-json-from-requirement-goal-non-goal-risk-a",
+        "block-0095-heading-3-3-type-registry",
+        "block-0100-blank-blank",
+        "block-0101-list-types-data-type-schema-json-types-protocol-schema-json-types-requirement-schema"
+      ],
+      "prompt": "You are executing Spec Gym projection `protobuf-schema`: Protobuf Schema.\n\nProjection instructions:\n# Protobuf Schema\n\nDerive a `.proto` schema from explicit data, protocol, request, response, and\nevent claims in the spec.\n\nThe projection should keep uncertain message or field names as comments or\nquestions rather than silently committing to an invented interface.\n\nOutput contract:\n- Format: proto\n- Final artifact path after merge: spec.proto\n- Type contracts: protobuf-schema, data-type, protocol\n\nRules:\n- Use only the source slice below.\n- Preserve source anchors for every emitted item.\n- Mark inferred items explicitly.\n- Do not fill missing facts with invented certainty.\n- Return only the partial projection payload for this slice.\n\nSource nodes:\n```json\n[\n  {\n    \"id\": \"dependency-3-1-form-registry-emitted-artifact-or-api-shape\",\n    \"type\": \"dependency\",\n    \"title\": \"emitted artifact or API shape\",\n    \"text\": \"emitted artifact or API shape\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 163,\n      \"lineEnd\": 163\n    }\n  },\n  {\n    \"id\": \"claim-3-1-form-registry-schema-version-when-machine-readable\",\n    \"type\": \"claim\",\n    \"title\": \"schema version when machine-readable\",\n    \"text\": \"schema version when machine-readable\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 164,\n      \"lineEnd\": 164\n    }\n  },\n  {\n    \"id\": \"dependency-3-2-projection-registry-emitted-files-or-api-calls\",\n    \"type\": \"dependency\",\n    \"title\": \"emitted files or API calls\",\n    \"text\": \"emitted files or API calls\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 197,\n      \"lineEnd\": 197\n    }\n  },\n  {\n    \"id\": \"claim-3-2-projection-registry-protobufschema-emits-a-proto-schema-for-the-selected-spec-interface-or-interchan\",\n    \"type\": \"claim\",\n    \"title\": \"protobufschema: emits a .proto schema for the selected spec interface or interchange...\",\n    \"text\": \"`protobuf_schema`: emits a `.proto` schema for the selected spec interface or interchange model.\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 212,\n      \"lineEnd\": 212\n    }\n  },\n  {\n    \"id\": \"claim-3-3-type-registry-types-data-type-schema-json\",\n    \"type\": \"claim\",\n    \"title\": \"types/data-type.schema.json\",\n    \"text\": \"`types/data-type.schema.json`\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 241,\n      \"lineEnd\": 241\n    }\n  },\n  {\n    \"id\": \"claim-3-3-type-registry-types-protocol-schema-json\",\n    \"type\": \"claim\",\n    \"title\": \"types/protocol.schema.json\",\n    \"text\": \"`types/protocol.schema.json`\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 242,\n      \"lineEnd\": 242\n    }\n  },\n  {\n    \"id\": \"claim-3-3-type-registry-types-requirement-schema-json\",\n    \"type\": \"claim\",\n    \"title\": \"types/requirement.schema.json\",\n    \"text\": \"`types/requirement.schema.json`\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 243,\n      \"lineEnd\": 243\n    }\n  },\n  {\n    \"id\": \"claim-3-3-type-registry-types-architecture-document-schema-json\",\n    \"type\": \"claim\",\n    \"title\": \"types/architecture-document.schema.json\",\n    \"text\": \"`types/architecture-document.schema.json`\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 244,\n      \"lineEnd\": 244\n    }\n  }\n]\n```\n\nSource Markdown blocks:\n```json\n[\n  {\n    \"id\": \"block-0065-heading-3-1-form-registry\",\n    \"type\": \"heading\",\n    \"lineStart\": 157,\n    \"lineEnd\": 157,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"### 3.1 Form Registry\"\n  },\n  {\n    \"id\": \"block-0069-list-form-id-purpose-accepted-input-forms-emitted-artifact-or-api-shape-schema-v\",\n    \"type\": \"list\",\n    \"lineStart\": 161,\n    \"lineEnd\": 167,\n    \"generatedClaimIds\": [\n      \"claim-3-1-form-registry-purpose\",\n      \"claim-3-1-form-registry-accepted-input-forms\",\n      \"dependency-3-1-form-registry-emitted-artifact-or-api-shape\",\n      \"claim-3-1-form-registry-schema-version-when-machine-readable\",\n      \"claim-3-1-form-registry-lossy-transformations\",\n      \"test-3-1-form-registry-validation-command-or-manual-check\"\n    ],\n    \"rawMarkdown\": \"- form ID\\n- purpose\\n- accepted input forms\\n- emitted artifact or API shape\\n- schema version when machine-readable\\n- lossy transformations\\n- validation command or manual check\"\n  },\n  {\n    \"id\": \"block-0077-heading-3-2-projection-registry\",\n    \"type\": \"heading\",\n    \"lineStart\": 188,\n    \"lineEnd\": 188,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"### 3.2 Projection Registry\"\n  },\n  {\n    \"id\": \"block-0083-list-projection-id-purpose-accepted-input-forms-emitted-files-or-api-calls-targe\",\n    \"type\": \"list\",\n    \"lineStart\": 195,\n    \"lineEnd\": 205,\n    \"generatedClaimIds\": [\n      \"claim-3-2-projection-registry-purpose\",\n      \"claim-3-2-projection-registry-accepted-input-forms\",\n      \"dependency-3-2-projection-registry-emitted-files-or-api-calls\",\n      \"claim-3-2-projection-registry-target-artifact-contract\",\n      \"claim-3-2-projection-registry-lossy-transformations\",\n      \"test-3-2-projection-registry-validation-command-or-manual-check\",\n      \"claim-3-2-projection-registry-focus-strategy-for-small-source-slices\",\n      \"claim-3-2-projection-registry-merge-strategy-for-partial-llm-outputs\",\n      \"requirement-3-2-projection-registry-whether-it-is-included-by-projection-all-reverse-direction-projections-such-as-c\"\n    ],\n    \"rawMarkdown\": \"- projection ID\\n- purpose\\n- accepted input forms\\n- emitted files or API calls\\n- target artifact contract\\n- lossy transformations\\n- validation command or manual check\\n- focus strategy for small source slices\\n- merge strategy for partial LLM outputs\\n- whether it is included by `--projection all`; reverse-direction projections\\n  such as code-to-spec SHOULD be explicit-only\"\n  },\n  {\n    \"id\": \"block-0087-list-requirementsjson-emits-requirements-json-from-requirement-goal-non-goal-risk-a\",\n    \"type\": \"list\",\n    \"lineStart\": 209,\n    \"lineEnd\": 219,\n    \"generatedClaimIds\": [\n      \"claim-3-2-projection-registry-architecturemarkdown-emits-architecture-md-from-component-dependency-risk-and-va\",\n      \"claim-3-2-projection-registry-protobufschema-emits-a-proto-schema-for-the-selected-spec-interface-or-interchan\",\n      \"claim-3-2-projection-registry-graphdataset-emits-graph-import-files-for-graph-query-or-collaborative-map-tools\",\n      \"claim-3-2-projection-registry-provermodel-emits-prover-facing-facts-and-mock-models\",\n      \"claim-3-2-projection-registry-executionpacket-emits-work-packets-for-humans-agents-or-orchestration-systems\"\n    ],\n    \"rawMarkdown\": \"- `requirements_json`: emits `requirements.json` from requirement, goal,\\n  non-goal, risk, and validation claims.\\n- `architecture_markdown`: emits `architecture.md` from component, dependency,\\n  risk, and validation claims.\\n- `protobuf_schema`: emits a `.proto` schema for the selected spec interface or\\n  interchange model.\\n- `graph_dataset`: emits graph import files for graph-query or collaborative\\n  map tools.\\n- `prover_model`: emits prover-facing facts and mock models.\\n- `execution_packet`: emits work packets for humans, agents, or orchestration\\n  systems.\"\n  },\n  {\n    \"id\": \"block-0095-heading-3-3-type-registry\",\n    \"type\": \"heading\",\n    \"lineStart\": 236,\n    \"lineEnd\": 236,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"### 3.3 Type Registry\"\n  },\n  {\n    \"id\": \"block-0100-blank-blank\",\n    \"type\": \"blank\",\n    \"lineStart\": 241,\n    \"lineEnd\": 241,\n    \"generatedClaimIds\": [\n      \"claim-3-3-type-registry-types-data-type-schema-json\"\n    ],\n    \"rawMarkdown\": \"\"\n  },\n  {\n    \"id\": \"block-0101-list-types-data-type-schema-json-types-protocol-schema-json-types-requirement-schema\",\n    \"type\": \"list\",\n    \"lineStart\": 242,\n    \"lineEnd\": 250,\n    \"generatedClaimIds\": [\n      \"claim-3-3-type-registry-types-protocol-schema-json\",\n      \"claim-3-3-type-registry-types-requirement-schema-json\",\n      \"claim-3-3-type-registry-types-architecture-document-schema-json\",\n      \"claim-3-3-type-registry-types-implementation-question-schema-json\",\n      \"claim-3-3-type-registry-types-protobuf-schema-schema-json\",\n      \"claim-3-3-type-registry-types-spec-draft-schema-json\",\n      \"test-3-3-type-registry-types-test-suite-schema-json\",\n      \"claim-3-3-type-registry-types-projection-cycle-schema-json\"\n    ],\n    \"rawMarkdown\": \"- `types/data-type.schema.json`\\n- `types/protocol.schema.json`\\n- `types/requirement.schema.json`\\n- `types/architecture-document.schema.json`\\n- `types/implementation-question.schema.json`\\n- `types/protobuf-schema.schema.json`\\n- `types/spec-draft.schema.json`\\n- `types/test-suite.schema.json`\\n- `types/projection-cycle.schema.json`\"\n  }\n]\n```"
+    },
+    {
+      "id": "protobuf-schema-call-002",
+      "projectionId": "protobuf-schema",
+      "sliceId": "protobuf-schema-slice-002",
+      "runner": "codex_app_server",
+      "source": {
+        "path": "/Users/ericfode/Documents/New project 4/spec.md",
+        "title": "Spec Gym Specification",
+        "hash": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583"
+      },
+      "expectedOutput": {
+        "format": "proto",
+        "finalPath": "spec.proto",
+        "types": [
+          "protobuf-schema",
+          "data-type",
+          "protocol"
+        ]
+      },
+      "sourceNodeIds": [
+        "claim-3-3-type-registry-types-implementation-question-schema-json",
+        "claim-3-3-type-registry-types-protobuf-schema-schema-json",
+        "claim-3-3-type-registry-types-spec-draft-schema-json",
+        "claim-3-3-type-registry-types-projection-cycle-schema-json",
+        "requirement-3-4-transform-request-a-transform-request-should-be-representable-as-data",
+        "requirement-3-4-transform-request-the-request-must-not-rely-on-conversation-context-that-is-absent-from-the-source",
+        "claim-3-5-transform-record-target-schema-version",
+        "claim-3-5-transform-record-codex-app-server-protocol-evidence-or-generated-schema-path-when-available"
+      ],
+      "blockIds": [
+        "block-0095-heading-3-3-type-registry",
+        "block-0101-list-types-data-type-schema-json-types-protocol-schema-json-types-requirement-schema",
+        "block-0105-heading-3-4-transform-request",
+        "block-0106-blank-blank",
+        "block-0114-blank-blank",
+        "block-0117-heading-3-5-transform-record",
+        "block-0121-list-source-path-source-hash-source-form-target-form-target-schema-version-run"
+      ],
+      "prompt": "You are executing Spec Gym projection `protobuf-schema`: Protobuf Schema.\n\nProjection instructions:\n# Protobuf Schema\n\nDerive a `.proto` schema from explicit data, protocol, request, response, and\nevent claims in the spec.\n\nThe projection should keep uncertain message or field names as comments or\nquestions rather than silently committing to an invented interface.\n\nOutput contract:\n- Format: proto\n- Final artifact path after merge: spec.proto\n- Type contracts: protobuf-schema, data-type, protocol\n\nRules:\n- Use only the source slice below.\n- Preserve source anchors for every emitted item.\n- Mark inferred items explicitly.\n- Do not fill missing facts with invented certainty.\n- Return only the partial projection payload for this slice.\n\nSource nodes:\n```json\n[\n  {\n    \"id\": \"claim-3-3-type-registry-types-implementation-question-schema-json\",\n    \"type\": \"claim\",\n    \"title\": \"types/implementation-question.schema.json\",\n    \"text\": \"`types/implementation-question.schema.json`\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 245,\n      \"lineEnd\": 245\n    }\n  },\n  {\n    \"id\": \"claim-3-3-type-registry-types-protobuf-schema-schema-json\",\n    \"type\": \"claim\",\n    \"title\": \"types/protobuf-schema.schema.json\",\n    \"text\": \"`types/protobuf-schema.schema.json`\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 246,\n      \"lineEnd\": 246\n    }\n  },\n  {\n    \"id\": \"claim-3-3-type-registry-types-spec-draft-schema-json\",\n    \"type\": \"claim\",\n    \"title\": \"types/spec-draft.schema.json\",\n    \"text\": \"`types/spec-draft.schema.json`\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 247,\n      \"lineEnd\": 247\n    }\n  },\n  {\n    \"id\": \"claim-3-3-type-registry-types-projection-cycle-schema-json\",\n    \"type\": \"claim\",\n    \"title\": \"types/projection-cycle.schema.json\",\n    \"text\": \"`types/projection-cycle.schema.json`\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 249,\n      \"lineEnd\": 249\n    }\n  },\n  {\n    \"id\": \"requirement-3-4-transform-request-a-transform-request-should-be-representable-as-data\",\n    \"type\": \"requirement\",\n    \"title\": \"A transform request SHOULD be representable as data:\",\n    \"text\": \"A transform request SHOULD be representable as data:\",\n    \"normative\": [\n      \"SHOULD\"\n    ],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 256,\n      \"lineEnd\": 256\n    }\n  },\n  {\n    \"id\": \"requirement-3-4-transform-request-the-request-must-not-rely-on-conversation-context-that-is-absent-from-the-source\",\n    \"type\": \"requirement\",\n    \"title\": \"The request MUST NOT rely on conversation context that is absent from the source\",\n    \"text\": \"The request MUST NOT rely on conversation context that is absent from the source\",\n    \"normative\": [\n      \"MUST NOT\"\n    ],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 292,\n      \"lineEnd\": 292\n    }\n  },\n  {\n    \"id\": \"claim-3-5-transform-record-target-schema-version\",\n    \"type\": \"claim\",\n    \"title\": \"target schema version\",\n    \"text\": \"target schema version\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 304,\n      \"lineEnd\": 304\n    }\n  },\n  {\n    \"id\": \"claim-3-5-transform-record-codex-app-server-protocol-evidence-or-generated-schema-path-when-available\",\n    \"type\": \"claim\",\n    \"title\": \"Codex app-server protocol evidence or generated schema path when available\",\n    \"text\": \"Codex `app-server` protocol evidence or generated schema path when available\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 307,\n      \"lineEnd\": 307\n    }\n  }\n]\n```\n\nSource Markdown blocks:\n```json\n[\n  {\n    \"id\": \"block-0095-heading-3-3-type-registry\",\n    \"type\": \"heading\",\n    \"lineStart\": 236,\n    \"lineEnd\": 236,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"### 3.3 Type Registry\"\n  },\n  {\n    \"id\": \"block-0101-list-types-data-type-schema-json-types-protocol-schema-json-types-requirement-schema\",\n    \"type\": \"list\",\n    \"lineStart\": 242,\n    \"lineEnd\": 250,\n    \"generatedClaimIds\": [\n      \"claim-3-3-type-registry-types-protocol-schema-json\",\n      \"claim-3-3-type-registry-types-requirement-schema-json\",\n      \"claim-3-3-type-registry-types-architecture-document-schema-json\",\n      \"claim-3-3-type-registry-types-implementation-question-schema-json\",\n      \"claim-3-3-type-registry-types-protobuf-schema-schema-json\",\n      \"claim-3-3-type-registry-types-spec-draft-schema-json\",\n      \"test-3-3-type-registry-types-test-suite-schema-json\",\n      \"claim-3-3-type-registry-types-projection-cycle-schema-json\"\n    ],\n    \"rawMarkdown\": \"- `types/data-type.schema.json`\\n- `types/protocol.schema.json`\\n- `types/requirement.schema.json`\\n- `types/architecture-document.schema.json`\\n- `types/implementation-question.schema.json`\\n- `types/protobuf-schema.schema.json`\\n- `types/spec-draft.schema.json`\\n- `types/test-suite.schema.json`\\n- `types/projection-cycle.schema.json`\"\n  },\n  {\n    \"id\": \"block-0105-heading-3-4-transform-request\",\n    \"type\": \"heading\",\n    \"lineStart\": 255,\n    \"lineEnd\": 255,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"### 3.4 Transform Request\"\n  },\n  {\n    \"id\": \"block-0106-blank-blank\",\n    \"type\": \"blank\",\n    \"lineStart\": 256,\n    \"lineEnd\": 256,\n    \"generatedClaimIds\": [\n      \"requirement-3-4-transform-request-a-transform-request-should-be-representable-as-data\"\n    ],\n    \"rawMarkdown\": \"\"\n  },\n  {\n    \"id\": \"block-0114-blank-blank\",\n    \"type\": \"blank\",\n    \"lineStart\": 292,\n    \"lineEnd\": 292,\n    \"generatedClaimIds\": [\n      \"requirement-3-4-transform-request-the-request-must-not-rely-on-conversation-context-that-is-absent-from-the-source\"\n    ],\n    \"rawMarkdown\": \"\"\n  },\n  {\n    \"id\": \"block-0117-heading-3-5-transform-record\",\n    \"type\": \"heading\",\n    \"lineStart\": 296,\n    \"lineEnd\": 296,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"### 3.5 Transform Record\"\n  },\n  {\n    \"id\": \"block-0121-list-source-path-source-hash-source-form-target-form-target-schema-version-run\",\n    \"type\": \"list\",\n    \"lineStart\": 301,\n    \"lineEnd\": 312,\n    \"generatedClaimIds\": [\n      \"claim-3-5-transform-record-source-hash\",\n      \"claim-3-5-transform-record-source-form\",\n      \"claim-3-5-transform-record-target-form\",\n      \"claim-3-5-transform-record-target-schema-version\",\n      \"claim-3-5-transform-record-runner\",\n      \"claim-3-5-transform-record-runner-command\",\n      \"claim-3-5-transform-record-codex-app-server-protocol-evidence-or-generated-schema-path-when-available\",\n      \"claim-3-5-transform-record-prompt-or-instruction-digest\",\n      \"claim-3-5-transform-record-output-artifact-paths\",\n      \"claim-3-5-transform-record-validation-gates\",\n      \"claim-3-5-transform-record-failure-state-when-the-transform-is-rejected\"\n    ],\n    \"rawMarkdown\": \"- source path\\n- source hash\\n- source form\\n- target form\\n- target schema version\\n- runner\\n- runner command\\n- Codex `app-server` protocol evidence or generated schema path when available\\n- prompt or instruction digest\\n- output artifact paths\\n- validation gates\\n- failure state when the transform is rejected\"\n  }\n]\n```"
+    },
+    {
+      "id": "protobuf-schema-call-003",
+      "projectionId": "protobuf-schema",
+      "sliceId": "protobuf-schema-slice-003",
+      "runner": "codex_app_server",
+      "source": {
+        "path": "/Users/ericfode/Documents/New project 4/spec.md",
+        "title": "Spec Gym Specification",
+        "hash": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583"
+      },
+      "expectedOutput": {
+        "format": "proto",
+        "finalPath": "spec.proto",
+        "types": [
+          "protobuf-schema",
+          "data-type",
+          "protocol"
+        ]
+      },
+      "sourceNodeIds": [
+        "claim-3-6-dataified-spec-contract-normalized-block-type",
+        "dependency-5-1-node-types-dependency-external-system-file-tool-api-or-host-assumption",
+        "requirement-5-3-stability-the-schema-must-be-versioned",
+        "requirement-6-codex-app-server-runner-specification-must-not-be-treated-as-the-protocol-schema",
+        "requirement-6-codex-app-server-runner-implementations-should-use-codex-app-server-generate-json-schema-or-the",
+        "claim-6-codex-app-server-runner-target-schema-or-artifact-contract",
+        "claim-6-codex-app-server-runner-invalidoutputschema",
+        "claim-11-projection-boundary-interfaceschema"
+      ],
+      "blockIds": [
+        "block-0127-heading-3-6-dataified-spec-contract",
+        "block-0133-list-document-order-heading-hierarchy-raw-markdown-for-every-source-block-normaliz",
+        "block-0251-heading-5-1-node-types",
+        "block-0253-list-spec-root-input-document-section-source-heading-and-line-range-goal-desire",
+        "block-0259-heading-5-3-stability",
+        "block-0262-blank-blank",
+        "block-0267-heading-6-codex-app-server-runner",
+        "block-0273-paragraph-implementations-must-follow-the-targeted-codex-app-server-protocol-this-specific",
+        "block-0274-blank-blank",
+        "block-0279-list-source-artifact-path-or-content-source-form-target-form-target-schema-or-arti",
+        "block-0289-list-appserverunavailable-protocolmismatch-invalidoutputschema-missingsourceanchor",
+        "block-0329-heading-11-projection-boundary",
+        "block-0335-list-collaborativemap-graphquery-requirementsdata-architecturedocument-interface"
+      ],
+      "prompt": "You are executing Spec Gym projection `protobuf-schema`: Protobuf Schema.\n\nProjection instructions:\n# Protobuf Schema\n\nDerive a `.proto` schema from explicit data, protocol, request, response, and\nevent claims in the spec.\n\nThe projection should keep uncertain message or field names as comments or\nquestions rather than silently committing to an invented interface.\n\nOutput contract:\n- Format: proto\n- Final artifact path after merge: spec.proto\n- Type contracts: protobuf-schema, data-type, protocol\n\nRules:\n- Use only the source slice below.\n- Preserve source anchors for every emitted item.\n- Mark inferred items explicitly.\n- Do not fill missing facts with invented certainty.\n- Return only the partial projection payload for this slice.\n\nSource nodes:\n```json\n[\n  {\n    \"id\": \"claim-3-6-dataified-spec-contract-normalized-block-type\",\n    \"type\": \"claim\",\n    \"title\": \"normalized block type\",\n    \"text\": \"normalized block type\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 331,\n      \"lineEnd\": 331\n    }\n  },\n  {\n    \"id\": \"dependency-5-1-node-types-dependency-external-system-file-tool-api-or-host-assumption\",\n    \"type\": \"dependency\",\n    \"title\": \"dependency: external system, file, tool, API, or host assumption.\",\n    \"text\": \"`dependency`: external system, file, tool, API, or host assumption.\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 569,\n      \"lineEnd\": 569\n    }\n  },\n  {\n    \"id\": \"requirement-5-3-stability-the-schema-must-be-versioned\",\n    \"type\": \"requirement\",\n    \"title\": \"The schema MUST be versioned.\",\n    \"text\": \"The schema MUST be versioned.\",\n    \"normative\": [\n      \"MUST\"\n    ],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 588,\n      \"lineEnd\": 588\n    }\n  },\n  {\n    \"id\": \"requirement-6-codex-app-server-runner-specification-must-not-be-treated-as-the-protocol-schema\",\n    \"type\": \"requirement\",\n    \"title\": \"specification MUST NOT be treated as the protocol schema.\",\n    \"text\": \"specification MUST NOT be treated as the protocol schema.\",\n    \"normative\": [\n      \"MUST NOT\"\n    ],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 602,\n      \"lineEnd\": 602\n    }\n  },\n  {\n    \"id\": \"requirement-6-codex-app-server-runner-implementations-should-use-codex-app-server-generate-json-schema-or-the\",\n    \"type\": \"requirement\",\n    \"title\": \"Implementations SHOULD use codex app-server generate-json-schema or the\",\n    \"text\": \"Implementations SHOULD use `codex app-server generate-json-schema` or the\",\n    \"normative\": [\n      \"SHOULD\"\n    ],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 606,\n      \"lineEnd\": 606\n    }\n  },\n  {\n    \"id\": \"claim-6-codex-app-server-runner-target-schema-or-artifact-contract\",\n    \"type\": \"claim\",\n    \"title\": \"target schema or artifact contract\",\n    \"text\": \"target schema or artifact contract\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 614,\n      \"lineEnd\": 614\n    }\n  },\n  {\n    \"id\": \"claim-6-codex-app-server-runner-invalidoutputschema\",\n    \"type\": \"claim\",\n    \"title\": \"invalidoutputschema\",\n    \"text\": \"`invalid_output_schema`\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 637,\n      \"lineEnd\": 637\n    }\n  },\n  {\n    \"id\": \"claim-11-projection-boundary-interfaceschema\",\n    \"type\": \"claim\",\n    \"title\": \"interfaceschema\",\n    \"text\": \"`interface_schema`\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 730,\n      \"lineEnd\": 730\n    }\n  }\n]\n```\n\nSource Markdown blocks:\n```json\n[\n  {\n    \"id\": \"block-0127-heading-3-6-dataified-spec-contract\",\n    \"type\": \"heading\",\n    \"lineStart\": 322,\n    \"lineEnd\": 322,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"### 3.6 Dataified Spec Contract\"\n  },\n  {\n    \"id\": \"block-0133-list-document-order-heading-hierarchy-raw-markdown-for-every-source-block-normaliz\",\n    \"type\": \"list\",\n    \"lineStart\": 329,\n    \"lineEnd\": 338,\n    \"generatedClaimIds\": [\n      \"claim-3-6-dataified-spec-contract-heading-hierarchy\",\n      \"claim-3-6-dataified-spec-contract-raw-markdown-for-every-source-block\",\n      \"claim-3-6-dataified-spec-contract-normalized-block-type\",\n      \"claim-3-6-dataified-spec-contract-source-path-and-source-hash\",\n      \"claim-3-6-dataified-spec-contract-line-anchors-when-available\",\n      \"claim-3-6-dataified-spec-contract-source-anchored-block-ids-for-review-and-diffing\",\n      \"claim-3-6-dataified-spec-contract-semantic-role-when-known\",\n      \"claim-3-6-dataified-spec-contract-generated-claim-ids-when-available\",\n      \"claim-3-6-dataified-spec-contract-unresolved-findings-or-review-notes-attached-to-affected-blocks\"\n    ],\n    \"rawMarkdown\": \"- document order\\n- heading hierarchy\\n- raw Markdown for every source block\\n- normalized block type\\n- source path and source hash\\n- line anchors when available\\n- source-anchored block IDs for review and diffing\\n- semantic role when known\\n- generated claim IDs when available\\n- unresolved findings or review notes attached to affected blocks\"\n  },\n  {\n    \"id\": \"block-0251-heading-5-1-node-types\",\n    \"type\": \"heading\",\n    \"lineStart\": 562,\n    \"lineEnd\": 562,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"### 5.1 Node Types\"\n  },\n  {\n    \"id\": \"block-0253-list-spec-root-input-document-section-source-heading-and-line-range-goal-desire\",\n    \"type\": \"list\",\n    \"lineStart\": 564,\n    \"lineEnd\": 574,\n    \"generatedClaimIds\": [\n      \"claim-5-1-node-types-section-source-heading-and-line-range\",\n      \"claim-5-1-node-types-goal-desired-outcome\",\n      \"claim-5-1-node-types-nongoal-explicit-boundary\",\n      \"claim-5-1-node-types-requirement-normative-claim\",\n      \"claim-5-1-node-types-component-named-subsystem-actor-layer-or-responsibility\",\n      \"dependency-5-1-node-types-dependency-external-system-file-tool-api-or-host-assumption\",\n      \"test-5-1-node-types-test-validation-surface-or-conformance-check\",\n      \"claim-5-1-node-types-risk-safety-recovery-trust-failure-or-ambiguity-pressure\",\n      \"claim-5-1-node-types-claim-extracted-assertion-not-yet-sharpened\",\n      \"claim-5-1-node-types-finding-generated-bad-idea-pressure\"\n    ],\n    \"rawMarkdown\": \"- `spec`: root input document.\\n- `section`: source heading and line range.\\n- `goal`: desired outcome.\\n- `non_goal`: explicit boundary.\\n- `requirement`: normative claim.\\n- `component`: named subsystem, actor, layer, or responsibility.\\n- `dependency`: external system, file, tool, API, or host assumption.\\n- `test`: validation surface or conformance check.\\n- `risk`: safety, recovery, trust, failure, or ambiguity pressure.\\n- `claim`: extracted assertion not yet sharpened.\\n- `finding`: generated bad-idea pressure.\"\n  },\n  {\n    \"id\": \"block-0259-heading-5-3-stability\",\n    \"type\": \"heading\",\n    \"lineStart\": 584,\n    \"lineEnd\": 584,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"### 5.3 Stability\"\n  },\n  {\n    \"id\": \"block-0262-blank-blank\",\n    \"type\": \"blank\",\n    \"lineStart\": 588,\n    \"lineEnd\": 588,\n    \"generatedClaimIds\": [\n      \"requirement-5-3-stability-the-schema-must-be-versioned\"\n    ],\n    \"rawMarkdown\": \"\"\n  },\n  {\n    \"id\": \"block-0267-heading-6-codex-app-server-runner\",\n    \"type\": \"heading\",\n    \"lineStart\": 593,\n    \"lineEnd\": 593,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"## 6. Codex App-Server Runner\"\n  },\n  {\n    \"id\": \"block-0273-paragraph-implementations-must-follow-the-targeted-codex-app-server-protocol-this-specific\",\n    \"type\": \"paragraph\",\n    \"lineStart\": 602,\n    \"lineEnd\": 605,\n    \"generatedClaimIds\": [\n      \"requirement-6-codex-app-server-runner-specification-must-not-be-treated-as-the-protocol-schema\"\n    ],\n    \"rawMarkdown\": \"Implementations MUST follow the targeted Codex `app-server` protocol. This\\nspecification MUST NOT be treated as the protocol schema. If the targeted Codex\\nprotocol conflicts with this document, the Codex protocol controls transport\\nand message shape.\"\n  },\n  {\n    \"id\": \"block-0274-blank-blank\",\n    \"type\": \"blank\",\n    \"lineStart\": 606,\n    \"lineEnd\": 606,\n    \"generatedClaimIds\": [\n      \"requirement-6-codex-app-server-runner-implementations-should-use-codex-app-server-generate-json-schema-or-the\"\n    ],\n    \"rawMarkdown\": \"\"\n  },\n  {\n    \"id\": \"block-0279-list-source-artifact-path-or-content-source-form-target-form-target-schema-or-arti\",\n    \"type\": \"list\",\n    \"lineStart\": 612,\n    \"lineEnd\": 619,\n    \"generatedClaimIds\": [\n      \"claim-6-codex-app-server-runner-source-form\",\n      \"claim-6-codex-app-server-runner-target-form\",\n      \"claim-6-codex-app-server-runner-target-schema-or-artifact-contract\",\n      \"claim-6-codex-app-server-runner-allowed-mutations\",\n      \"requirement-6-codex-app-server-runner-required-source-anchor-preservation\",\n      \"claim-6-codex-app-server-runner-validation-gates\",\n      \"claim-6-codex-app-server-runner-honesty-boundary-for-uncertainty-and-rejected-transforms\"\n    ],\n    \"rawMarkdown\": \"- source artifact path or content\\n- source form\\n- target form\\n- target schema or artifact contract\\n- allowed mutations\\n- required source-anchor preservation\\n- validation gates\\n- honesty boundary for uncertainty and rejected transforms\"\n  },\n  {\n    \"id\": \"block-0289-list-appserverunavailable-protocolmismatch-invalidoutputschema-missingsourceanchor\",\n    \"type\": \"list\",\n    \"lineStart\": 636,\n    \"lineEnd\": 645,\n    \"generatedClaimIds\": [\n      \"claim-6-codex-app-server-runner-protocolmismatch\",\n      \"claim-6-codex-app-server-runner-invalidoutputschema\",\n      \"claim-6-codex-app-server-runner-missingsourceanchor\",\n      \"claim-6-codex-app-server-runner-unsafesourcemutation\",\n      \"claim-6-codex-app-server-runner-timeout\",\n      \"claim-6-codex-app-server-runner-runnerrejected\",\n      \"claim-6-codex-app-server-runner-roundtripmismatch\",\n      \"claim-6-codex-app-server-runner-projectiondriftexceedsbudget\",\n      \"claim-6-codex-app-server-runner-llmcallplaninvalid\"\n    ],\n    \"rawMarkdown\": \"- `app_server_unavailable`\\n- `protocol_mismatch`\\n- `invalid_output_schema`\\n- `missing_source_anchor`\\n- `unsafe_source_mutation`\\n- `timeout`\\n- `runner_rejected`\\n- `roundtrip_mismatch`\\n- `projection_drift_exceeds_budget`\\n- `llm_call_plan_invalid`\"\n  },\n  {\n    \"id\": \"block-0329-heading-11-projection-boundary\",\n    \"type\": \"heading\",\n    \"lineStart\": 720,\n    \"lineEnd\": 720,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"## 11. Projection Boundary\"\n  },\n  {\n    \"id\": \"block-0335-list-collaborativemap-graphquery-requirementsdata-architecturedocument-interface\",\n    \"type\": \"list\",\n    \"lineStart\": 727,\n    \"lineEnd\": 735,\n    \"generatedClaimIds\": [\n      \"claim-11-projection-boundary-graphquery\",\n      \"claim-11-projection-boundary-requirementsdata\",\n      \"claim-11-projection-boundary-architecturedocument\",\n      \"claim-11-projection-boundary-interfaceschema\",\n      \"claim-11-projection-boundary-knowledgevault\",\n      \"claim-11-projection-boundary-formalmodel\",\n      \"claim-11-projection-boundary-executionqueue\",\n      \"claim-11-projection-boundary-transformrunner\"\n    ],\n    \"rawMarkdown\": \"- `collaborative_map`\\n- `graph_query`\\n- `requirements_data`\\n- `architecture_document`\\n- `interface_schema`\\n- `knowledge_vault`\\n- `formal_model`\\n- `execution_queue`\\n- `transform_runner`\"\n  }\n]\n```"
+    },
+    {
+      "id": "protobuf-schema-call-004",
+      "projectionId": "protobuf-schema",
+      "sliceId": "protobuf-schema-slice-004",
+      "runner": "codex_app_server",
+      "source": {
+        "path": "/Users/ericfode/Documents/New project 4/spec.md",
+        "title": "Spec Gym Specification",
+        "hash": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583"
+      },
+      "expectedOutput": {
+        "format": "proto",
+        "finalPath": "spec.proto",
+        "types": [
+          "protobuf-schema",
+          "data-type",
+          "protocol"
+        ]
+      },
+      "sourceNodeIds": [
+        "claim-11-projection-boundary-input-schema-version",
+        "dependency-11-projection-boundary-emitted-files-or-api-calls"
+      ],
+      "blockIds": [
+        "block-0329-heading-11-projection-boundary",
+        "block-0339-list-capability-served-input-schema-version-emitted-files-or-api-calls-import-or-e"
+      ],
+      "prompt": "You are executing Spec Gym projection `protobuf-schema`: Protobuf Schema.\n\nProjection instructions:\n# Protobuf Schema\n\nDerive a `.proto` schema from explicit data, protocol, request, response, and\nevent claims in the spec.\n\nThe projection should keep uncertain message or field names as comments or\nquestions rather than silently committing to an invented interface.\n\nOutput contract:\n- Format: proto\n- Final artifact path after merge: spec.proto\n- Type contracts: protobuf-schema, data-type, protocol\n\nRules:\n- Use only the source slice below.\n- Preserve source anchors for every emitted item.\n- Mark inferred items explicitly.\n- Do not fill missing facts with invented certainty.\n- Return only the partial projection payload for this slice.\n\nSource nodes:\n```json\n[\n  {\n    \"id\": \"claim-11-projection-boundary-input-schema-version\",\n    \"type\": \"claim\",\n    \"title\": \"input schema version\",\n    \"text\": \"input schema version\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 739,\n      \"lineEnd\": 739\n    }\n  },\n  {\n    \"id\": \"dependency-11-projection-boundary-emitted-files-or-api-calls\",\n    \"type\": \"dependency\",\n    \"title\": \"emitted files or API calls\",\n    \"text\": \"emitted files or API calls\",\n    \"normative\": [],\n    \"source\": {\n      \"path\": \"/Users/ericfode/Documents/New project 4/spec.md\",\n      \"lineStart\": 740,\n      \"lineEnd\": 740\n    }\n  }\n]\n```\n\nSource Markdown blocks:\n```json\n[\n  {\n    \"id\": \"block-0329-heading-11-projection-boundary\",\n    \"type\": \"heading\",\n    \"lineStart\": 720,\n    \"lineEnd\": 720,\n    \"semanticRole\": \"claim\",\n    \"generatedClaimIds\": [],\n    \"rawMarkdown\": \"## 11. Projection Boundary\"\n  },\n  {\n    \"id\": \"block-0339-list-capability-served-input-schema-version-emitted-files-or-api-calls-import-or-e\",\n    \"type\": \"list\",\n    \"lineStart\": 739,\n    \"lineEnd\": 744,\n    \"generatedClaimIds\": [\n      \"claim-11-projection-boundary-input-schema-version\",\n      \"dependency-11-projection-boundary-emitted-files-or-api-calls\",\n      \"claim-11-projection-boundary-import-or-execution-instructions\",\n      \"claim-11-projection-boundary-lossy-transformations\",\n      \"test-11-projection-boundary-verification-command-or-manual-check\"\n    ],\n    \"rawMarkdown\": \"- capability served\\n- input schema version\\n- emitted files or API calls\\n- import or execution instructions\\n- lossy transformations\\n- verification command or manual check\"\n  }\n]\n```"
+    }
+  ],
+  "dataifiedSpec": {
+    "schemaVersion": "specgym.dataified-spec.v0",
+    "sourceHash": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583",
+    "blockCount": 358
+  },
+  "unresolvedFindings": [
+    {
+      "id": "finding-impossible-unbounded",
+      "class": "impossible",
+      "severity": "medium",
+      "title": "Unbounded normative claims need explicit assumptions",
+      "evidenceNodeIds": [
+        "requirement-3-2-projection-registry-whether-it-is-included-by-projection-all-reverse-direction-projections-such-as-c"
+      ]
+    },
+    {
+      "id": "finding-misses-problem-low-overlap",
+      "class": "misses_problem",
+      "severity": "medium",
+      "title": "Problem, goals, and tests have weak lexical overlap",
+      "evidenceNodeIds": [
+        "section-003-1-problem-statement",
+        "goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice",
+        "goal-2-1-goals-treat-spec-to-dataifiedspec-as-the-mandatory-first-transform",
+        "goal-2-1-goals-treat-dataifiedspec-to-claim-as-the-first-semantic-transform",
+        "goal-2-1-goals-support-the-opposite-direction-by-turning-dataifiedspec-form-into-reviewable-spe",
+        "test-3-1-form-registry-validation-command-or-manual-check",
+        "test-3-1-form-registry-testsuite-test-plan-executable-test-outline-or-focused-test-slices-used-as-proje",
+        "test-3-2-projection-registry-validation-command-or-manual-check",
+        "test-3-3-type-registry-types-test-suite-schema-json"
+      ]
+    },
+    {
+      "id": "finding-underspecified-risk-surface",
+      "class": "underspecified",
+      "severity": "low",
+      "title": "Risk vocabulary appears without extracted risk nodes",
+      "evidenceNodeIds": []
+    }
+  ]
+}

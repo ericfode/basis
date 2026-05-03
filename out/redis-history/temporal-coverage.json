@@ -1,0 +1,324 @@
+{
+  "schemaVersion": "specgym.temporal-coverage.v0",
+  "source": {
+    "repo": "/private/tmp/testing-rl-external/redis",
+    "branch": "unstable",
+    "root": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+    "target": "2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8",
+    "totalFirstParentCommits": 9716,
+    "selectedSampleCount": 14
+  },
+  "bestPromptId": "genesis-stable-essence-stricter-1:e2",
+  "reward": 0.8547,
+  "selectedClaims": [
+    "networked_command_server",
+    "in_memory_primary_dataset",
+    "typed_data_structures",
+    "key_value_namespace",
+    "rdb_persistence",
+    "redis_protocol",
+    "replication",
+    "test_suite",
+    "configuration_file",
+    "client_cli"
+  ],
+  "judgement": {
+    "reward": 0.8547,
+    "validSnapshots": 14,
+    "totalSnapshots": 14,
+    "timeValidity": 1,
+    "totalDurationDays": 6248,
+    "validThrough": {
+      "commit": "2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8",
+      "date": "2026-04-30 21:38:25 +0800",
+      "sampleIndex": 13
+    },
+    "firstInvalid": null,
+    "averageCoverage": 0.6729,
+    "stability": 1,
+    "genesisCoverage": 0.7692,
+    "compactness": 0.3162,
+    "snapshotResults": [
+      {
+        "commit": "ed9b544e10b84cd43348ddfab7068b610a5df1f7",
+        "short": "ed9b544e10b8",
+        "date": "2009-03-22 10:30:00 +0100",
+        "valid": true,
+        "coverage": 0.837,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "90fdc82697823a4e8228ae7e5c5ada0f56d160d7",
+        "short": "90fdc8269782",
+        "date": "2010-05-26 17:55:28 +0200",
+        "valid": true,
+        "coverage": 0.739,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "dab5332f95bd2f4fabf8e746b0998cd5bc37e448",
+        "short": "dab5332f95bd",
+        "date": "2011-11-09 21:59:27 +0100",
+        "valid": true,
+        "coverage": 0.732,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "90e99a208277d976a7682f4249fa873295c65de8",
+        "short": "90e99a208277",
+        "date": "2013-03-14 21:27:12 +0100",
+        "valid": true,
+        "coverage": 0.707,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "8f52173b2cdf47b7ef5ceda831ff44bf481d2090",
+        "short": "8f52173b2cdf",
+        "date": "2014-03-27 15:01:24 +0100",
+        "valid": true,
+        "coverage": 0.707,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "4082c38a60eedd524c78ef48c1b241105f4ddc50",
+        "short": "4082c38a60ee",
+        "date": "2015-05-25 12:06:25 +0200",
+        "valid": true,
+        "coverage": 0.707,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "e91f0ea1b3b1fa6237ec6b359a2665ab0f472989",
+        "short": "e91f0ea1b3b1",
+        "date": "2017-01-10 11:33:50 +0100",
+        "valid": true,
+        "coverage": 0.683,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "448d696549dc156fc26f93208d4e2a52d655dcea",
+        "short": "448d696549dc",
+        "date": "2018-09-25 12:31:46 +0200",
+        "valid": true,
+        "coverage": 0.661,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "b42466b92586d1adfeec54bda14d4ad54b0764d6",
+        "short": "b42466b92586",
+        "date": "2019-11-19 11:23:43 +0100",
+        "valid": true,
+        "coverage": 0.626,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "7e5a6313f0add995c723351532d994118e3e8a6d",
+        "short": "7e5a6313f0ad",
+        "date": "2020-11-24 17:58:10 +0200",
+        "valid": true,
+        "coverage": 0.626,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "fba15850e5c31666e4c3560a3be7fd034fa7e2b6",
+        "short": "fba15850e5c3",
+        "date": "2021-10-04 12:10:31 +0300",
+        "valid": true,
+        "coverage": 0.626,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "c1bd61a4a50225982d4a9bc7c66fec913b0c9af2",
+        "short": "c1bd61a4a502",
+        "date": "2022-08-24 12:51:36 +0300",
+        "valid": true,
+        "coverage": 0.59,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "9a2c6ba4e7be4121044a1ef048e953333535caf5",
+        "short": "9a2c6ba4e7be",
+        "date": "2024-06-04 20:35:26 +0800",
+        "valid": true,
+        "coverage": 0.59,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      },
+      {
+        "commit": "2432f55278b8fd01a4f7c4b9f5a9e2dcc5ddd4f8",
+        "short": "2432f55278b8",
+        "date": "2026-04-30 21:38:25 +0800",
+        "valid": true,
+        "coverage": 0.59,
+        "supportedFeatureIds": [
+          "networked_command_server",
+          "in_memory_primary_dataset",
+          "typed_data_structures",
+          "key_value_namespace",
+          "rdb_persistence",
+          "redis_protocol",
+          "replication",
+          "test_suite",
+          "configuration_file",
+          "client_cli"
+        ],
+        "missingFeatureIds": []
+      }
+    ]
+  }
+}
