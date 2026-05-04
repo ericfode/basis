@@ -58,3 +58,19 @@ All gates passed for the code changes.
    - `/Users/ericfode/wiki/raw/articles/specification-elaboration-naming-research.md`
    - `/Users/ericfode/wiki/log.md`
 4. Push this rename commit after remote update.
+
+## Follow-up continuation (2026-05-04)
+
+- Commit created: `92c5a54` with message `chore: rename specgym to basis`.
+- `git push` attempted from this environment:
+  - Failed: `Could not resolve host: github.com`
+- `.git/config` update attempted:
+  - `git remote set-url origin https://github.com/ericfode/basis.git`
+  - Failed: `could not lock config file .git/config: Operation not permitted`
+
+### Commands that should be rerun locally (writable networked shell)
+
+```sh
+git remote set-url origin https://github.com/ericfode/basis.git
+git push origin HEAD
+```
