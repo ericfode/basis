@@ -1,4 +1,4 @@
-# Spec Gym Specification
+# Basis Specification
 
 Status: Draft v0.3
 
@@ -13,7 +13,7 @@ The key words `MUST`, `MUST NOT`, `REQUIRED`, `SHOULD`, `SHOULD NOT`,
 `RECOMMENDED`, `MAY`, and `OPTIONAL` in this document are to be interpreted as
 described in RFC 2119.
 
-`Spec Gym` means the environment and CLI surface.
+`Basis` means the environment and CLI surface.
 
 `Spec projector` is the product role: a tool that reads `spec.md`, builds
 intermediate forms, and emits named projections.
@@ -69,7 +69,7 @@ tickets, critique, tests, proof sketches, or agent prompts by hand. Those
 translations are usually chat residue or local convention, so they are hard to
 compare, replay, validate, or reject.
 
-Spec Gym exists to make those translations explicit. It turns a prose
+Basis exists to make those translations explicit. It turns a prose
 specification into typed forms where humans, agents, provers, test runners,
 adapters, and future learned policies can play durable refinement moves against
 the same state.
@@ -78,7 +78,7 @@ The point is not to prove the whole idea automatically. The point is to make the
 verifiable parts explicit: claims, source anchors, evidence, tests, proof
 obligations, contradictions, missing validation, and rejection pressure.
 
-Spec Gym is not a diagram product, project-management system, prover,
+Basis is not a diagram product, project-management system, prover,
 whiteboard, graph database, interface-definition language, or agent runner. It
 can emit projections for those systems, but it MUST preserve a tool-neutral
 core.
@@ -266,7 +266,7 @@ A transform request SHOULD be representable as data:
   "runner": "codex_app_server",
   "out": "out/spec",
   "gates": [
-    "node --check src/specgym.mjs",
+    "node --check src/basis.mjs",
     "npm test"
   ]
 }
@@ -284,7 +284,7 @@ The opposite transform SHOULD use the same envelope:
   "runner": "codex_app_server",
   "out": "out/spec-draft",
   "gates": [
-    "node src/specgym.mjs play out/spec-draft/spec.md --out out/spec-draft/roundtrip",
+    "node src/basis.mjs play out/spec-draft/spec.md --out out/spec-draft/roundtrip",
     "npm test"
   ]
 }
@@ -646,7 +646,7 @@ Failure states SHOULD be normalized as:
 
 ## 7. Environment Boundary
 
-Spec Gym MUST treat the human as a first-class player, not an external approver.
+Basis MUST treat the human as a first-class player, not an external approver.
 
 The environment state SHOULD expose:
 
@@ -764,7 +764,7 @@ requirements.
 The repository is acceptable when:
 
 - `spec.md` is the top-level authoritative specification.
-- The primary CLI is `specgym`.
+- The primary CLI is `basis`.
 - `spec` to `dataified_spec` is defined as the first transform.
 - `dataified_spec` to `spec_draft` is defined as the first reverse transform.
 - `claim` to `spec_draft` is documented as a lossy fallback.

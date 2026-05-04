@@ -54,7 +54,7 @@ server:
   port: __SYMPHONY_PORT__
 ---
 
-You are working on a Linear ticket for the Spec Gym in an isolated
+You are working on a Linear ticket for the Basis in an isolated
 Symphony workspace.
 
 Issue:
@@ -81,7 +81,7 @@ Operating contract:
 3. Recover concrete state before acting: `git status --short --branch`, current
    files, and the exact validation gate for the issue.
 4. Implement one narrow, meaningful increment. Keep changes scoped to the ticket.
-5. Keep the product boundary intact: this repo is a tool-neutral Spec Gym
+5. Keep the product boundary intact: this repo is a tool-neutral Basis
    kernel with optional adapters.
 6. If Linear tooling is available, keep a single issue workpad comment current.
    If it is not available, record that as a blocker in the final message.
@@ -96,7 +96,7 @@ npm test
 npm run play:self
 npm run play:symphony
 lean out/symphony/ClaimLattice.lean
-node --check src/specgym.mjs
+node --check src/basis.mjs
 git diff --check
 ```
 

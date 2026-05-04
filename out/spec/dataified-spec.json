@@ -1,11 +1,11 @@
 {
-  "schemaVersion": "specgym.dataified-spec.v0",
-  "generatedAt": "2026-05-03T02:34:27.115Z",
+  "schemaVersion": "basis.dataified-spec.v0",
+  "generatedAt": "2026-05-04T16:39:03.058Z",
   "source": {
     "path": "/Users/ericfode/Documents/New project 4/spec.md",
-    "title": "Spec Gym Specification",
+    "title": "Basis Specification",
     "lineCount": 780,
-    "sha256": "961c6b30200fd33760ba02fe46da83e807a8f811dfd69a588263b25afdf70583"
+    "sha256": "7fa21445ce15258114d32057a2b19acabe96dffc08b2cc7bd6f39f5a0a7a15e7"
   },
   "reconstruction": {
     "targetForm": "spec_draft",
@@ -15,8 +15,8 @@
   },
   "headings": [
     {
-      "id": "heading-001-spec-gym-specification",
-      "title": "Spec Gym Specification",
+      "id": "heading-001-basis-specification",
+      "title": "Basis Specification",
       "level": 1,
       "lineStart": 1
     },
@@ -209,13 +209,13 @@
   ],
   "blocks": [
     {
-      "id": "block-0001-heading-spec-gym-specification",
+      "id": "block-0001-heading-basis-specification",
       "type": "heading",
       "lineStart": 1,
       "lineEnd": 1,
-      "rawMarkdown": "# Spec Gym Specification",
+      "rawMarkdown": "# Basis Specification",
       "level": 1,
-      "title": "Spec Gym Specification",
+      "title": "Basis Specification",
       "semanticRole": "claim",
       "generatedClaimIds": []
     },
@@ -299,11 +299,11 @@
       "generatedClaimIds": []
     },
     {
-      "id": "block-0011-paragraph-spec-gym-means-the-environment-and-cli-surface",
+      "id": "block-0011-paragraph-basis-means-the-environment-and-cli-surface",
       "type": "paragraph",
       "lineStart": 16,
       "lineEnd": 16,
-      "rawMarkdown": "`Spec Gym` means the environment and CLI surface.",
+      "rawMarkdown": "`Basis` means the environment and CLI surface.",
       "generatedClaimIds": []
     },
     {
@@ -558,11 +558,11 @@
       "generatedClaimIds": []
     },
     {
-      "id": "block-0043-paragraph-spec-gym-exists-to-make-those-translations-explicit-it-turns-a-prose-specificati",
+      "id": "block-0043-paragraph-basis-exists-to-make-those-translations-explicit-it-turns-a-prose-specification-",
       "type": "paragraph",
       "lineStart": 72,
       "lineEnd": 75,
-      "rawMarkdown": "Spec Gym exists to make those translations explicit. It turns a prose\nspecification into typed forms where humans, agents, provers, test runners,\nadapters, and future learned policies can play durable refinement moves against\nthe same state.",
+      "rawMarkdown": "Basis exists to make those translations explicit. It turns a prose\nspecification into typed forms where humans, agents, provers, test runners,\nadapters, and future learned policies can play durable refinement moves against\nthe same state.",
       "generatedClaimIds": []
     },
     {
@@ -590,11 +590,11 @@
       "generatedClaimIds": []
     },
     {
-      "id": "block-0047-paragraph-spec-gym-is-not-a-diagram-product-project-management-system-prover-whiteboard-gr",
+      "id": "block-0047-paragraph-basis-is-not-a-diagram-product-project-management-system-prover-whiteboard-graph",
       "type": "paragraph",
       "lineStart": 81,
       "lineEnd": 84,
-      "rawMarkdown": "Spec Gym is not a diagram product, project-management system, prover,\nwhiteboard, graph database, interface-definition language, or agent runner. It\ncan emit projections for those systems, but it MUST preserve a tool-neutral\ncore.",
+      "rawMarkdown": "Basis is not a diagram product, project-management system, prover,\nwhiteboard, graph database, interface-definition language, or agent runner. It\ncan emit projections for those systems, but it MUST preserve a tool-neutral\ncore.",
       "generatedClaimIds": [
         "requirement-1-problem-statement-can-emit-projections-for-those-systems-but-it-must-preserve-a-tool-neutral"
       ]
@@ -1236,7 +1236,7 @@
       "type": "fenced_code",
       "lineStart": 259,
       "lineEnd": 273,
-      "rawMarkdown": "```json\n{\n  \"source\": {\n    \"form\": \"spec\",\n    \"path\": \"spec.md\"\n  },\n  \"targetForm\": \"dataified_spec\",\n  \"runner\": \"codex_app_server\",\n  \"out\": \"out/spec\",\n  \"gates\": [\n    \"node --check src/specgym.mjs\",\n    \"npm test\"\n  ]\n}\n```",
+      "rawMarkdown": "```json\n{\n  \"source\": {\n    \"form\": \"spec\",\n    \"path\": \"spec.md\"\n  },\n  \"targetForm\": \"dataified_spec\",\n  \"runner\": \"codex_app_server\",\n  \"out\": \"out/spec\",\n  \"gates\": [\n    \"node --check src/basis.mjs\",\n    \"npm test\"\n  ]\n}\n```",
       "generatedClaimIds": []
     },
     {
@@ -1270,7 +1270,7 @@
       "type": "fenced_code",
       "lineStart": 277,
       "lineEnd": 291,
-      "rawMarkdown": "```json\n{\n  \"source\": {\n    \"form\": \"dataified_spec\",\n    \"path\": \"out/spec/dataified-spec.json\"\n  },\n  \"targetForm\": \"spec_draft\",\n  \"runner\": \"codex_app_server\",\n  \"out\": \"out/spec-draft\",\n  \"gates\": [\n    \"node src/specgym.mjs play out/spec-draft/spec.md --out out/spec-draft/roundtrip\",\n    \"npm test\"\n  ]\n}\n```",
+      "rawMarkdown": "```json\n{\n  \"source\": {\n    \"form\": \"dataified_spec\",\n    \"path\": \"out/spec/dataified-spec.json\"\n  },\n  \"targetForm\": \"spec_draft\",\n  \"runner\": \"codex_app_server\",\n  \"out\": \"out/spec-draft\",\n  \"gates\": [\n    \"node src/basis.mjs play out/spec-draft/spec.md --out out/spec-draft/roundtrip\",\n    \"npm test\"\n  ]\n}\n```",
       "generatedClaimIds": []
     },
     {
@@ -3008,15 +3008,15 @@
       "lineEnd": 648,
       "rawMarkdown": "",
       "generatedClaimIds": [
-        "requirement-7-environment-boundary-spec-gym-must-treat-the-human-as-a-first-class-player-not-an-external-approver"
+        "requirement-7-environment-boundary-basis-must-treat-the-human-as-a-first-class-player-not-an-external-approver"
       ]
     },
     {
-      "id": "block-0293-paragraph-spec-gym-must-treat-the-human-as-a-first-class-player-not-an-external-approver",
+      "id": "block-0293-paragraph-basis-must-treat-the-human-as-a-first-class-player-not-an-external-approver",
       "type": "paragraph",
       "lineStart": 649,
       "lineEnd": 649,
-      "rawMarkdown": "Spec Gym MUST treat the human as a first-class player, not an external approver.",
+      "rawMarkdown": "Basis MUST treat the human as a first-class player, not an external approver.",
       "generatedClaimIds": []
     },
     {
@@ -3630,13 +3630,13 @@
       ]
     },
     {
-      "id": "block-0357-list-spec-md-is-the-top-level-authoritative-specification-the-primary-cli-is-specgym",
+      "id": "block-0357-list-spec-md-is-the-top-level-authoritative-specification-the-primary-cli-is-basis",
       "type": "list",
       "lineStart": 766,
       "lineEnd": 779,
-      "rawMarkdown": "- `spec.md` is the top-level authoritative specification.\n- The primary CLI is `specgym`.\n- `spec` to `dataified_spec` is defined as the first transform.\n- `dataified_spec` to `spec_draft` is defined as the first reverse transform.\n- `claim` to `spec_draft` is documented as a lossy fallback.\n- Projection execution emits focused LLM call packets instead of locally\n  synthesized projection content.\n- Codex `app-server` participation is bounded by the runner contract.\n- Default generation emits only core artifacts.\n- Named projections are opt-in.\n- The projection boundary is documented.\n- The Symphony service specification can be played as an example input.\n- The Lean mock model type-checks.\n- The local tests pass.",
+      "rawMarkdown": "- `spec.md` is the top-level authoritative specification.\n- The primary CLI is `basis`.\n- `spec` to `dataified_spec` is defined as the first transform.\n- `dataified_spec` to `spec_draft` is defined as the first reverse transform.\n- `claim` to `spec_draft` is documented as a lossy fallback.\n- Projection execution emits focused LLM call packets instead of locally\n  synthesized projection content.\n- Codex `app-server` participation is bounded by the runner contract.\n- Default generation emits only core artifacts.\n- Named projections are opt-in.\n- The projection boundary is documented.\n- The Symphony service specification can be played as an example input.\n- The Lean mock model type-checks.\n- The local tests pass.",
       "generatedClaimIds": [
-        "test-13-definition-of-done-for-current-increment-the-primary-cli-is-specgym",
+        "test-13-definition-of-done-for-current-increment-the-primary-cli-is-basis",
         "test-13-definition-of-done-for-current-increment-spec-to-dataifiedspec-is-defined-as-the-first-transform",
         "test-13-definition-of-done-for-current-increment-dataifiedspec-to-specdraft-is-defined-as-the-first-reverse-transform",
         "test-13-definition-of-done-for-current-increment-claim-to-specdraft-is-documented-as-a-lossy-fallback",

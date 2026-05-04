@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specgym.test-suite.v0",
+  "$id": "basis.test-suite.v0",
   "title": "Test Suite Draft",
   "type": "object",
   "required": ["title", "tests", "sourceNodeIds"],

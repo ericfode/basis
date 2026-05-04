@@ -225,7 +225,7 @@ export function buildHistoricalSpecExperimentFromGit(repoPath, options = {}) {
   });
 
   return {
-    schemaVersion: "specgym.historical-spec-experiment.v0",
+    schemaVersion: "basis.historical-spec-experiment.v0",
     generatedAt: new Date().toISOString(),
     source: {
       repo,
@@ -283,7 +283,7 @@ export function optimizeHistoricalSpecPrompt(snapshots, options = {}) {
   }
 
   return {
-    schemaVersion: "specgym.prompt-policy-loop.v0",
+    schemaVersion: "basis.prompt-policy-loop.v0",
     objective: "maximize temporal validity from the initial commit while covering stable project essence",
     best: compactResult(best),
     episodes
@@ -293,13 +293,13 @@ export function optimizeHistoricalSpecPrompt(snapshots, options = {}) {
 export function writeHistoricalSpecArtifacts(outDir, experiment) {
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(path.join(outDir, "sample-manifest.json"), `${JSON.stringify({
-    schemaVersion: "specgym.historical-sample-manifest.v0",
+    schemaVersion: "basis.historical-sample-manifest.v0",
     source: experiment.source,
     samples: experiment.samples
   }, null, 2)}\n`);
   fs.writeFileSync(path.join(outDir, "prompt-rl-loop.json"), `${JSON.stringify(experiment.loop, null, 2)}\n`);
   fs.writeFileSync(path.join(outDir, "temporal-coverage.json"), `${JSON.stringify({
-    schemaVersion: "specgym.temporal-coverage.v0",
+    schemaVersion: "basis.temporal-coverage.v0",
     source: experiment.source,
     bestPromptId: experiment.bestSpec.promptId,
     reward: experiment.bestSpec.reward,

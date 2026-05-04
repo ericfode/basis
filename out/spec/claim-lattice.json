@@ -1,9 +1,9 @@
 {
-  "schemaVersion": "specgym.claim-lattice.v0",
-  "generatedAt": "2026-05-03T02:34:27.106Z",
+  "schemaVersion": "basis.claim-lattice.v0",
+  "generatedAt": "2026-05-04T16:39:03.048Z",
   "source": {
     "path": "/Users/ericfode/Documents/New project 4/spec.md",
-    "title": "Spec Gym Specification",
+    "title": "Basis Specification",
     "lineCount": 780
   },
   "environment": {
@@ -85,22 +85,22 @@
     {
       "id": "spec",
       "type": "spec",
-      "title": "Spec Gym Specification",
-      "label": "Spec Gym Specification",
+      "title": "Basis Specification",
+      "label": "Basis Specification",
       "source": "/Users/ericfode/Documents/New project 4/spec.md",
       "lineStart": 1,
       "lineEnd": 780,
-      "excerpt": "# Spec Gym Specification"
+      "excerpt": "# Basis Specification"
     },
     {
-      "id": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification",
       "type": "section",
-      "title": "Spec Gym Specification",
-      "label": "Spec Gym Specification",
+      "title": "Basis Specification",
+      "label": "Basis Specification",
       "level": 1,
       "lineStart": 1,
       "lineEnd": 9,
-      "excerpt": "# Spec Gym Specification\n\nStatus: Draft v0.3\n\nPurpose: Define a small, artifact-first spec projection tool for turning\n`spec.md` into reviewable data formats: low-loss structured specs, typed claim\nlattices, JSON requirement files, architecture documents, protobuf schemas, and\nother explicitly requested projections."
+      "excerpt": "# Basis Specification\n\nStatus: Draft v0.3\n\nPurpose: Define a small, artifact-first spec projection tool for turning\n`spec.md` into reviewable data formats: low-loss structured specs, typed claim\nlattices, JSON requirement files, architecture documents, protobuf schemas, and\nother explicitly requested projections."
     },
     {
       "id": "section-002-normative-language",
@@ -110,7 +110,7 @@
       "level": 2,
       "lineStart": 10,
       "lineEnd": 63,
-      "excerpt": "## Normative Language\n\nThe key words `MUST`, `MUST NOT`, `REQUIRED`, `SHOULD`, `SHOULD NOT`,\n`RECOMMENDED`, `MAY`, and `OPTIONAL` in this document are to be interpreted as\ndescribed in RFC 2119.\n\n`Spec Gym` means the environment and CLI surface.\n\n`Spec projector` is the product role: a tool that reads `spec.md`, builds"
+      "excerpt": "## Normative Language\n\nThe key words `MUST`, `MUST NOT`, `REQUIRED`, `SHOULD`, `SHOULD NOT`,\n`RECOMMENDED`, `MAY`, and `OPTIONAL` in this document are to be interpreted as\ndescribed in RFC 2119.\n\n`Basis` means the environment and CLI surface.\n\n`Spec projector` is the product role: a tool that reads `spec.md`, builds"
     },
     {
       "id": "section-003-1-problem-statement",
@@ -120,7 +120,7 @@
       "level": 2,
       "lineStart": 64,
       "lineEnd": 85,
-      "excerpt": "## 1. Problem Statement\n\nTeams often write specifications as unstructured text, then translate them into\nclaims, protobufs, architecture notes, JSON requirement files, diagrams,\ntickets, critique, tests, proof sketches, or agent prompts by hand. Those\ntranslations are usually chat residue or local convention, so they are hard to\ncompare, replay, validate, or reject.\n\nSpec Gym exists to make those translations explicit. It turns a prose"
+      "excerpt": "## 1. Problem Statement\n\nTeams often write specifications as unstructured text, then translate them into\nclaims, protobufs, architecture notes, JSON requirement files, diagrams,\ntickets, critique, tests, proof sketches, or agent prompts by hand. Those\ntranslations are usually chat residue or local convention, so they are hard to\ncompare, replay, validate, or reject.\n\nBasis exists to make those translations explicit. It turns a prose"
     },
     {
       "id": "section-004-2-goals-and-non-goals",
@@ -350,7 +350,7 @@
       "level": 2,
       "lineStart": 647,
       "lineEnd": 666,
-      "excerpt": "## 7. Environment Boundary\n\nSpec Gym MUST treat the human as a first-class player, not an external approver.\n\nThe environment state SHOULD expose:\n\n- `observation`: source spec, source anchors, claim lattice, obligation graph,\n  viability critique, verification surfaces, and projection outputs.\n- `action`: split, merge, strengthen, weaken, restate, classify, add evidence,"
+      "excerpt": "## 7. Environment Boundary\n\nBasis MUST treat the human as a first-class player, not an external approver.\n\nThe environment state SHOULD expose:\n\n- `observation`: source spec, source anchors, claim lattice, obligation graph,\n  viability critique, verification surfaces, and projection outputs.\n- `action`: split, merge, strengthen, weaken, restate, classify, add evidence,"
     },
     {
       "id": "section-027-8-bad-idea-pressure",
@@ -410,7 +410,7 @@
       "level": 2,
       "lineStart": 762,
       "lineEnd": 780,
-      "excerpt": "## 13. Definition of Done for Current Increment\n\nThe repository is acceptable when:\n\n- `spec.md` is the top-level authoritative specification.\n- The primary CLI is `specgym`.\n- `spec` to `dataified_spec` is defined as the first transform.\n- `dataified_spec` to `spec_draft` is defined as the first reverse transform.\n- `claim` to `spec_draft` is documented as a lossy fallback."
+      "excerpt": "## 13. Definition of Done for Current Increment\n\nThe repository is acceptable when:\n\n- `spec.md` is the top-level authoritative specification.\n- The primary CLI is `basis`.\n- `spec` to `dataified_spec` is defined as the first transform.\n- `dataified_spec` to `spec_draft` is defined as the first reverse transform.\n- `claim` to `spec_draft` is documented as a lossy fallback."
     },
     {
       "id": "requirement-normative-language-the-key-words-must-must-not-required-should-should-not",
@@ -3545,17 +3545,17 @@
       "excerpt": "`llm_call_plan_invalid`"
     },
     {
-      "id": "requirement-7-environment-boundary-spec-gym-must-treat-the-human-as-a-first-class-player-not-an-external-approver",
+      "id": "requirement-7-environment-boundary-basis-must-treat-the-human-as-a-first-class-player-not-an-external-approver",
       "type": "requirement",
-      "title": "Spec Gym MUST treat the human as a first-class player, not an external approver.",
-      "label": "Spec Gym MUST treat the human as a first-class player, not an external approver.",
+      "title": "Basis MUST treat the human as a first-class player, not an external approver.",
+      "label": "Basis MUST treat the human as a first-class player, not an external approver.",
       "sectionId": "section-026-7-environment-boundary",
       "lineStart": 648,
       "lineEnd": 648,
       "normative": [
         "MUST"
       ],
-      "excerpt": "Spec Gym MUST treat the human as a first-class player, not an external approver."
+      "excerpt": "Basis MUST treat the human as a first-class player, not an external approver."
     },
     {
       "id": "requirement-7-environment-boundary-the-environment-state-should-expose",
@@ -4231,15 +4231,15 @@
       "excerpt": "`spec.md` is the top-level authoritative specification."
     },
     {
-      "id": "test-13-definition-of-done-for-current-increment-the-primary-cli-is-specgym",
+      "id": "test-13-definition-of-done-for-current-increment-the-primary-cli-is-basis",
       "type": "test",
-      "title": "The primary CLI is specgym.",
-      "label": "The primary CLI is specgym.",
+      "title": "The primary CLI is basis.",
+      "label": "The primary CLI is basis.",
       "sectionId": "section-032-13-definition-of-done-for-current-increment",
       "lineStart": 766,
       "lineEnd": 766,
       "normative": [],
-      "excerpt": "The primary CLI is `specgym`."
+      "excerpt": "The primary CLI is `basis`."
     },
     {
       "id": "test-13-definition-of-done-for-current-increment-spec-to-dataifiedspec-is-defined-as-the-first-transform",
@@ -4392,29 +4392,29 @@
   ],
   "edges": [
     {
-      "id": "spec->section-001-spec-gym-specification:contains",
+      "id": "spec->section-001-basis-specification:contains",
       "from": "spec",
-      "to": "section-001-spec-gym-specification",
+      "to": "section-001-basis-specification",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-002-normative-language:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-002-normative-language:contains",
+      "from": "section-001-basis-specification",
       "to": "section-002-normative-language",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-003-1-problem-statement:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-003-1-problem-statement:contains",
+      "from": "section-001-basis-specification",
       "to": "section-003-1-problem-statement",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-004-2-goals-and-non-goals:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-004-2-goals-and-non-goals:contains",
+      "from": "section-001-basis-specification",
       "to": "section-004-2-goals-and-non-goals",
       "type": "contains",
       "label": "contains"
@@ -4434,8 +4434,8 @@
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-007-3-transform-model:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-007-3-transform-model:contains",
+      "from": "section-001-basis-specification",
       "to": "section-007-3-transform-model",
       "type": "contains",
       "label": "contains"
@@ -4525,15 +4525,15 @@
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-020-4-core-artifacts:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-020-4-core-artifacts:contains",
+      "from": "section-001-basis-specification",
       "to": "section-020-4-core-artifacts",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-021-5-claim-lattice:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-021-5-claim-lattice:contains",
+      "from": "section-001-basis-specification",
       "to": "section-021-5-claim-lattice",
       "type": "contains",
       "label": "contains"
@@ -4560,57 +4560,57 @@
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-025-6-codex-app-server-runner:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-025-6-codex-app-server-runner:contains",
+      "from": "section-001-basis-specification",
       "to": "section-025-6-codex-app-server-runner",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-026-7-environment-boundary:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-026-7-environment-boundary:contains",
+      "from": "section-001-basis-specification",
       "to": "section-026-7-environment-boundary",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-027-8-bad-idea-pressure:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-027-8-bad-idea-pressure:contains",
+      "from": "section-001-basis-specification",
       "to": "section-027-8-bad-idea-pressure",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-028-9-refinement-packet:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-028-9-refinement-packet:contains",
+      "from": "section-001-basis-specification",
       "to": "section-028-9-refinement-packet",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-029-10-formalization-boundary:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-029-10-formalization-boundary:contains",
+      "from": "section-001-basis-specification",
       "to": "section-029-10-formalization-boundary",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-030-11-projection-boundary:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-030-11-projection-boundary:contains",
+      "from": "section-001-basis-specification",
       "to": "section-030-11-projection-boundary",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-031-12-reference-inputs:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-031-12-reference-inputs:contains",
+      "from": "section-001-basis-specification",
       "to": "section-031-12-reference-inputs",
       "type": "contains",
       "label": "contains"
     },
     {
-      "id": "section-001-spec-gym-specification->section-032-13-definition-of-done-for-current-increment:contains",
-      "from": "section-001-spec-gym-specification",
+      "id": "section-001-basis-specification->section-032-13-definition-of-done-for-current-increment:contains",
+      "from": "section-001-basis-specification",
       "to": "section-032-13-definition-of-done-for-current-increment",
       "type": "contains",
       "label": "contains"
@@ -6520,9 +6520,9 @@
       "label": "elaborates"
     },
     {
-      "id": "section-026-7-environment-boundary->requirement-7-environment-boundary-spec-gym-must-treat-the-human-as-a-first-class-player-not-an-external-approver:elaborates",
+      "id": "section-026-7-environment-boundary->requirement-7-environment-boundary-basis-must-treat-the-human-as-a-first-class-player-not-an-external-approver:elaborates",
       "from": "section-026-7-environment-boundary",
-      "to": "requirement-7-environment-boundary-spec-gym-must-treat-the-human-as-a-first-class-player-not-an-external-approver",
+      "to": "requirement-7-environment-boundary-basis-must-treat-the-human-as-a-first-class-player-not-an-external-approver",
       "type": "elaborates",
       "label": "elaborates"
     },
@@ -6940,9 +6940,9 @@
       "label": "elaborates"
     },
     {
-      "id": "section-032-13-definition-of-done-for-current-increment->test-13-definition-of-done-for-current-increment-the-primary-cli-is-specgym:elaborates",
+      "id": "section-032-13-definition-of-done-for-current-increment->test-13-definition-of-done-for-current-increment-the-primary-cli-is-basis:elaborates",
       "from": "section-032-13-definition-of-done-for-current-increment",
-      "to": "test-13-definition-of-done-for-current-increment-the-primary-cli-is-specgym",
+      "to": "test-13-definition-of-done-for-current-increment-the-primary-cli-is-basis",
       "type": "elaborates",
       "label": "elaborates"
     },
@@ -7277,6 +7277,19 @@
       "nodeIds": [
         "goal-2-1-goals-emit-named-projections-for-concrete-target-formats-beginning-with-requirements-j",
         "claim-3-2-projection-registry-architecturemarkdown-emits-architecture-md-from-component-dependency-risk-and-va"
+      ]
+    },
+    {
+      "term": "basis",
+      "nodeIds": [
+        "section-032-13-definition-of-done-for-current-increment",
+        "test-13-definition-of-done-for-current-increment-the-primary-cli-is-basis"
+      ]
+    },
+    {
+      "term": "Basis",
+      "nodeIds": [
+        "section-002-normative-language"
       ]
     },
     {
@@ -7769,12 +7782,6 @@
       ]
     },
     {
-      "term": "Spec Gym",
-      "nodeIds": [
-        "section-002-normative-language"
-      ]
-    },
-    {
       "term": "Spec projector",
       "nodeIds": [
         "section-002-normative-language"
@@ -7800,7 +7807,7 @@
     {
       "term": "spec.md",
       "nodeIds": [
-        "section-001-spec-gym-specification",
+        "section-001-basis-specification",
         "section-002-normative-language",
         "section-013-3-6-dataified-spec-contract",
         "section-032-13-definition-of-done-for-current-increment",
@@ -7819,13 +7826,6 @@
       "term": "spec.md <-> tests",
       "nodeIds": [
         "goal-2-1-goals-support-trainable-projection-cycles-such-as-spec-md-architecture-md-spec-md"
-      ]
-    },
-    {
-      "term": "specgym",
-      "nodeIds": [
-        "section-032-13-definition-of-done-for-current-increment",
-        "test-13-definition-of-done-for-current-increment-the-primary-cli-is-specgym"
       ]
     },
     {

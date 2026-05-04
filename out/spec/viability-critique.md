@@ -1,7 +1,7 @@
-# Viability Critique: Spec Gym Specification
+# Viability Critique: Basis Specification
 
 Source: `/Users/ericfode/Documents/New project 4/spec.md`
-Generated: 2026-05-03T02:34:27.106Z
+Generated: 2026-05-04T16:39:03.048Z
 
 ## Claim Lattice Summary
 

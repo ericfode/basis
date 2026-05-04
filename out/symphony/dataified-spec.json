@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "specgym.dataified-spec.v0",
-  "generatedAt": "2026-05-03T02:34:27.287Z",
+  "schemaVersion": "basis.dataified-spec.v0",
+  "generatedAt": "2026-05-04T16:39:04.240Z",
   "source": {
     "path": "/Users/ericfode/src/openai-symphony/spec.md",
     "title": "Symphony Service Specification",

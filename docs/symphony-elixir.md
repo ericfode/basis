@@ -1,13 +1,13 @@
 # Symphony Elixir Runbook
 
 This repository can be managed by a project-local Symphony daemon backed by
-Linear. That is an operations adapter, not part of the Spec Gym core model.
+Linear. That is an operations adapter, not part of the Basis core model.
 
 ## Paths
 
-- Project repo: `/Users/ericfode/Documents/New project 4`
+- Project repo: `/Users/ericfode/Documents/basis`
 - Shared Symphony checkout: `/Users/ericfode/src/openai-symphony`
-- Linear project: `Spec Gym`
+- Linear project: `Basis`
 - Linear project slug: `spec-gym-af9f6c965d84`
 - Private env file: `/Users/ericfode/.config/symphony/env`
 - Project workflow template: `WORKFLOW.md`
@@ -58,7 +58,7 @@ npm run play:self
 npm run play:symphony
 lean out/spec/ClaimLattice.lean
 lean out/symphony/ClaimLattice.lean
-node --check src/specgym.mjs
+node --check src/basis.mjs
 git diff --check
 ```
 

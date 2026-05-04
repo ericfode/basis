@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "specgym.claim-lattice.v0",
-  "generatedAt": "2026-05-02T19:01:17.248Z",
+  "schemaVersion": "basis.claim-lattice.v0",
+  "generatedAt": "2026-05-04T16:39:04.221Z",
   "source": {
     "path": "/Users/ericfode/src/openai-symphony/spec.md",
     "title": "Symphony Service Specification",

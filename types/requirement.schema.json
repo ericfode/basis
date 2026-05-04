@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specgym.requirement.v0",
+  "$id": "basis.requirement.v0",
   "title": "Requirement",
   "type": "object",
   "required": ["id", "text", "source"],

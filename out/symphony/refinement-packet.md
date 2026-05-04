@@ -27,7 +27,7 @@ Resolve the highest-value viability finding before prototype work proceeds.
 2. Pick exactly one finding, preferring high severity over broad cleanup.
 3. Trace its evidence nodes back to source lines.
 4. Patch the source specification, add a recorded design decision, or reject the idea with evidence.
-5. Regenerate the Spec Gym state.
+5. Regenerate the Basis state.
 6. Run the verification gates.
 7. Report the changed source lines, regenerated artifacts, and remaining highest finding.
 

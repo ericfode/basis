@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specgym.data-type.v0",
+  "$id": "basis.data-type.v0",
   "title": "Data Type Candidate",
   "type": "object",
   "required": ["id", "name", "sourceNodeIds"],

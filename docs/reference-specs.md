@@ -1,11 +1,11 @@
 # Reference Specs
 
-## Spec Gym
+## Basis
 
 Path:
 
 ```text
-/Users/ericfode/Documents/New project 4/spec.md
+/Users/ericfode/Documents/basis/spec.md
 ```
 
 Why it matters:

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specgym.implementation-question.v0",
+  "$id": "basis.implementation-question.v0",
   "title": "Implementation Question",
   "type": "object",
   "required": ["id", "question", "sourceNodeIds"],

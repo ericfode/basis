@@ -1,6 +1,6 @@
-# Spec Gym
+# Basis
 
-You are working in the Spec Gym repository.
+You are working in the Basis repository.
 
 ## Operating Rule
 
@@ -9,7 +9,7 @@ interchange kernel, not a custom graph application.
 
 ## Product Boundary
 
-The top-level [spec.md](/Users/ericfode/Documents/New%20project%204/spec.md) is
+The top-level [spec.md](/Users/ericfode/Documents/basis/spec.md) is
 the authoritative specification for this repository.
 
 The repo owns:
@@ -37,7 +37,7 @@ npm test
 npm run play:self
 npm run play:symphony
 lean out/symphony/ClaimLattice.lean
-node --check src/specgym.mjs
+node --check src/basis.mjs
 git diff --check
 ```
 

@@ -1,0 +1,1080 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Basis UI Mockups</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f6f3;
+      --surface: #ffffff;
+      --surface-2: #eef2ef;
+      --surface-3: #e4e9e5;
+      --ink: #182026;
+      --muted: #607078;
+      --line: #d2dad3;
+      --line-strong: #aebbb1;
+      --blue: #0a6675;
+      --blue-soft: #d9edf0;
+      --green: #38744b;
+      --green-soft: #dfeee4;
+      --amber: #a15b0a;
+      --amber-soft: #f6ead7;
+      --red: #a33a35;
+      --red-soft: #f4dfdc;
+      --violet: #574b90;
+      --violet-soft: #e6e3f2;
+      --shadow: 0 20px 60px rgba(24, 32, 38, 0.08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      min-height: 64px;
+      display: grid;
+      grid-template-columns: minmax(190px, 280px) 1fr auto;
+      align-items: center;
+      gap: 18px;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 760;
+      border-radius: 8px;
+      letter-spacing: 0;
+    }
+
+    .brand-copy,
+    .path-block,
+    .screen-title,
+    .node-copy,
+    .finding-copy {
+      min-width: 0;
+    }
+
+    .brand-name {
+      font-size: 15px;
+      font-weight: 760;
+      line-height: 1.1;
+    }
+
+    .brand-subtitle,
+    .path-label,
+    .caption,
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .source-path {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: #2f3a40;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .button {
+      height: 34px;
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 7px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      white-space: nowrap;
+      cursor: default;
+    }
+
+    .button.primary {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 248px 1fr;
+      min-height: 0;
+    }
+
+    .rail {
+      border-right: 1px solid var(--line);
+      background: #fbfcfa;
+      padding: 16px 12px;
+    }
+
+    .rail-section + .rail-section {
+      margin-top: 22px;
+    }
+
+    .rail-heading {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 780;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 0 8px 8px;
+    }
+
+    .rail-item {
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 8px;
+      border-radius: 7px;
+      color: #263139;
+      font-size: 13px;
+    }
+
+    .rail-item.active {
+      background: var(--blue-soft);
+      color: #073d48;
+      font-weight: 710;
+    }
+
+    .count-pill,
+    .chip,
+    .status-pill {
+      min-height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 2px 8px;
+      font-size: 11px;
+      line-height: 1.25;
+      white-space: nowrap;
+      background: var(--surface);
+      color: var(--muted);
+    }
+
+    .status-pill.ready {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: #b9d7c2;
+    }
+
+    .status-pill.warn {
+      color: var(--amber);
+      background: var(--amber-soft);
+      border-color: #e9cfa7;
+    }
+
+    .status-pill.stop {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: #e3b8b3;
+    }
+
+    .content {
+      padding: 18px;
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .mockup {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .mockup-header {
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fcfdfb;
+    }
+
+    .mockup-title {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .mockup-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: minmax(210px, 0.82fr) minmax(360px, 1.25fr) minmax(280px, 0.95fr);
+      min-height: 620px;
+    }
+
+    .focus-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.95fr) minmax(360px, 1.1fr) minmax(280px, 0.9fr);
+      min-height: 560px;
+    }
+
+    .adapter-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.85fr) minmax(390px, 1.15fr) minmax(270px, 0.8fr);
+      min-height: 540px;
+    }
+
+    .pane {
+      min-width: 0;
+      padding: 14px;
+      border-right: 1px solid var(--line);
+    }
+
+    .pane:last-child {
+      border-right: 0;
+    }
+
+    .pane-title {
+      margin: 0 0 10px;
+      font-size: 12px;
+      font-weight: 780;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .search {
+      width: 100%;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 10px;
+      color: var(--ink);
+      background: var(--surface);
+      margin-bottom: 12px;
+    }
+
+    .outline,
+    .node-list,
+    .finding-list,
+    .move-list,
+    .artifact-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .outline-item,
+    .node-row,
+    .finding-card,
+    .move-card,
+    .artifact-row,
+    .adapter-card,
+    .proof-card,
+    .gate-row {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 8px;
+      min-width: 0;
+    }
+
+    .outline-item {
+      padding: 9px 10px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .outline-item.active {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .outline-title,
+    .node-title,
+    .finding-title,
+    .move-title,
+    .artifact-title {
+      font-size: 13px;
+      font-weight: 720;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .line-ref {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stat {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      line-height: 1.05;
+      font-weight: 760;
+    }
+
+    .stat-label {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .type-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 999px;
+      min-height: 28px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      border-color: var(--ink);
+      color: var(--ink);
+      font-weight: 710;
+    }
+
+    .node-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+    }
+
+    .type-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      margin-top: 4px;
+      background: var(--blue);
+    }
+
+    .type-dot.goal { background: var(--green); }
+    .type-dot.requirement { background: var(--violet); }
+    .type-dot.test { background: var(--blue); }
+    .type-dot.finding { background: var(--red); }
+    .type-dot.non-goal { background: var(--amber); }
+
+    .node-body,
+    .finding-body,
+    .move-body {
+      margin-top: 5px;
+      color: #43515a;
+      font-size: 12px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .finding-card {
+      padding: 12px;
+    }
+
+    .finding-card.active {
+      border-color: var(--amber);
+      background: #fffaf2;
+    }
+
+    .finding-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .evidence-stack {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .evidence-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: start;
+      min-width: 0;
+    }
+
+    .anchor {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      background: var(--surface-3);
+      color: #334047;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      flex: 0 0 auto;
+    }
+
+    .mini-graph {
+      position: relative;
+      min-height: 250px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(210, 218, 211, 0.55) 1px, transparent 1px),
+        linear-gradient(rgba(210, 218, 211, 0.55) 1px, transparent 1px);
+      background-size: 34px 34px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .graph-node {
+      position: absolute;
+      min-width: 108px;
+      max-width: 170px;
+      border: 1px solid var(--line-strong);
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 8px;
+      padding: 8px 9px;
+      font-size: 12px;
+      line-height: 1.25;
+      box-shadow: 0 8px 20px rgba(24, 32, 38, 0.07);
+    }
+
+    .graph-node strong {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+
+    .graph-node.problem { left: 7%; top: 38%; border-color: var(--blue); }
+    .graph-node.goals { left: 37%; top: 13%; border-color: var(--green); }
+    .graph-node.tests { right: 7%; top: 48%; border-color: var(--blue); }
+    .graph-node.finding { left: 40%; bottom: 13%; border-color: var(--amber); background: #fff9ed; }
+
+    .graph-edge {
+      position: absolute;
+      height: 2px;
+      background: var(--line-strong);
+      transform-origin: left center;
+    }
+
+    .edge-a { width: 170px; left: 28%; top: 42%; transform: rotate(-29deg); }
+    .edge-b { width: 150px; right: 20%; top: 40%; transform: rotate(35deg); }
+    .edge-c { width: 140px; left: 38%; bottom: 31%; transform: rotate(14deg); background: #d2a267; }
+
+    .move-card {
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .move-card.active {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .editor {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 358px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fcfdfb;
+    }
+
+    .editor-toolbar {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-2);
+    }
+
+    .code-pane {
+      margin: 0;
+      padding: 12px;
+      overflow: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      color: #263139;
+      white-space: pre-wrap;
+    }
+
+    .diff-add {
+      display: block;
+      color: var(--green);
+      background: rgba(56, 116, 75, 0.08);
+    }
+
+    .gate-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .gate-row {
+      min-height: 44px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+    }
+
+    .artifact-row {
+      min-height: 48px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 10px;
+    }
+
+    .adapter-card {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .adapter-card.active {
+      border-color: var(--violet);
+      background: var(--violet-soft);
+    }
+
+    .adapter-grid-cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .preview-table {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .preview-row {
+      display: grid;
+      grid-template-columns: minmax(110px, 0.7fr) minmax(160px, 1fr) minmax(100px, 0.7fr);
+      min-height: 38px;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+    }
+
+    .preview-row:first-child {
+      border-top: 0;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-weight: 720;
+    }
+
+    .preview-row > div {
+      padding: 9px 10px;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      border-left: 1px solid var(--line);
+    }
+
+    .preview-row > div:first-child {
+      border-left: 0;
+    }
+
+    .proof-card {
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .proof-name {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: #2d3940;
+      overflow-wrap: anywhere;
+    }
+
+    .bottom-note {
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      background: #fcfdfb;
+    }
+
+    @media (max-width: 1180px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .rail {
+        display: none;
+      }
+
+      .review-grid,
+      .focus-grid,
+      .adapter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pane {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .pane:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .top-actions {
+        justify-content: flex-start;
+        overflow-x: auto;
+      }
+
+      .mockup-header {
+        grid-template-columns: 1fr;
+      }
+
+      .mockup-meta {
+        justify-content: flex-start;
+      }
+
+      .stats,
+      .adapter-grid-cards {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .preview-row {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-row > div {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .preview-row > div:first-child {
+        border-top: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">SG</div>
+        <div class="brand-copy">
+          <div class="brand-name">Basis</div>
+          <div class="brand-subtitle">Claim lattice workbench</div>
+        </div>
+      </div>
+      <div class="path-block">
+        <div class="path-label">Source specification</div>
+        <div class="source-path">/Users/ericfode/Documents/basis/spec.md</div>
+      </div>
+      <div class="top-actions">
+        <button class="button">Load spec</button>
+        <button class="button">Run gates</button>
+        <button class="button primary">Regenerate</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="rail">
+        <section class="rail-section">
+          <h2 class="rail-heading">Inputs</h2>
+          <div class="rail-item active"><span>Self spec</span><span class="count-pill">130</span></div>
+          <div class="rail-item"><span>Symphony spec</span><span class="count-pill">opt-in</span></div>
+        </section>
+        <section class="rail-section">
+          <h2 class="rail-heading">Surfaces</h2>
+          <div class="rail-item active"><span>Claim review</span><span class="count-pill">2</span></div>
+          <div class="rail-item"><span>Refinement move</span><span class="count-pill">1</span></div>
+          <div class="rail-item"><span>Adapter preview</span><span class="count-pill">4</span></div>
+          <div class="rail-item"><span>Lean draft</span><span class="count-pill">mock</span></div>
+        </section>
+        <section class="rail-section">
+          <h2 class="rail-heading">Core artifacts</h2>
+          <div class="rail-item"><span>claim-lattice.json</span><span class="status-pill ready">ready</span></div>
+          <div class="rail-item"><span>viability-critique.md</span><span class="status-pill ready">ready</span></div>
+          <div class="rail-item"><span>ClaimLattice.lean</span><span class="status-pill ready">ready</span></div>
+          <div class="rail-item"><span>refinement-packet.md</span><span class="status-pill ready">ready</span></div>
+        </section>
+      </aside>
+
+      <main class="content">
+        <section class="mockup" aria-labelledby="review-title">
+          <div class="mockup-header">
+            <div class="screen-title">
+              <h1 class="mockup-title" id="review-title">Mockup A: claim review surface</h1>
+              <div class="caption">Inspect source anchors, typed claims, and bad-idea pressure without making the graph projection canonical.</div>
+            </div>
+            <div class="mockup-meta">
+              <span class="status-pill ready">score 0.90</span>
+              <span class="status-pill warn">2 findings</span>
+              <span class="chip">schema basis.claim-lattice.v0</span>
+            </div>
+          </div>
+
+          <div class="review-grid">
+            <section class="pane">
+              <h2 class="pane-title">Source outline</h2>
+              <input class="search" value="filter: problem, goals, tests" aria-label="Filter outline">
+              <div class="outline">
+                <div class="outline-item active">
+                  <div class="outline-title">1. Problem Statement</div>
+                  <div class="line-ref">lines 25-43</div>
+                </div>
+                <div class="outline-item">
+                  <div class="outline-title">2.1 Goals</div>
+                  <div class="line-ref">lines 46-60</div>
+                </div>
+                <div class="outline-item">
+                  <div class="outline-title">4.1 Node Types</div>
+                  <div class="line-ref">lines 88-100</div>
+                </div>
+                <div class="outline-item">
+                  <div class="outline-title">5. Environment Boundary</div>
+                  <div class="line-ref">lines 116-136</div>
+                </div>
+                <div class="outline-item">
+                  <div class="outline-title">9. Adapter Boundary</div>
+                  <div class="line-ref">lines 170-190</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="pane">
+              <h2 class="pane-title">Claim lattice</h2>
+              <div class="stats">
+                <div class="stat"><div class="stat-value">130</div><div class="stat-label">nodes</div></div>
+                <div class="stat"><div class="stat-value">145</div><div class="stat-label">edges</div></div>
+                <div class="stat"><div class="stat-value">2</div><div class="stat-label">findings</div></div>
+                <div class="stat"><div class="stat-value">4</div><div class="stat-label">core files</div></div>
+              </div>
+              <div class="type-tabs" aria-label="Claim type filters">
+                <button class="tab active">All</button>
+                <button class="tab">Goals</button>
+                <button class="tab">Requirements</button>
+                <button class="tab">Tests</button>
+                <button class="tab">Findings</button>
+              </div>
+              <div class="mini-graph" aria-label="Condensed claim lattice">
+                <div class="graph-edge edge-a"></div>
+                <div class="graph-edge edge-b"></div>
+                <div class="graph-edge edge-c"></div>
+                <div class="graph-node problem"><strong>Problem</strong>failure should move earlier</div>
+                <div class="graph-node goals"><strong>Goals</strong>typed lattice and critique</div>
+                <div class="graph-node tests"><strong>Tests</strong>validation surfaces</div>
+                <div class="graph-node finding"><strong>Finding</strong>weak overlap</div>
+              </div>
+              <div class="node-list">
+                <div class="node-row">
+                  <span class="type-dot goal"></span>
+                  <div class="node-copy">
+                    <div class="node-title">Parse Markdown specifications into a canonical claim lattice</div>
+                    <div class="node-body">goal-2-1-goals-parse-markdown-specifications-into-a-canonical-claim-lattice</div>
+                  </div>
+                  <span class="line-ref">49</span>
+                </div>
+                <div class="node-row">
+                  <span class="type-dot test"></span>
+                  <div class="node-copy">
+                    <div class="node-title">validation surface or conformance check</div>
+                    <div class="node-body">test-4-1-node-types-test-validation-surface-or-conformance-check</div>
+                  </div>
+                  <span class="line-ref">98</span>
+                </div>
+                <div class="node-row">
+                  <span class="type-dot requirement"></span>
+                  <div class="node-copy">
+                    <div class="node-title">Default generation MUST emit only core artifacts</div>
+                    <div class="node-body">requirement-3-core-artifacts-default-generation-must-emit-only-core-artifacts</div>
+                  </div>
+                  <span class="line-ref">73</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="pane">
+              <h2 class="pane-title">Findings</h2>
+              <div class="finding-list">
+                <article class="finding-card active">
+                  <div class="finding-head">
+                    <div class="finding-copy">
+                      <div class="finding-title">Problem, goals, and tests have weak lexical overlap</div>
+                      <div class="caption">misses_problem</div>
+                    </div>
+                    <span class="status-pill warn">medium</span>
+                  </div>
+                  <div class="finding-body">Problem-goal overlap 0.07, problem-test overlap 0.08. Link goals and tests explicitly before prototype work.</div>
+                  <div class="evidence-stack">
+                    <div class="evidence-row"><span class="anchor">25</span><span class="small">Problem Statement</span></div>
+                    <div class="evidence-row"><span class="anchor">49</span><span class="small">Parse Markdown specifications into a canonical claim lattice</span></div>
+                    <div class="evidence-row"><span class="anchor">98</span><span class="small">validation surface or conformance check</span></div>
+                  </div>
+                </article>
+                <article class="finding-card">
+                  <div class="finding-head">
+                    <div class="finding-copy">
+                      <div class="finding-title">Risk vocabulary appears without extracted risk nodes</div>
+                      <div class="caption">underspecified</div>
+                    </div>
+                    <span class="status-pill ready">low</span>
+                  </div>
+                  <div class="finding-body">Risk language exists, but there are no explicit risk claims in the current lattice.</div>
+                </article>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="mockup" aria-labelledby="refine-title">
+          <div class="mockup-header">
+            <div class="screen-title">
+              <h1 class="mockup-title" id="refine-title">Mockup B: one-move refinement workspace</h1>
+              <div class="caption">Choose a narrow action, patch the spec, regenerate the lattice, and run the gates from the packet.</div>
+            </div>
+            <div class="mockup-meta">
+              <span class="status-pill warn">selected finding</span>
+              <span class="chip">actor human</span>
+              <span class="chip">action add_evidence</span>
+            </div>
+          </div>
+
+          <div class="focus-grid">
+            <section class="pane">
+              <h2 class="pane-title">Action palette</h2>
+              <div class="move-list">
+                <article class="move-card">
+                  <div class="move-title">split_claim</div>
+                  <div class="move-body">Break a broad claim into traceable requirements.</div>
+                </article>
+                <article class="move-card active">
+                  <div class="move-title">add_evidence</div>
+                  <div class="move-body">Connect goals and validation surfaces back to the problem evidence.</div>
+                </article>
+                <article class="move-card">
+                  <div class="move-title">add_negative_test</div>
+                  <div class="move-body">Name the scenario that should make the idea fail.</div>
+                </article>
+                <article class="move-card">
+                  <div class="move-title">reject_idea</div>
+                  <div class="move-body">Record the reason this path should not proceed.</div>
+                </article>
+              </div>
+            </section>
+
+            <section class="pane">
+              <h2 class="pane-title">Spec patch preview</h2>
+              <div class="editor">
+                <div class="editor-toolbar">
+                  <span class="small">spec.md</span>
+                  <span class="status-pill warn">unapplied</span>
+                </div>
+                <pre class="code-pane">## 1. Problem Statement
+
+Teams often write specifications as unstructured text, then discover only during
+prototype or implementation that the idea is impossible, useless, more complex
+than the baseline, or aimed at the wrong problem.
+
+Basis exists to move that failure earlier.
+
+<span class="diff-add">+The validation surface is considered useful only when it traces a goal back to</span>
+<span class="diff-add">+one of those early-failure modes: impossibility, uselessness, unjustified</span>
+<span class="diff-add">+complexity, or missing the stated problem.</span>
+
+### 2.1 Goals
+
+- Parse Markdown specifications into a canonical claim lattice.
+- Preserve source structure and line-level evidence.</pre>
+              </div>
+            </section>
+
+            <section class="pane">
+              <h2 class="pane-title">Verification queue</h2>
+              <div class="gate-list">
+                <div class="gate-row"><span class="artifact-title">npm test</span><span class="status-pill ready">queued</span></div>
+                <div class="gate-row"><span class="artifact-title">npm run play:self</span><span class="status-pill ready">queued</span></div>
+                <div class="gate-row"><span class="artifact-title">npm run play:symphony</span><span class="status-pill ready">queued</span></div>
+                <div class="gate-row"><span class="artifact-title">lean out/symphony/ClaimLattice.lean</span><span class="status-pill ready">queued</span></div>
+                <div class="gate-row"><span class="artifact-title">node --check src/basis.mjs</span><span class="status-pill ready">queued</span></div>
+                <div class="gate-row"><span class="artifact-title">git diff --check</span><span class="status-pill ready">queued</span></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="mockup" aria-labelledby="adapter-title">
+          <div class="mockup-header">
+            <div class="screen-title">
+              <h1 class="mockup-title" id="adapter-title">Mockup C: adapter projection preview</h1>
+              <div class="caption">Show external outputs as lossy, opt-in projections over the canonical claim lattice.</div>
+            </div>
+            <div class="mockup-meta">
+              <span class="status-pill ready">core locked</span>
+              <span class="chip">projection all</span>
+              <span class="chip">non-canonical</span>
+            </div>
+          </div>
+
+          <div class="adapter-grid">
+            <section class="pane">
+              <h2 class="pane-title">Canonical files</h2>
+              <div class="artifact-list">
+                <div class="artifact-row"><span class="artifact-title">claim-lattice.json</span><span class="status-pill ready">source</span></div>
+                <div class="artifact-row"><span class="artifact-title">viability-critique.md</span><span class="status-pill ready">source</span></div>
+                <div class="artifact-row"><span class="artifact-title">ClaimLattice.lean</span><span class="status-pill ready">mock</span></div>
+                <div class="artifact-row"><span class="artifact-title">refinement-packet.md</span><span class="status-pill ready">source</span></div>
+              </div>
+            </section>
+
+            <section class="pane">
+              <h2 class="pane-title">Adapter outputs</h2>
+              <div class="adapter-grid-cards">
+                <article class="adapter-card active">
+                  <div class="move-title">Kumu</div>
+                  <div class="caption">collaborative_map</div>
+                  <span class="status-pill warn">lossy labels</span>
+                </article>
+                <article class="adapter-card">
+                  <div class="move-title">Neo4j</div>
+                  <div class="caption">graph_query</div>
+                  <span class="status-pill warn">query projection</span>
+                </article>
+                <article class="adapter-card">
+                  <div class="move-title">Structurizr</div>
+                  <div class="caption">architecture_projection</div>
+                  <span class="status-pill warn">component subset</span>
+                </article>
+                <article class="adapter-card">
+                  <div class="move-title">Symphony</div>
+                  <div class="caption">execution_queue</div>
+                  <span class="status-pill warn">work packet</span>
+                </article>
+              </div>
+              <div class="preview-table">
+                <div class="preview-row"><div>File</div><div>Capability</div><div>Check</div></div>
+                <div class="preview-row"><div>kumu-elements.csv</div><div>collaborative_map</div><div>manual import</div></div>
+                <div class="preview-row"><div>neo4j.cypher</div><div>graph_query</div><div>cypher parse</div></div>
+                <div class="preview-row"><div>structurizr.dsl</div><div>architecture_projection</div><div>DSL import</div></div>
+                <div class="preview-row"><div>symphony-handoff.md</div><div>execution_queue</div><div>packet review</div></div>
+              </div>
+            </section>
+
+            <section class="pane">
+              <h2 class="pane-title">Formal pressure</h2>
+              <article class="proof-card">
+                <div class="proof-name">CoreSurfacePresent</div>
+                <span class="status-pill ready">present</span>
+              </article>
+              <article class="proof-card">
+                <div class="proof-name">NoHighSeverityImpossibleFinding</div>
+                <span class="status-pill ready">present</span>
+              </article>
+              <article class="proof-card">
+                <div class="proof-name">EveryGoalHasValidationLink</div>
+                <span class="status-pill warn">next</span>
+              </article>
+              <article class="proof-card">
+                <div class="proof-name">ComponentPressureIsJustifiedByGoals</div>
+                <span class="status-pill warn">next</span>
+              </article>
+            </section>
+          </div>
+          <div class="bottom-note">The UI boundary mirrors the repository boundary: the claim lattice remains the source artifact; every canvas, graph database, architecture diagram, or runner handoff is a disposable adapter view.</div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

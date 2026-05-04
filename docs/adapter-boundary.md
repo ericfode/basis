@@ -74,11 +74,11 @@ Default generation emits only core artifacts.
 Named projections are opt-in:
 
 ```sh
-node src/specgym.mjs export spec.md --projection network-requirements
-node src/specgym.mjs export spec.md --projection aws-architecture,implementation-questions
-node src/specgym.mjs export spec.md --projection all
-node src/specgym.mjs export src --out out/code-to-spec --projection code-to-spec
-node src/specgym.mjs train spec.md --out out/architecture-cycle --forward aws-architecture --reverse architecture-to-spec --iterations 3
+node src/basis.mjs export spec.md --projection network-requirements
+node src/basis.mjs export spec.md --projection aws-architecture,implementation-questions
+node src/basis.mjs export spec.md --projection all
+node src/basis.mjs export src --out out/code-to-spec --projection code-to-spec
+node src/basis.mjs train spec.md --out out/architecture-cycle --forward aws-architecture --reverse architecture-to-spec --iterations 3
 ```
 
 The CLI emits LLM call packets under `llm-calls/<projection-id>/`. Final

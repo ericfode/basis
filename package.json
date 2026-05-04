@@ -1,18 +1,18 @@
 {
-  "name": "specgym",
+  "name": "basis",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "A zero-dependency first pass at a collaborative spec verifiability environment.",
   "bin": {
-    "specgym": "src/specgym.mjs"
+    "basis": "src/basis.mjs"
   },
   "scripts": {
-    "play": "node src/specgym.mjs play",
-    "play:self": "node src/specgym.mjs play spec.md --out out/spec",
-    "play:symphony": "node src/specgym.mjs play /Users/ericfode/src/openai-symphony/spec.md --out out/symphony",
-    "play:symphony:projections": "node src/specgym.mjs export /Users/ericfode/src/openai-symphony/spec.md --out out/symphony --projection all",
-    "score:self": "node src/specgym.mjs score spec.md --out out/spec",
+    "play": "node src/basis.mjs play",
+    "play:self": "node src/basis.mjs play spec.md --out out/spec",
+    "play:symphony": "node src/basis.mjs play /Users/ericfode/src/openai-symphony/spec.md --out out/symphony",
+    "play:symphony:projections": "node src/basis.mjs export /Users/ericfode/src/openai-symphony/spec.md --out out/symphony --projection all",
+    "score:self": "node src/basis.mjs score spec.md --out out/spec",
     "test": "node --test"
   },
   "engines": {

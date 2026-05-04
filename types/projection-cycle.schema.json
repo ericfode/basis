@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specgym.projection-cycle.v0",
+  "$id": "basis.projection-cycle.v0",
   "title": "Projection Cycle Training Plan",
   "type": "object",
   "required": ["schemaVersion", "cycleId", "source", "forward", "reverse", "rounds"],
   "properties": {
-    "schemaVersion": { "const": "specgym.projection-cycle-training-plan.v0" },
+    "schemaVersion": { "const": "basis.projection-cycle-training-plan.v0" },
     "cycleId": { "type": "string" },
     "source": { "type": "object" },
     "forward": { "type": "object" },

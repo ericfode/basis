@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specgym.protobuf-schema.v0",
+  "$id": "basis.protobuf-schema.v0",
   "title": "Protobuf Schema Projection",
   "type": "object",
   "required": ["syntax", "package", "messages"],

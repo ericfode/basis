@@ -1,4 +1,4 @@
-# Spec Gym Mini Example
+# Basis Mini Example
 
 Status: Draft.
 

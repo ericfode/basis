@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "specgym.protocol.v0",
+  "$id": "basis.protocol.v0",
   "title": "Protocol Candidate",
   "type": "object",
   "required": ["id", "name", "sourceNodeIds"],
