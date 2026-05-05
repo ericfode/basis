@@ -58,7 +58,7 @@ theorem missing_core_surface_blocks_ready
   · simp [hGoals] at goals
   · simp [hValidation] at validation
 
--- Generated from /Users/ericfode/Documents/New project 4/spec.md
+-- Generated from /Users/ericfode/src/basis/spec.md
 -- detected: impossible
 -- detected: misses_problem
 -- detected: underspecified

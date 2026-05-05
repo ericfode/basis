@@ -2,7 +2,7 @@
   "schemaVersion": "basis.claim-lattice.v0",
   "generatedAt": "2026-05-04T16:39:03.048Z",
   "source": {
-    "path": "/Users/ericfode/Documents/New project 4/spec.md",
+    "path": "/Users/ericfode/src/basis/spec.md",
     "title": "Basis Specification",
     "lineCount": 780
   },
@@ -87,7 +87,7 @@
       "type": "spec",
       "title": "Basis Specification",
       "label": "Basis Specification",
-      "source": "/Users/ericfode/Documents/New project 4/spec.md",
+      "source": "/Users/ericfode/src/basis/spec.md",
       "lineStart": 1,
       "lineEnd": 780,
       "excerpt": "# Basis Specification"

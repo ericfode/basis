@@ -55,9 +55,10 @@ test("builds a Basis state from a markdown specification", () => {
 });
 
 test("builds a dataified spec that preserves raw markdown blocks", () => {
-  const dataified = buildDataifiedSpec(SAMPLE, "sample.md");
+  const dataified = buildDataifiedSpec(SAMPLE, "sample.md", { generatedAt: "2026-05-05T00:00:00.000Z" });
 
   assert.equal(dataified.schemaVersion, "basis.dataified-spec.v0");
+  assert.equal(dataified.generatedAt, "2026-05-05T00:00:00.000Z");
   assert.equal(dataified.source.sha256.length, 64);
   assert.ok(dataified.blocks.some((block) => block.type === "heading" && block.rawMarkdown === "# Sample Spec"));
   assert.ok(dataified.blocks.some((block) => block.type === "list" && block.rawMarkdown.includes("MUST extract claims")));

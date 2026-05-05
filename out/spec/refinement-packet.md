@@ -6,7 +6,7 @@ Resolve the highest-value viability finding before prototype work proceeds.
 
 ## Input Artifacts
 
-- Source spec: `/Users/ericfode/Documents/New project 4/spec.md`
+- Source spec: `/Users/ericfode/src/basis/spec.md`
 - Dataified spec: `dataified-spec.json`
 - Canonical graph: `claim-lattice.json`
 - Critique: `viability-critique.md`

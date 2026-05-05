@@ -43,8 +43,16 @@ const CODE_SOURCE_EXTENSIONS = new Set([
   ".mjs", ".proto", ".py", ".rs", ".sh", ".swift", ".toml", ".ts", ".tsx", ".yaml", ".yml"
 ]);
 
+function normalizedMarkdown(markdown) {
+  return markdown.replace(/\r\n/g, "\n");
+}
+
+function sha256Text(text) {
+  return crypto.createHash("sha256").update(text).digest("hex");
+}
+
 export function buildDataifiedSpec(markdown, sourcePath = "inline.md", options = {}) {
-  const normalized = markdown.replace(/\r\n/g, "\n");
+  const normalized = normalizedMarkdown(markdown);
   const lines = normalized.split("\n");
   const headings = parseHeadings(lines);
   const title = options.title || (headings[0]?.title ?? path.basename(sourcePath));
@@ -53,12 +61,12 @@ export function buildDataifiedSpec(markdown, sourcePath = "inline.md", options =
 
   return {
     schemaVersion: "basis.dataified-spec.v0",
-    generatedAt: new Date().toISOString(),
+    generatedAt: options.generatedAt ?? new Date().toISOString(),
     source: {
       path: sourcePath,
       title,
       lineCount: lines.length,
-      sha256: crypto.createHash("sha256").update(normalized).digest("hex")
+      sha256: sha256Text(normalized)
     },
     reconstruction: {
       targetForm: "spec_draft",
@@ -82,7 +90,7 @@ export function buildDataifiedSpec(markdown, sourcePath = "inline.md", options =
 }
 
 export function buildBasisState(markdown, sourcePath = "inline.md", options = {}) {
-  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  const lines = normalizedMarkdown(markdown).split("\n");
   const headings = parseHeadings(lines);
   const title = options.title || (headings[0]?.title ?? path.basename(sourcePath));
   const nodes = [];
@@ -158,7 +166,7 @@ export function buildBasisState(markdown, sourcePath = "inline.md", options = {}
   const environment = buildEnvironmentState(stats, findings);
   return {
     schemaVersion: "basis.claim-lattice.v0",
-    generatedAt: new Date().toISOString(),
+    generatedAt: options.generatedAt ?? new Date().toISOString(),
     source: {
       path: sourcePath,
       title,
@@ -1265,6 +1273,32 @@ function writeCoreArtifacts(outDir, image, dataifiedSpec) {
   fs.writeFileSync(path.join(outDir, "refinement-packet.md"), renderRefinementPacket(image));
 }
 
+function generatedAtsForCoreArtifacts(outDir, markdown) {
+  const fallback = new Date().toISOString();
+  const dataifiedPath = path.join(outDir, "dataified-spec.json");
+  const imagePath = path.join(outDir, "claim-lattice.json");
+  if (!fs.existsSync(dataifiedPath)) return { dataified: fallback, image: fallback };
+
+  try {
+    const existing = JSON.parse(fs.readFileSync(dataifiedPath, "utf8"));
+    const sourceHash = sha256Text(normalizedMarkdown(markdown));
+    if (existing?.source?.sha256 === sourceHash && typeof existing.generatedAt === "string" && existing.generatedAt) {
+      let imageGeneratedAt = existing.generatedAt;
+      if (fs.existsSync(imagePath)) {
+        const existingImage = JSON.parse(fs.readFileSync(imagePath, "utf8"));
+        if (typeof existingImage?.generatedAt === "string" && existingImage.generatedAt) {
+          imageGeneratedAt = existingImage.generatedAt;
+        }
+      }
+      return { dataified: existing.generatedAt, image: imageGeneratedAt };
+    }
+  } catch {
+    return { dataified: fallback, image: fallback };
+  }
+
+  return { dataified: fallback, image: fallback };
+}
+
 function buildCodeSourcePack(rootDir) {
   const files = [];
   collectCodeFiles(rootDir, rootDir, files);
@@ -1815,8 +1849,9 @@ async function main(argv) {
     removeStaleCoreFiles(outDir);
     writeHistoricalSpecArtifacts(outDir, experiment);
     const minedSpecPath = path.join(outDir, "mined-spec.md");
-    const image = buildBasisState(experiment.bestSpec.markdown, minedSpecPath, { title: args.title });
-    const dataifiedSpec = buildDataifiedSpec(experiment.bestSpec.markdown, minedSpecPath, { title: args.title, claimNodes: image.nodes });
+    const generatedAts = generatedAtsForCoreArtifacts(outDir, experiment.bestSpec.markdown);
+    const image = buildBasisState(experiment.bestSpec.markdown, minedSpecPath, { title: args.title, generatedAt: generatedAts.image });
+    const dataifiedSpec = buildDataifiedSpec(experiment.bestSpec.markdown, minedSpecPath, { title: args.title, claimNodes: image.nodes, generatedAt: generatedAts.dataified });
     writeCoreArtifacts(outDir, image, dataifiedSpec);
     process.stdout.write(`Basis mine artifacts written to ${outDir}\n`);
     process.stdout.write(`repo=${experiment.source.repo}\n`);
@@ -1830,8 +1865,9 @@ async function main(argv) {
   const inputStats = fs.statSync(inputPath);
   const codeSourcePack = inputStats.isDirectory() ? buildCodeSourcePack(inputPath) : null;
   const markdown = codeSourcePack ? renderCodeSourceMarkdown(codeSourcePack) : fs.readFileSync(inputPath, "utf8");
-  const image = buildBasisState(markdown, inputPath, { title: args.title });
-  const dataifiedSpec = buildDataifiedSpec(markdown, inputPath, { title: args.title, claimNodes: image.nodes });
+  const generatedAts = generatedAtsForCoreArtifacts(outDir, markdown);
+  const image = buildBasisState(markdown, inputPath, { title: args.title, generatedAt: generatedAts.image });
+  const dataifiedSpec = buildDataifiedSpec(markdown, inputPath, { title: args.title, claimNodes: image.nodes, generatedAt: generatedAts.dataified });
   const projectionSpecs = loadProjectionSpecs(process.cwd());
   fs.mkdirSync(outDir, { recursive: true });
   removeStaleCoreFiles(outDir);
