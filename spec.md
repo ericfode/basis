@@ -1,6 +1,6 @@
 # Basis Specification
 
-Status: Draft v0.4
+Status: Draft v0.5
 
 Purpose: Basis is a way to explore and manipulate the latent space of
 specifications. It helps a spec converge toward a useful basis: a smaller set of
@@ -219,3 +219,19 @@ This specification is acceptable when:
 
 Everything else belongs outside the core contract until a future spec change
 admits it.
+
+## 11. Contract Fidelity
+
+Basis reductions MUST preserve contract obligations explicitly.
+
+A reduction candidate carries a contract-coverage table against the prior
+contract. The table names every prior surface, its replacement surface, and any
+dropped behavior. A reducer grade is invalid when a prior surface lacks either a
+replacement or a loss entry. Shrinking prose is allowed only when each removed
+obligation is represented by a remaining surface, a not-chosen entry, or a named
+loss. Completion for named projections depends on this fidelity table in
+addition to local pressure counts.
+
+The fidelity table is proposal evidence, not acceptance. Accepting a reduction
+still requires a separate state-change record that names chosen records,
+not-chosen records, unresolved pressure, known loss, and validation gates.

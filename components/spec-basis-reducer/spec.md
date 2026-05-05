@@ -1,6 +1,6 @@
 # Spec Basis Reducer Component Specification
 
-Status: Draft v0.1
+Status: Draft v0.2
 
 Purpose: The Spec Basis Reducer is the component that takes an overcomplete
 prose specification and proposes a smaller, more independent Basis state for
@@ -100,6 +100,30 @@ The reducer MUST propose records using these classes:
 - `open_question`: a behavior-affecting uncertainty
 - `rejected_alternative`: an idea that should continue constraining the space
 - `software_link`: a relation between a record and a software artifact
+
+Normative optionality is not itself an `open_question`. A `MAY`, an explicit
+optional allowance, or a not-chosen affordance becomes blocking only when the
+source leaves behavior undecided for a named projection through an explicit
+issue marker such as `TBD:`, `TODO:`, `FIXME:`, `UNCLEAR:`, `UNKNOWN:`,
+`UNRESOLVED:`, or `OPEN QUESTION:`. Descriptive prose that merely explains
+unclear policy, questions, or unknown choices MUST NOT become an `open_question`
+without such an issue marker. The reducer SHOULD preserve explicit optional
+allowances as ordinary source-backed records or not-chosen/loss entries rather
+than forcing a human decision where the spec has already made the choice
+optional.
+
+Likewise, several line-separated obligations in one section are not enough to
+declare a blocking `coupled` record. A `coupled` label SHOULD be reserved for a
+fused obligation whose witness cannot name clean child dimensions without
+additional split work, such as one source sentence carrying multiple normative
+operators or hiding several policies behind one surface.
+
+When the reducer can deterministically project source-backed child dimensions
+for a fused obligation, it SHOULD emit those children as replacement proposal
+records and keep the parent coupling only as a traceable split witness. A
+coupled parent with a complete replacement-record list MUST NOT block
+projection-completeness by itself; a `coupled` verdict is reserved for fused
+obligations whose child replacement records are absent or invalid.
 
 Each proposed record MUST include provenance. A record without provenance is
 only analysis scratch, not reducer output.
@@ -561,7 +585,7 @@ A basis packet MUST include:
 - target projections
 - candidate pivots
 - derived and redundant records
-- coupled records to split
+- coupled records, including split witnesses and unresolved records to split
 - missing dimensions
 - conflicts and open questions
 - rejected alternatives when found
@@ -576,7 +600,8 @@ The verdict MUST be one of:
 - `complete`: no hidden invention is required for the named targets
 - `blocked`: missing dimensions force invention
 - `overcomplete`: targets are covered but redundant dimensions should be reduced
-- `coupled`: targets are blocked because records hide multiple obligations
+- `coupled`: targets are blocked because records hide multiple obligations and
+  lack valid child replacement records
 
 The verdict MUST name the target projection it applies to.
 
@@ -641,6 +666,12 @@ process until accepted Basis state exists. A reference comparison MUST NOT count
 as success unless the result is also better than the do-nothing baseline for at
 least one named target projection.
 
+A first implementation MAY represent reference comparison as a critique item
+and a `compare_reference` intervention request before the live reference adapter
+exists. That representation is sufficient to avoid silently dropping the
+surface only when the fidelity table names the missing adapter behavior as loss
+and the UI exposes the comparison request as an event-ingested intervention.
+
 ## 19. Validation
 
 A reducer implementation is acceptable when it can:
@@ -667,3 +698,222 @@ For the first implementation, a worked run over the Symphony service spec is a
 valid smoke test if it produces a packet that names scheduler, config, tracker,
 agent runner, workspace, observability, failure, validation, and formal
 invariant projections.
+
+## 20. Elixir Rewrite Boundary
+
+The reducer runtime core MUST be implemented in Elixir/BEAM.
+
+The current first-class implementation surfaces are:
+
+- `Basis.Reducer.Source`: source identity, source hash, and line fingerprints
+- `Basis.Reducer.SectionManifest`: deterministic source ranges
+- `Basis.Reducer.ProposedRecord`: proposal-only candidate records with
+  provenance and falsifiable witnesses
+- `Basis.Reducer.Fidelity`: prior-contract coverage table
+- `Basis.Reducer.Validation`: structural checks over targets, provenance,
+  witnesses, and fidelity coverage
+- `Basis.Reducer.Projection`: basis-packet and run-model projections
+- `Basis.Reducer.Artifacts`: JSON artifact writer for UI and review surfaces
+- `Basis.Reducer.ActionIngest`: validation and event append for browser-authored
+  human review actions
+- `Basis.Reducer.Projection.branch_rollups/2` and
+  `Basis.Reducer.Projection.entanglement_maps/2`: projection-ready summaries
+  for askable target verdicts
+- `Basis.Reducer.Projection.fork_topology/1`: deterministic topology overlay
+  for root, section, synthesis, and validation work
+- `mix basis.reduce`: local runner for explicit target projections
+- `mix basis.ingest_actions`: local runner for review action ingestion
+- `Basis.Run.*`: supervised live-run spine, append-only events, explicit
+  context packets, and replay transitions
+
+The browser UI is a projection and action-payload author. It MUST NOT own
+reducer semantics, section lifecycle, event ingestion, acceptance decisions, or
+Basis state.
+
+The web interface under `components/spec-basis-reducer/ui/` MUST be split into
+native browser modules when it grows beyond a small fixture. Its default data
+source is the JSON run model written by the Elixir artifact writer. File loading
+is allowed as a projection affordance; reducer mutation still belongs behind
+Elixir event ingestion.
+
+The interface MUST be interactive enough to support review work. At minimum it
+SHOULD allow target selection, record filtering, record inspection, question
+packet inspection, reviewer notes, accept/reject/defer draft decisions, a
+pending action queue, action import, and export of bounded human action
+payloads.
+
+The current UI MUST also expose the broader intervention surface named earlier
+in this spec as draftable actions:
+
+- pause and resume run requests
+- section fork stop requests
+- section rerun, split, and merge requests
+- record reclassification requests
+- notes on records, sections, forks, synthesis decisions, and reference items
+- synthesis rerun requests
+- reference comparison requests
+
+These controls are allowed to be request surfaces before the corresponding live
+adapter exists, but they MUST still be represented as bounded action payloads
+with affected subject kind, affected subject ID, source/run identity, and
+reviewer note. Displaying a disabled or prose-only affordance is not sufficient
+when the run model contains the relevant subject.
+
+The review UI MUST format reducer evidence for a human before exposing raw
+machine records. Witnesses and provenance SHOULD be rendered as named decision
+rows, source fragments, short hashes, and explicit reject tests. Raw JSON MAY be
+available only behind collapsed diagnostics.
+
+Record inspection and draft actions SHOULD stay spatially local to the selected
+record, especially in narrow or long-scrolling layouts. A side detail pane MAY
+exist, but it MUST NOT be the only place where a clicked record explains what
+changed or exposes its draft action controls.
+
+The event log is an operational replay surface, not the default human work
+queue. The UI SHOULD foreground replay events only when validation, severity, or
+`requires_human_attention` marks them as issues. Healthy replay logs SHOULD be
+collapsed into diagnostics.
+
+The fidelity table SHOULD project as a coverage map. Each row SHOULD show the
+prior surface, replacement or named-loss surface, status, and an edge strength
+derived from coverage status. Long source references SHOULD be formatted as
+short labeled references with full values available as diagnostic titles rather
+than as opaque wrapped strings.
+
+Browser interactions are not reducer authority by themselves. They become
+durable reducer review state only when `mix basis.ingest_actions` validates the
+run ID, source hash, action count, supported action, affected subject kind,
+affected subject ID, and subject-local invariants such as target record ID,
+current record kind, section ID, synthesis decision ID, or reference critique
+ID. Valid record accept/reject/defer actions append `human_record_decision`
+events. Other valid intervention requests append `human_intervention_requested`
+events. The reviewed projection MAY mark records as accepted for the working
+packet, rejected as pressure, or deferred, but its acceptance boundary remains
+`human_review_state_not_basis_state` until a separate Basis acceptance record is
+created.
+
+The browser MAY load reviewed artifacts, but it MUST re-check the reviewed
+artifact against the currently loaded run model before displaying reviewed
+badges. A forged or stale artifact with a matching run ID but unsupported
+actions, mismatched current record kinds, unknown section IDs, unknown
+synthesis decisions, or inconsistent review indexes MUST be displayed as
+rejected import state rather than reviewed state.
+
+The archived pre-Elixir UI fixture under
+`components/spec-basis-reducer/archive/ui-prototype-2026-05-05/` is historical
+pressure only. It is not runtime authority.
+
+## 21. Fidelity Surface
+
+A reduction candidate carries a contract-coverage table against the prior
+contract. The table names every prior surface, its replacement surface, and any
+dropped behavior. A reducer grade is invalid when a prior surface lacks either a
+replacement or a loss entry. Shrinking prose is allowed only when each removed
+obligation is represented by a remaining surface, a not-chosen entry, or a named
+loss. Completion for named projections depends on this fidelity table in
+addition to local pressure counts.
+
+The table MUST cover at least:
+
+- product boundary
+- inputs
+- target projections
+- candidate records
+- reduction process
+- live run topology
+- app-server forking model
+- human intervention interface
+- live run data
+- lifecycle, ownership, and blocking
+- fork and merge semantics
+- event log contract
+- basis packet
+- acceptance boundary
+- validation
+- fidelity surface
+
+Loss entries are allowed. Silent deletion is not.
+
+## 22. Runner And Reader Procedures
+
+The write-reducer-skills worktree exposed two reusable workflow requirements:
+running a reducer and reading reducer output are separate procedures.
+
+A reducer runner procedure MUST:
+
+- recover repository state first
+- require explicit target projections
+- report source path, source hash, target projections, run ID, validation
+  status, and output or projection location
+- keep generated proposals out of `spec.md` unless a separate acceptance step
+  records them
+- fail loudly when validation fails
+
+The local runner command is:
+
+```sh
+mix basis.reduce --source components/spec-basis-reducer/spec.md --out components/spec-basis-reducer/out/elixir-self --target code --target schema --target proof --target runbook
+```
+
+The local action ingestion command is:
+
+```sh
+mix basis.ingest_actions --run-model components/spec-basis-reducer/out/elixir-self/run-model.json --actions <exported-actions.json> --out components/spec-basis-reducer/out/elixir-self-review
+```
+
+A reducer reader procedure MUST read validation before interpretation. It SHOULD
+then inspect telemetry or event counts, run model, basis packet, critique or
+pressure, question packets, and only then propose the next action.
+
+Reducer summaries MUST remain target-relative. They MUST NOT describe proposal
+records as accepted Basis state.
+
+## 23. Artifact Contract
+
+The Elixir reducer does not need to reproduce the archived JavaScript artifact
+set byte-for-byte, but it MUST preserve the useful surfaces:
+
+- source identity
+- section manifest
+- section jobs
+- proposed records
+- synthesis decisions
+- critique items
+- basis packet
+- question packets
+- branch rollups
+- entanglement maps
+- fork topology overlay
+- run model projection
+- event log and replay source
+- repository state snapshot
+- fidelity table
+- validation result
+
+The current JSON artifact files are:
+
+- `run-summary.json`
+- `run-model.json`
+- `basis-packet.json`
+- `question-packets.json`
+- `branch-rollups.json`
+- `entanglement-maps.json`
+- `fork-topology.json`
+- `section-manifest.json`
+- `proposed-records.json`
+- `fidelity-table.json`
+- `repo-state.json`
+- `run-events.jsonl`
+- `validation.json`
+
+Action ingestion adds review artifacts rather than rewriting accepted Basis
+state:
+
+- `action-ingest-validation.json`
+- `review-state.json`
+- `run-model.review.json`
+- `run-events.review.jsonl`
+
+Future UI, app-server, model-provider, reference-comparison, and action-ingest
+adapters MAY add richer packet files. Those adapters remain subordinate to the
+Elixir-owned run model and event stream.
