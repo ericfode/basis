@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Basis Live Search Console</title>
+    <link rel="stylesheet" href="/ui/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>Basis Live Search Console</h1>
+          <p id="runMeta">No run loaded.</p>
+        </div>
+        <form id="startForm" class="start-form">
+          <select id="mode" name="mode">
+            <option value="imaginer">Imaginer</option>
+            <option value="reducer">Reducer</option>
+          </select>
+          <input id="sourcePath" name="sourcePath" value="components/implementation-imaginer/spec.md" />
+          <input id="targets" name="targets" value="implementation_plan" />
+          <input id="implementationTarget" name="implementationTarget" value="Implement live Implementation Imaginer plan-space search with decision mining and steering." />
+          <label>Sections <input id="sectionLimit" name="sectionLimit" type="number" min="1" max="24" value="3" /></label>
+          <label>Concurrency <input id="maxConcurrency" name="maxConcurrency" type="number" min="1" max="8" value="2" /></label>
+          <label>Branches <input id="branchCount" name="branchCount" type="number" min="1" max="6" value="3" /></label>
+          <label>Depth <input id="maxDepth" name="maxDepth" type="number" min="1" max="6" value="4" /></label>
+          <button type="submit">Start</button>
+        </form>
+      </header>
+
+      <section class="workspace">
+        <article class="frontier-pane">
+          <section id="imaginerPanel" class="imaginer-panel" aria-label="Implementation architecture state map">
+            <div class="frontier-head">
+              <div>
+                <strong>Architecture-State Map</strong>
+                <p id="frontierFocus">No frontier selected.</p>
+              </div>
+              <span id="imaginerMetrics">0 branches</span>
+            </div>
+            <div
+              id="frontierViewport"
+              class="frontier-viewport"
+              tabindex="0"
+              aria-label="Implementation plan tech tree"
+            >
+              <div id="frontierGraph" class="frontier-graph"></div>
+            </div>
+            <div class="frontier-support">
+              <section>
+                <div class="rail-title">
+                  <strong>Selected State</strong>
+                  <span id="decisionGraphStats">none</span>
+                  <button id="closeSelectedPanel" type="button" class="panel-toggle" aria-label="Hide selected state panel">Hide</button>
+                </div>
+                <div id="decisionGraph" class="decision-graph"></div>
+              </section>
+              <section>
+                <div class="rail-title">
+                  <strong>Layer Icons</strong>
+                  <span id="branchRollupStats">0 layers</span>
+                </div>
+                <div id="branchRollups" class="branch-rollups"></div>
+              </section>
+              <section>
+                <div class="rail-title">
+                  <strong>Frontier Targets</strong>
+                  <span id="planTraceStats">0 ideas</span>
+                </div>
+                <div id="planTrace" class="plan-trace"></div>
+              </section>
+            </div>
+            <form id="steerForm" class="steer-form">
+              <div id="steerTarget" class="steer-target">Target: no selected decision or impact.</div>
+              <textarea id="steerBody" placeholder="Steer the next search pass, branch, or Reality check"></textarea>
+              <div class="steer-actions">
+                <button type="submit">Steer Selected</button>
+                <button id="queueBranch" type="button">Fork From Selected</button>
+                <button id="rejectBranch" type="button">Reject Selected Path</button>
+              </div>
+            </form>
+          </section>
+
+          <details id="sourceDrawer" class="source-drawer">
+            <summary>
+              <strong>Source Text</strong>
+              <span id="documentStatus">Waiting for a run.</span>
+            </summary>
+            <div id="documentSections" class="document-sections"></div>
+          </details>
+        </article>
+
+        <aside id="threadPane" class="thread-pane" data-open="false">
+          <div class="thread-head">
+            <div>
+              <strong id="activeSectionTitle">No section selected</strong>
+              <p id="activeSectionMeta">Choose a thread icon from the dock.</p>
+            </div>
+            <span id="connectionState" class="state-pill">offline</span>
+            <button id="closeThreadInspector" type="button" class="close-inspector" aria-label="Close thread inspector">Close</button>
+          </div>
+
+          <div class="run-actions">
+            <button id="pauseRun" type="button">Pause</button>
+            <button id="resumeRun" type="button">Resume</button>
+            <button id="requestSynthesis" type="button">Synthesize</button>
+          </div>
+
+          <section class="rail-section evidence-section">
+            <div class="rail-title">
+              <strong>Result Evidence</strong>
+              <span id="resultCount">0</span>
+            </div>
+            <div id="resultEvidence" class="result-evidence"></div>
+          </section>
+
+          <details id="streamDetails" class="rail-section stream-section">
+            <summary>
+              <span class="stream-activity" aria-hidden="true"><i></i><i></i><i></i></span>
+              <strong>Live Stream</strong>
+              <span id="selectedJobLabel">no job</span>
+            </summary>
+            <div id="liveStream" class="live-stream" aria-live="polite"></div>
+          </details>
+
+          <details class="rail-section packet-section">
+            <summary>
+              <strong>Packet Provenance</strong>
+              <span id="contextHash"></span>
+            </summary>
+            <div id="contextPacket" class="context-packet"></div>
+          </details>
+
+          <form id="noteForm" class="note-form">
+            <textarea id="noteBody" placeholder="Attach a server-side note to the focused thread or section"></textarea>
+            <button type="submit">Attach Note</button>
+          </form>
+        </aside>
+      </section>
+      <nav id="threadDock" class="thread-dock" aria-label="Codex thread dock"></nav>
+    </main>
+    <script type="module" src="/ui/app.js"></script>
+  </body>
+</html>

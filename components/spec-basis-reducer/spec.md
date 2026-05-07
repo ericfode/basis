@@ -232,9 +232,49 @@ The app-server thread is not the authoritative store. It is an execution and
 display container. Durable run state MUST be recorded separately with thread IDs
 and turn IDs as provenance.
 
+## 8A. LLM Lens Runtime
+
+Semantic reduction MUST be driven by named LLM lens jobs. Deterministic source
+processing MAY build source identity, section ranges, line hashes, and context
+packet scaffolds, but it MUST NOT be the authority for semantic labels such as
+`pivot`, `derived`, `redundant`, `coupled`, `missing`, `conflict`,
+`open_question`, or `rejected_alternative`.
+
+Each lens job MUST have an explicit context packet. The packet names:
+
+- lens role and reducer purpose
+- source path, source hash, section ID, and source range
+- target projections under review
+- source excerpt supplied to the model
+- prior lens results supplied to the model
+- excluded context that the lens must not rely on
+- prompt or instruction contract
+- context hash and budget
+
+A semantic proposal is invalid unless it names the lens job and context packet
+that produced it. Heuristics may queue attention hints or scaffold candidates,
+but a synthesis lens MUST mark those as untrusted unless a model lens or human
+review converts them into proposal evidence.
+
+The reducer MUST stream live model-provider events for every running lens job.
+The stream MUST include provider identity, Codex thread or session ID when
+available, job ID, event type, event timestamp, and raw provider line or message
+excerpt. Capturing only final model text or only thread identity is insufficient
+for end-to-end observability.
+
+The live UI MUST let a human inspect these streams while the run is active. When
+the source document is visible, the UI SHOULD keep thread streams beside the
+document section whose source range is currently in focus, and it SHOULD expose
+links to the underlying Codex thread for escape-hatch inspection.
+
 ## 9. Human Intervention Interface
 
 The reducer MUST have a live user interface designed for intervention.
+
+The primary UI layout SHOULD be document-first: the source document remains the
+central reading surface, and the live thread rail sits beside it. Scrolling or
+selecting a source section SHOULD focus the rail on the Codex threads, lens
+jobs, context packets, provider streams, and proposal evidence for that section.
 
 The UI MUST show all active work at once:
 
@@ -714,8 +754,10 @@ The current first-class implementation surfaces are:
   witnesses, and fidelity coverage
 - `Basis.Reducer.Projection`: basis-packet and run-model projections
 - `Basis.Reducer.Artifacts`: JSON artifact writer for UI and review surfaces
+- `Basis.Run.Server`: live run owner, lens scheduler, provider-stream ingestor,
+  and server-side action boundary
 - `Basis.Reducer.ActionIngest`: validation and event append for browser-authored
-  human review actions
+  human review actions when importing offline action artifacts
 - `Basis.Reducer.Projection.branch_rollups/2` and
   `Basis.Reducer.Projection.entanglement_maps/2`: projection-ready summaries
   for askable target verdicts
@@ -726,24 +768,23 @@ The current first-class implementation surfaces are:
 - `Basis.Run.*`: supervised live-run spine, append-only events, explicit
   context packets, and replay transitions
 
-The browser UI is a projection and action-payload author. It MUST NOT own
+The browser UI is a projection and command surface. It MUST NOT own
 reducer semantics, section lifecycle, event ingestion, acceptance decisions, or
 Basis state.
 
 The web interface under `components/spec-basis-reducer/ui/` MUST be split into
 native browser modules when it grows beyond a small fixture. Its default data
-source is the JSON run model written by the Elixir artifact writer. File loading
-is allowed as a projection affordance; reducer mutation still belongs behind
+source is the live Elixir run model exposed by the local server. File loading is
+allowed as a projection affordance; reducer mutation still belongs behind
 Elixir event ingestion.
 
 The interface MUST be interactive enough to support review work. At minimum it
 SHOULD allow target selection, record filtering, record inspection, question
-packet inspection, reviewer notes, accept/reject/defer draft decisions, a
-pending action queue, action import, and export of bounded human action
-payloads.
+packet inspection, live provider streams, reviewer notes, accept/reject/defer
+commands, action import, and export of bounded human action payloads.
 
 The current UI MUST also expose the broader intervention surface named earlier
-in this spec as draftable actions:
+in this spec as server-side actions:
 
 - pause and resume run requests
 - section fork stop requests
@@ -753,11 +794,10 @@ in this spec as draftable actions:
 - synthesis rerun requests
 - reference comparison requests
 
-These controls are allowed to be request surfaces before the corresponding live
-adapter exists, but they MUST still be represented as bounded action payloads
-with affected subject kind, affected subject ID, source/run identity, and
-reviewer note. Displaying a disabled or prose-only affordance is not sufficient
-when the run model contains the relevant subject.
+These controls MUST call a live Elixir action endpoint when the run server is
+available. Export-only controls are allowed only as an offline fallback and MUST
+be labeled as such. Displaying a disabled or prose-only affordance is not
+sufficient when the run model contains the relevant subject.
 
 The review UI MUST format reducer evidence for a human before exposing raw
 machine records. Witnesses and provenance SHOULD be rendered as named decision
@@ -781,16 +821,17 @@ short labeled references with full values available as diagnostic titles rather
 than as opaque wrapped strings.
 
 Browser interactions are not reducer authority by themselves. They become
-durable reducer review state only when `mix basis.ingest_actions` validates the
-run ID, source hash, action count, supported action, affected subject kind,
-affected subject ID, and subject-local invariants such as target record ID,
-current record kind, section ID, synthesis decision ID, or reference critique
-ID. Valid record accept/reject/defer actions append `human_record_decision`
-events. Other valid intervention requests append `human_intervention_requested`
-events. The reviewed projection MAY mark records as accepted for the working
-packet, rejected as pressure, or deferred, but its acceptance boundary remains
-`human_review_state_not_basis_state` until a separate Basis acceptance record is
-created.
+durable reducer review state only when the live run server or
+`mix basis.ingest_actions` validates the run ID, source hash, action count,
+supported action, affected subject kind, affected subject ID, and subject-local
+invariants such as target record ID, current record kind, section ID, synthesis
+decision ID, lens job ID, context packet ID, provider stream ID, or reference
+critique ID. Valid record accept/reject/defer actions append
+`human_record_decision` events. Other valid intervention requests append
+`human_intervention_requested` events. The reviewed projection MAY mark records
+as accepted for the working packet, rejected as pressure, or deferred, but its
+acceptance boundary remains `human_review_state_not_basis_state` until a
+separate Basis acceptance record is created.
 
 The browser MAY load reviewed artifacts, but it MUST re-check the reviewed
 artifact against the currently loaded run model before displaying reviewed
