@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">Basis reducer logo</title>
+  <desc id="desc">A document reduced through lens paths into structured state.</desc>
+  <rect x="12" y="10" width="34" height="48" rx="5" fill="#f8fafc" stroke="#20252d" stroke-width="4"/>
+  <path d="M36 10v12h10" fill="none" stroke="#20252d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M22 28h14M22 38h14M22 48h10" stroke="#667084" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="56" cy="28" r="6" fill="#087b6d"/>
+  <circle cx="56" cy="46" r="6" fill="#087b6d"/>
+  <path d="M46 30c10 0 13 4 20 9M46 48c10 0 13-4 20-9" fill="none" stroke="#087b6d" stroke-width="4" stroke-linecap="round"/>
+  <rect x="66" y="28" width="20" height="20" rx="3" fill="#ffffff" stroke="#20252d" stroke-width="4"/>
+  <path d="M76 28v20M66 38h20" stroke="#20252d" stroke-width="3" stroke-linecap="round"/>
+  <path d="M18 70h60" stroke="#d7dde7" stroke-width="5" stroke-linecap="round"/>
+  <path d="M18 70h32" stroke="#087b6d" stroke-width="5" stroke-linecap="round"/>
+</svg>

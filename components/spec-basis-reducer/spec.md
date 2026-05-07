@@ -68,6 +68,13 @@ The primary input MAY be Markdown, but Markdown structure is only source
 material. Heading trees, line anchors, and blocks are useful for provenance, not
 the native state the reducer is trying to produce.
 
+Reference corpora MAY be exposed as run-start conveniences when each sample
+names its corpus path, dossier or repository identity, document type, and local
+raw-file path. The picker is only a projection over available source material.
+It MUST NOT copy raw corpus content into the UI fixture, treat the corpus as
+accepted Basis state, or weaken source hash and provenance requirements for the
+run.
+
 ## 4. Target Projections
 
 Reduction is target-relative. A run MUST name at least one target projection.
@@ -240,16 +247,14 @@ packet scaffolds, but it MUST NOT be the authority for semantic labels such as
 `pivot`, `derived`, `redundant`, `coupled`, `missing`, `conflict`,
 `open_question`, or `rejected_alternative`.
 
-Each lens job MUST have an explicit context packet. The packet names:
-
-- lens role and reducer purpose
-- source path, source hash, section ID, and source range
-- target projections under review
-- source excerpt supplied to the model
-- prior lens results supplied to the model
-- excluded context that the lens must not rely on
-- prompt or instruction contract
-- context hash and budget
+Each lens job MUST have an explicit context packet. The packet names the lens
+role, source path, source hash, section ID, source range, target projections,
+source excerpt supplied to the model, prior lens results supplied to the model,
+excluded context, prompt contract, context hash, and budget.
+Interactive runs SHOULD request low model reasoning effort by default unless the
+run configuration explicitly asks for a higher-effort pass. The selected effort
+is execution provenance, not semantic authority, and SHOULD be visible in the
+provider turn request or run diagnostics.
 
 A semantic proposal is invalid unless it names the lens job and context packet
 that produced it. Heuristics may queue attention hints or scaffold candidates,
@@ -257,15 +262,75 @@ but a synthesis lens MUST mark those as untrusted unless a model lens or human
 review converts them into proposal evidence.
 
 The reducer MUST stream live model-provider events for every running lens job.
-The stream MUST include provider identity, Codex thread or session ID when
-available, job ID, event type, event timestamp, and raw provider line or message
-excerpt. Capturing only final model text or only thread identity is insufficient
-for end-to-end observability.
+The stream MUST be taken from the Codex app-server protocol boundary, not from a
+`codex exec` batch transcript or a simulated local timer. At minimum the stream
+MUST include provider identity, app-server process identity when available,
+Codex thread ID, Codex turn ID, job ID, event type, event timestamp, formatted
+human message, and raw protocol message behind diagnostics. Capturing only final
+model text or only thread identity is insufficient for end-to-end observability.
 
-The live UI MUST let a human inspect these streams while the run is active. When
-the source document is visible, the UI SHOULD keep thread streams beside the
-document section whose source range is currently in focus, and it SHOULD expose
-links to the underlying Codex thread for escape-hatch inspection.
+Status counters MUST distinguish local reducer jobs from app-server execution.
+A queued or starting reducer job may be displayed as pending work, but it MUST
+NOT be counted as a running Codex thread until the app-server has returned a
+thread identity. Likewise, active turns MUST be counted from app-server
+`turn/start` or `turn/started` evidence, not inferred from UI selection.
+When a start, resume, rerun, or delegation action synchronously dispatches local
+lens jobs, the API response MUST return the post-dispatch run projection rather
+than the pre-scheduling state, so the UI does not briefly represent started work
+as indefinitely queued.
+
+The live UI MUST let a human inspect app-server streams while the run is active.
+When the source document is visible, the UI SHOULD keep thread streams beside
+the document section whose source range is currently in focus, and it SHOULD
+expose links to the underlying Codex thread for escape-hatch inspection.
+The source document surface SHOULD render prose specifications as a typographic
+reading and editing surface, not as a monospaced raw-file dump. Markdown or MDX
+headings, paragraphs, lists, quotes, tables, and inline code SHOULD receive
+document-style formatting; code blocks and schema/protocol fragments MAY remain
+monospaced. Source line anchors MUST remain available for provenance and
+diagram highlighting even when line numbers are visually secondary.
+
+Lens jobs SHOULD receive Codex app-server `dynamicTools` for visible reducer
+instrumentation. Initial tool classes are:
+
+- `basis_show_thought`: publish a concise human-visible reducer note into the
+  live stream
+- `basis_show_mermaid`: publish a Mermaid diagram for topology, dependency,
+  conflict, or split-pressure inspection
+- `basis_delegate_lens`: request a bounded helper lens when side analysis would
+  bloat the current thread
+
+Dynamic tool calls are app-server protocol events. The reducer MUST record the
+tool request, arguments, thread ID, turn ID, and response as run events. A
+dynamic tool call MAY create a queued helper lens, but it MUST NOT mutate
+accepted Basis state directly. The helper lens MUST receive a scoped context
+packet derived from the parent job and MUST name the parent job as provenance.
+Delegation SHOULD be preferred when a lens needs a diagram, counterexample
+search, fidelity check, or other sidecar analysis that would make the current
+thread harder to review.
+
+The live UI SHOULD render app-server reasoning summary deltas as visible notes,
+render `basis_show_mermaid` arguments as Mermaid diagrams with source fallback,
+and render `basis_delegate_lens` calls as delegate requests tied to the queued
+helper job. Raw protocol messages SHOULD remain inspectable as diagnostics, but
+ordinary review SHOULD use the formatted dynamic-tool projection.
+
+The live stream view SHOULD keep generated assistant text in a collapsed
+transcript instead of showing a continuously scrolling protocol log. Raw
+app-server messages SHOULD also be collapsed until a human explicitly opens the
+diagnostic log.
+
+Generated assistant text SHOULD NOT occupy the default live review surface when
+summary or diagram projections exist. The default surface should reserve space
+for diagram cards, summary cards, source anchors, and result evidence; generated
+text and protocol events should appear only behind explicit disclosure controls.
+Lens job cards SHOULD be collapsed by default so section selection does not
+consume diagram space.
+
+Mermaid tool calls SHOULD support source anchors. A diagram may name a
+`source_anchor` containing `section_id`, `start_line`, `end_line`, and/or an
+exact `quote`. The UI SHOULD highlight the matching source block in the
+document so the human can see which spec text the diagram projects.
 
 ## 9. Human Intervention Interface
 
@@ -327,6 +392,40 @@ packet. Section status, fork topology, reference comparison, and activity logs
 SHOULD remain available, but they MAY be collapsed, compacted, or moved to
 diagnostic rails when the run is healthy. A human SHOULD NOT need to inspect the
 fork tree or raw event log to answer an ordinary intervention.
+
+The source document is the primary editor surface. Line anchors SHOULD appear
+close to the source sentence they identify and SHOULD be directly actionable.
+Clicking a line anchor SHOULD open a source-anchored feedback composer with a
+preview of the effect before the feedback is applied. Applying feedback MUST
+record an intervention event and SHOULD queue an intent-refinement lens so the
+reducer can adjust its search without treating the feedback as accepted Basis
+state. Additive feedback is valid; the UI MUST NOT assume every human comment is
+a replacement or correction.
+
+The source document SHOULD be readable before a run starts. A pre-run preview
+MAY load source sections, line anchors, and document formatting without creating
+LLM jobs, Codex threads, or reducer events. This preview is a projection over
+source material only; it MUST NOT be counted as an active run or accepted Basis
+state.
+
+Reducer runs SHOULD assume all source sections are in scope by default. A human
+MAY explicitly exclude a section before analysis from a section-local control in
+the document gutter. Exclusion is run configuration and provenance; it MUST be
+visible in source coverage and MUST NOT delete, hide, or rewrite the source
+section itself.
+
+The run header SHOULD be compact. Common controls SHOULD use familiar icon
+forms with accessible labels for document sample, section count, concurrency,
+start, pause, resume, and diagnostics. Branding MAY use a small generated mark
+when it reinforces the reducer ethos of document-first context custody,
+provenance, and structured state rather than acting as decorative marketing.
+
+Telemetry, context packets, raw protocol logs, and thread lists SHOULD be hidden
+from the default document view. They MAY appear in an inspector or diagnostic
+drawer when explicitly requested. While a model is producing useful information,
+the UI SHOULD surface compact floating hints above the document, and expand into
+larger diagrams, summaries, or diagnostics only when there is generated material
+or the human asks for it.
 
 An askable question packet SHOULD include:
 
@@ -500,6 +599,12 @@ Each state transition MUST name its owner:
 - `synthesis_worker`: merge and packet generation session
 - `human`: intervention, acceptance, rejection, or instruction change
 - `validator`: schema, provenance, or reference comparison gate
+
+App-server-backed workers MUST run from a per-run or per-job execution
+workspace below the reducer component, not from the repository top level. The
+run model MUST record that execution workspace as provenance. Source material
+remains explicit context supplied through packets and read-only references; a
+worker's current directory is not semantic authority.
 
 Blocking conditions SHOULD include:
 

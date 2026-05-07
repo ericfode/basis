@@ -1,0 +1,15 @@
+[tools]
+erlang = "28.5"
+elixir = "1.19.5-otp-28"
+
+[tasks.setup]
+description = "Install the Basis reducer runtime and compile the project."
+run = "scripts/setup-codex-env.sh"
+
+[tasks.test]
+description = "Run the reducer test gate."
+run = "mix test"
+
+[tasks.server]
+description = "Start the local Basis reducer UI server."
+run = "mix basis.server"

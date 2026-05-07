@@ -1,4 +1,5 @@
 /_build/
 /deps/
 /.elixir_ls/
+/components/spec-basis-reducer/.basis/
 /components/spec-basis-reducer/out/
