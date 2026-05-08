@@ -18,6 +18,54 @@ defmodule Basis.Source do
     }
   end
 
+  def preview(path) do
+    source = read!(path)
+
+    %{
+      run_id: nil,
+      mode: "reducer",
+      status: "preview",
+      provider: "Preview",
+      started_at: nil,
+      updated_at: nil,
+      source: Map.take(source, [:path, :hash, :line_count]),
+      target_projections: [],
+      implementation_target: nil,
+      section_limit: length(source.sections),
+      max_concurrency: 2,
+      branch_count: 3,
+      max_depth: 4,
+      focused_branch: nil,
+      steering_notes: [],
+      rejected_paths: [],
+      counts: %{
+        events: 0,
+        sections: 0,
+        jobs: 0,
+        queued: 0,
+        running: 0,
+        completed: 0,
+        failed: 0,
+        stopped: 0,
+        codex_threads: 0,
+        active_codex_turns: 0,
+        records: 0,
+        questions: 0
+      },
+      sections: Enum.map(source.sections, &Map.delete(&1, :text)),
+      document_sections: source.sections,
+      jobs: [],
+      context_packets: [],
+      streams: %{},
+      results: [],
+      proposed_records: [],
+      questions: [],
+      imaginer: nil,
+      interventions: [],
+      events: []
+    }
+  end
+
   def sections(text) do
     lines = String.split(text, "\n", trim: false)
 

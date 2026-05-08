@@ -353,6 +353,24 @@ defmodule Basis.Run.Server do
     {state, state}
   end
 
+  defp apply_action(state, %{"type" => "line_feedback"} = action) do
+    state =
+      append_event(
+        state,
+        "human_line_feedback",
+        "human",
+        action |> Map.get("body", "") |> to_string() |> String.slice(0, 1_000),
+        %{
+          mode: Map.get(action, "mode", "additive"),
+          section_id: Map.get(action, "section_id"),
+          line_number: action |> Map.get("line_number") |> to_integer_or_nil(),
+          source_text: Map.get(action, "source_text", "")
+        }
+      )
+
+    {state, state}
+  end
+
   defp apply_action(
          %{mode: "imaginer"} = state,
          %{"type" => "steer_search", "body" => body} = action
@@ -1632,8 +1650,13 @@ defmodule Basis.Run.Server do
       proposed_records: records,
       questions: questions,
       imaginer: imaginer_projection(state, result_values, records),
+      interventions: interventions(state.events),
       events: Enum.take(state.events, -250)
     }
+  end
+
+  defp interventions(events) do
+    Enum.filter(events, &(&1.type in ["human_line_feedback", "human_note", "human_record_decision"]))
   end
 
   defp imaginer_projection(%{mode: "imaginer"} = state, results, records) do
@@ -2200,6 +2223,17 @@ defmodule Basis.Run.Server do
   end
 
   defp clamp_integer(_value, min, _max), do: min
+
+  defp to_integer_or_nil(value) when is_integer(value), do: value
+
+  defp to_integer_or_nil(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {number, _rest} -> number
+      :error -> nil
+    end
+  end
+
+  defp to_integer_or_nil(_value), do: nil
 
   defp provider_module do
     Application.get_env(:basis, :llm_provider, Basis.LLM.AppServerProvider)

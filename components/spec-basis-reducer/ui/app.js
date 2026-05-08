@@ -7,6 +7,7 @@ import {
   renderFrontierGraph,
   selectedClusterDetails
 } from "./frontier.js";
+import { renderSpecDocument } from "./renderers/spec-document.js";
 
 const els = {
   runMeta: document.querySelector("#runMeta"),
@@ -65,11 +66,16 @@ let selectedBranchId = null;
 let selectedGraphNodeId = null;
 let currentFrontierGraph = null;
 let selectedCluster = null;
-let inspectorOpen = false;
+let inspectorOpen = document.body.dataset.appShell === "reducer";
 let selectedPanelOpen = true;
 let selectedPanelScroll = { clusterId: null, top: 0, left: 0 };
 let observer = null;
 let panState = null;
+let activeSourceReference = null;
+let activeChoicePreview = null;
+let suppressSectionObserverUntil = 0;
+
+const API_ORIGIN = window.location.protocol === "file:" ? "http://127.0.0.1:8767" : "";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -79,14 +85,18 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
+function escapeAttr(value) {
+  return escapeHtml(value).replaceAll("'", "&#39;").replace(/\r?\n/g, "&#10;");
+}
+
 async function getRun() {
-  const response = await fetch("/api/run");
+  const response = await fetch(apiUrl("/api/run"));
   snapshot = await response.json();
   render();
 }
 
 async function postJson(path, payload) {
-  const response = await fetch(path, {
+  const response = await fetch(apiUrl(path), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload)
@@ -96,7 +106,7 @@ async function postJson(path, payload) {
 }
 
 function connectEvents() {
-  const events = new EventSource("/api/events");
+  const events = new EventSource(apiUrl("/api/events"));
   events.addEventListener("open", () => setConnection("live"));
   events.addEventListener("error", () => setConnection("offline"));
   events.addEventListener("snapshot", event => {
@@ -104,6 +114,10 @@ function connectEvents() {
     render();
   });
   events.addEventListener("event", () => getRun());
+}
+
+function apiUrl(path) {
+  return `${API_ORIGIN}${path}`;
 }
 
 function startPollingFallback() {
@@ -161,13 +175,60 @@ function renderDocument() {
         </div>
         <div class="section-body">
           <h2>${escapeHtml(section.title)}</h2>
-          <pre class="source-text">${escapeHtml(section.text)}</pre>
+          ${renderSourceText(section)}
         </div>
       </section>
     `;
   }).join("");
 
   installSectionObserver();
+  bindDocumentInteractions();
+}
+
+function renderSourceText(section) {
+  const anchors = [
+    ...feedbackAnchorsForSection(section),
+    ...sourceReferenceAnchorsForSection(section),
+    ...choicePreviewAnchorsForSection(section)
+  ];
+  return renderSpecDocument(section, anchors);
+}
+
+function projectionEvents() {
+  const seen = new Set();
+  return [...(snapshot.events || []), ...(snapshot.interventions || [])]
+    .filter(event => {
+      const id = event.id || `${event.type}-${event.timestamp}-${event.message}`;
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    })
+    .sort((a, b) => timestampValue(a.timestamp) - timestampValue(b.timestamp));
+}
+
+function feedbackAnchorsForSection(section) {
+  return projectionEvents()
+    .filter(event => event.type === "human_line_feedback")
+    .filter(event => event.payload?.section_id === section.id)
+    .map(event => ({
+      kind: "feedback",
+      section_id: section.id,
+      start_line: Number(event.payload?.line_number),
+      end_line: Number(event.payload?.line_number),
+      quote: event.payload?.source_text || "",
+      title: "Intent guidance applied",
+      body: `Recorded ${event.payload?.mode || "additive"} guidance for line ${event.payload?.line_number || "the selected line"}.`
+    }));
+}
+
+function sourceReferenceAnchorsForSection(section) {
+  if (!activeSourceReference || activeSourceReference.section_id !== section.id) return [];
+  return [activeSourceReference];
+}
+
+function choicePreviewAnchorsForSection(section) {
+  if (!activeChoicePreview || activeChoicePreview.section_id !== section.id) return [];
+  return [activeChoicePreview];
 }
 
 function statusSummary(sectionCount, counts) {
@@ -182,6 +243,7 @@ function statusSummary(sectionCount, counts) {
 }
 
 function renderImaginer() {
+  if (!els.imaginerPanel) return;
   const imaginer = snapshot.imaginer;
   const isImaginer = snapshot.mode === "imaginer" && imaginer;
   els.imaginerPanel.hidden = !isImaginer;
@@ -212,6 +274,7 @@ function renderImaginer() {
 }
 
 function renderFrontier(frontierGraph) {
+  if (!els.frontierFocus || !els.frontierGraph) return;
   const selected = frontierNodeById(frontierGraph, selectedGraphNodeId);
   els.frontierFocus.textContent = selected
     ? `${selected.eyebrow} | ${selected.label}`
@@ -225,6 +288,7 @@ function renderFrontier(frontierGraph) {
 }
 
 function renderClusterSupport(frontierGraph, cluster) {
+  if (!els.decisionGraph || !els.decisionGraphStats || !els.branchRollupStats || !els.branchRollups || !els.planTraceStats || !els.planTrace) return;
   const selectedPanel = els.decisionGraph.closest("section");
 
   if (!cluster) {
@@ -431,6 +495,7 @@ function layerTooltip(layer) {
 }
 
 function renderSteeringTarget(cluster) {
+  if (!els.steerTarget || !els.steerForm || !els.rejectBranch) return;
   if (!cluster) {
     els.steerTarget.textContent = "Target: no selected decision or impact.";
     els.steerForm.dataset.targetKind = "none";
@@ -452,6 +517,7 @@ function renderSteeringTarget(cluster) {
 }
 
 function updateSteerFormState() {
+  if (!els.steerForm || !els.steerBody) return;
   els.steerForm.dataset.empty = els.steerBody.value.trim() ? "false" : "true";
 }
 
@@ -563,6 +629,7 @@ function focusSelectedFrontierNode() {
 
 function scrollNodeIntoFrontier(node) {
   const viewport = els.frontierViewport;
+  if (!viewport) return;
   const nodeRect = node.getBoundingClientRect();
   const viewportRect = viewport.getBoundingClientRect();
   const margin = 42;
@@ -584,6 +651,17 @@ function scrollNodeIntoFrontier(node) {
   if (left || top) viewport.scrollBy({ left, top, behavior: "smooth" });
 }
 
+function bindDocumentInteractions() {
+  document.querySelectorAll(".line-marker").forEach(button => {
+    button.addEventListener("click", () => {
+      const line = Number(button.dataset.line);
+      const body = `Line ${line} guidance: `;
+      els.noteBody.value = body;
+      els.noteBody.focus();
+    });
+  });
+}
+
 function installSectionObserver() {
   if (observer) observer.disconnect();
   const sections = [...document.querySelectorAll(".doc-section[data-section-id]")];
@@ -592,6 +670,7 @@ function installSectionObserver() {
       .filter(entry => entry.isIntersecting)
       .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
     if (!visible) return;
+    if (Date.now() < suppressSectionObserverUntil) return;
     const id = visible.target.dataset.sectionId;
     if (id && id !== selectedSectionId) {
       selectedSectionId = id;
@@ -750,10 +829,46 @@ function renderStream(job) {
   }
 
   const stream = snapshot.streams?.[job.id] || [];
+  const evidenceMap = renderEvidenceMap(job);
   els.liveStream.innerHTML = stream.length
-    ? stream.map(renderStreamEvent).join("")
-    : `<div class="stream-empty">Waiting for Codex app-server events.</div>`;
-  els.liveStream.scrollTop = els.liveStream.scrollHeight;
+    ? `${evidenceMap}${stream.map(renderStreamEvent).join("")}`
+    : evidenceMap || `<div class="stream-empty">Waiting for Codex app-server events.</div>`;
+  els.liveStream.scrollTop = evidenceMap ? 0 : els.liveStream.scrollHeight;
+}
+
+function renderEvidenceMap(job) {
+  const result = resultForJob(job);
+  if (!result) return "";
+
+  const findings = (result.findings || []).slice(0, 6);
+  if (!findings.length) return "";
+
+  return `
+    <article class="evidence-map">
+      <div class="evidence-map-head">
+        <strong>Evidence Map</strong>
+        <span>derived from completed result</span>
+      </div>
+      <div class="evidence-map-body">
+        <div class="evidence-node source-node">${escapeHtml(job.section_title || job.title || job.lens_role || "source")}</div>
+        <div class="evidence-edges">
+          ${findings.map(finding => {
+            const ref = sourceRefFromText(finding.evidence || finding.falsifiable_test || "", job) || sourceRefForJob(job);
+            return `
+              <button type="button"
+                class="evidence-node"
+                data-source-ref
+                data-section-id="${escapeAttr(ref?.section_id || "")}"
+                data-start-line="${escapeAttr(ref?.start_line || "")}"
+                data-end-line="${escapeAttr(ref?.end_line || ref?.start_line || "")}">
+                ${escapeHtml(finding.title || finding.kind || "finding")}
+              </button>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    </article>
+  `;
 }
 
 function renderStreamEvent(item) {
@@ -840,12 +955,76 @@ function formatMessage(message) {
   const text = String(message || "");
   if (text.trim().startsWith("{") || text.trim().startsWith("[")) {
     try {
-      return `<pre>${escapeHtml(JSON.stringify(JSON.parse(text), null, 2))}</pre>`;
+      const parsed = JSON.parse(text);
+      if (isChoicePacket(parsed)) return renderChoicePacket(parsed, selectedJob());
+      return `<pre>${escapeHtml(JSON.stringify(parsed, null, 2))}</pre>`;
     } catch {
       return escapeHtml(text);
     }
   }
   return escapeHtml(text);
+}
+
+function isChoicePacket(value) {
+  return value && Array.isArray(value.questions) && value.questions.length > 0;
+}
+
+function renderChoicePacket(packet, job) {
+  return `
+    <div class="choice-packet">
+      <div class="choice-packet-head">
+        <strong>Choice Packet</strong>
+        <span>${escapeHtml(packet.questions.length)} ${packet.questions.length === 1 ? "choice" : "choices"}</span>
+      </div>
+      ${packet.questions.map((question, index) => renderChoiceCard(question, index, job)).join("")}
+      <details class="choice-raw">
+        <summary>raw packet</summary>
+        <pre>${escapeHtml(JSON.stringify(packet, null, 2))}</pre>
+      </details>
+    </div>
+  `;
+}
+
+function renderChoiceCard(question, index, job) {
+  const ref = sourceRefFromText(JSON.stringify(question), job) || sourceRefForJob(job);
+  const title = question.title || question.question || `Choice ${index + 1}`;
+  const body = choiceDraftText(question);
+
+  return `
+    <article class="choice-card">
+      <div class="choice-card-head">
+        <strong>${escapeHtml(title)}</strong>
+        ${ref?.start_line ? `<span>lines ${escapeHtml(ref.start_line)}-${escapeHtml(ref.end_line || ref.start_line)}</span>` : ""}
+      </div>
+      ${question.question ? `<p>${escapeHtml(question.question)}</p>` : ""}
+      ${question.why_now ? `<p class="choice-note">${escapeHtml(question.why_now)}</p>` : ""}
+      ${question.decision_effect ? `<div class="draft-edit-preview"><strong>Effect</strong><span>${escapeHtml(question.decision_effect)}</span></div>` : ""}
+      <div class="choice-actions">
+        <button type="button"
+          data-preview-choice
+          data-section-id="${escapeAttr(ref?.section_id || "")}"
+          data-start-line="${escapeAttr(ref?.start_line || "")}"
+          data-end-line="${escapeAttr(ref?.end_line || ref?.start_line || "")}"
+          data-choice-title="${escapeAttr(title)}"
+          data-choice-body="${escapeAttr(body)}">Preview edit</button>
+        <button type="button"
+          data-apply-choice
+          data-section-id="${escapeAttr(ref?.section_id || "")}"
+          data-start-line="${escapeAttr(ref?.start_line || "")}"
+          data-end-line="${escapeAttr(ref?.end_line || ref?.start_line || "")}"
+          data-choice-title="${escapeAttr(title)}"
+          data-choice-body="${escapeAttr(body)}">Apply as guidance</button>
+      </div>
+    </article>
+  `;
+}
+
+function choiceDraftText(question) {
+  return [
+    question.question ? `Selected choice: ${question.question}` : "",
+    question.decision_effect ? `Document effect: ${question.decision_effect}` : "",
+    question.why_now ? `Why now: ${question.why_now}` : ""
+  ].filter(Boolean).join("\n");
 }
 
 function formatRaw(raw, parsed) {
@@ -880,6 +1059,11 @@ function renderContext(job) {
   ` : `<p>No packet found.</p>`;
 }
 
+function resultForJob(job) {
+  if (!job) return null;
+  return (snapshot.results || []).find(item => item.job_id === job.id) || null;
+}
+
 function renderResults(job) {
   if (!job) {
     els.resultCount.textContent = "0";
@@ -887,18 +1071,41 @@ function renderResults(job) {
     return;
   }
 
-  const result = (snapshot.results || []).find(item => item.job_id === job.id);
+  const result = resultForJob(job);
   const findings = result?.findings || [];
   els.resultCount.textContent = String(findings.length);
   els.resultEvidence.innerHTML = result ? `
-    <div class="finding"><strong>Summary</strong>${escapeHtml(result.summary || "No summary.")}</div>
+    <div class="finding"><strong>Summary</strong><span>${renderSourceLinkedText(result.summary || "No summary.", job)}</span></div>
     ${findings.map(finding => `
       <div class="finding">
         <strong>${escapeHtml(finding.title || finding.kind || "finding")}</strong>
-        <span>${escapeHtml(finding.evidence || finding.falsifiable_test || "")}</span>
+        <span>${renderSourceLinkedText(finding.evidence || finding.falsifiable_test || "", job)}</span>
       </div>
     `).join("")}
   ` : `<p>No completed result yet.</p>`;
+}
+
+function renderSourceLinkedText(text, job) {
+  const value = String(text || "");
+  const refs = lineReferencesInText(value, job);
+  if (!refs.length) return escapeHtml(value);
+
+  let cursor = 0;
+  const html = [];
+  refs.forEach(ref => {
+    html.push(escapeHtml(value.slice(cursor, ref.index)));
+    html.push(`
+      <button type="button"
+        class="source-ref"
+        data-source-ref
+        data-section-id="${escapeAttr(ref.section_id)}"
+        data-start-line="${escapeAttr(ref.start_line)}"
+        data-end-line="${escapeAttr(ref.end_line)}">${escapeHtml(ref.label)}</button>
+    `);
+    cursor = ref.end_index;
+  });
+  html.push(escapeHtml(value.slice(cursor)));
+  return html.join("");
 }
 
 function bindRailButtons() {
@@ -916,6 +1123,168 @@ function bindRailButtons() {
   document.querySelectorAll("[data-rerun-job]").forEach(button => {
     button.addEventListener("click", () => postJson("/api/actions", { type: "rerun_lens", job_id: button.dataset.rerunJob }));
   });
+
+  document.querySelectorAll("[data-source-ref]").forEach(button => {
+    button.addEventListener("mouseenter", () => previewSourceReference(button));
+    button.addEventListener("focus", () => previewSourceReference(button));
+    button.addEventListener("click", () => previewSourceReference(button));
+    button.addEventListener("mouseleave", clearSourceReference);
+    button.addEventListener("blur", clearSourceReference);
+  });
+
+  document.querySelectorAll("[data-preview-choice]").forEach(button => {
+    button.addEventListener("click", () => previewChoice(button));
+  });
+
+  document.querySelectorAll("[data-apply-choice]").forEach(button => {
+    button.addEventListener("click", () => applyChoice(button));
+  });
+}
+
+function referenceFromButton(button, kind = "source_reference") {
+  const start = Number(button.dataset.startLine);
+  const end = Number(button.dataset.endLine || button.dataset.startLine);
+  return {
+    kind,
+    section_id: button.dataset.sectionId || selectedSectionId || "",
+    start_line: Number.isFinite(start) ? start : null,
+    end_line: Number.isFinite(end) ? end : start,
+    title: button.dataset.choiceTitle || "Source reference",
+    body: button.dataset.choiceBody || ""
+  };
+}
+
+function previewSourceReference(button) {
+  activeSourceReference = referenceFromButton(button, "source_reference");
+  renderDocument();
+  scrollToSourceReference(activeSourceReference);
+}
+
+function clearSourceReference() {
+  if (!activeSourceReference) return;
+  activeSourceReference = null;
+  renderDocument();
+}
+
+function previewChoice(button) {
+  activeChoicePreview = {
+    ...referenceFromButton(button, "choice_preview"),
+    title: "Choice preview",
+    body: button.dataset.choiceBody || "Previewing the selected choice as source-anchored guidance."
+  };
+  renderDocument();
+  scrollToSourceReference(activeChoicePreview);
+}
+
+async function applyChoice(button) {
+  const anchor = referenceFromButton(button, "choice_preview");
+  const body = button.dataset.choiceBody || button.dataset.choiceTitle || "Choice selected.";
+  activeChoicePreview = {
+    ...anchor,
+    title: "Choice selected",
+    body
+  };
+  renderDocument();
+  scrollToSourceReference(activeChoicePreview);
+
+  await postJson("/api/actions", {
+    type: "line_feedback",
+    body,
+    mode: "additive",
+    section_id: anchor.section_id,
+    line_number: anchor.start_line,
+    source_text: button.dataset.choiceTitle || "choice packet"
+  });
+}
+
+function scrollToSourceReference(anchor) {
+  if (!anchor) return;
+  els.sourceDrawer.open = true;
+  suppressSectionObserverUntil = Date.now() + 900;
+  window.requestAnimationFrame(() => {
+    const line = anchor.start_line ? String(anchor.start_line) : "";
+    const target =
+      (line && document.querySelector(`.source-line[data-line="${CSS.escape(line)}"]`)) ||
+      (anchor.section_id && document.querySelector(`.doc-section[data-section-id="${CSS.escape(anchor.section_id)}"]`));
+    target?.scrollIntoView({ block: "center", behavior: "smooth" });
+  });
+}
+
+function sectionForLine(line) {
+  const number = Number(line);
+  if (!Number.isFinite(number)) return null;
+  return (snapshot.document_sections || []).find(section => {
+    return number >= Number(section.start_line) && number <= Number(section.end_line);
+  }) || null;
+}
+
+function sectionForJob(job) {
+  if (!job) return null;
+  return (snapshot.document_sections || []).find(item => item.id === job.section_id) || null;
+}
+
+function contextPacketForJob(job) {
+  if (!job) return null;
+  return (snapshot.context_packets || []).find(item => item.id === job.context_packet) || null;
+}
+
+function sourceRefForJob(job) {
+  const section = sectionForJob(job);
+  const range = parseLineRange(contextPacketForJob(job)?.source_range || "");
+  return {
+    kind: "source_reference",
+    section_id: job?.section_id || section?.id || "",
+    start_line: range.start_line || Number(section?.start_line) || null,
+    end_line: range.end_line || Number(section?.end_line) || null,
+    title: "Source reference",
+    body: section ? `${section.title} source range` : "Job source range"
+  };
+}
+
+function sourceRefFromText(text, job = null) {
+  return lineReferencesInText(text, job)[0] || null;
+}
+
+function lineReferencesInText(text, job = null) {
+  const refs = [];
+  const pattern = /\b[Ll]ines?\s+(\d+)(?:\s*(?:-|–|to)\s*(\d+))?/g;
+  let match;
+
+  while ((match = pattern.exec(String(text || ""))) !== null) {
+    const start = Number(match[1]);
+    const end = Number(match[2] || match[1]);
+    const section = sectionForLine(start) || sectionForJob(job);
+    refs.push({
+      label: match[0],
+      index: match.index,
+      end_index: match.index + match[0].length,
+      kind: "source_reference",
+      section_id: section?.id || job?.section_id || "",
+      start_line: Math.min(start, end),
+      end_line: Math.max(start, end),
+      title: "Source reference",
+      body: match[0]
+    });
+  }
+
+  return refs;
+}
+
+function parseLineRange(value) {
+  const match = String(value || "").match(/(\d+)\s*(?:-|:|to|–)\s*(\d+)/i);
+  if (!match) return {};
+  const start = Number(match[1]);
+  const end = Number(match[2]);
+  return {
+    start_line: Number.isFinite(start) ? Math.min(start, end) : null,
+    end_line: Number.isFinite(end) ? Math.max(start, end) : null
+  };
+}
+
+function timestampValue(value) {
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
 }
 
 els.startForm.addEventListener("submit", event => {
@@ -925,18 +1294,18 @@ els.startForm.addEventListener("submit", event => {
   selectedBranchId = null;
   selectedGraphNodeId = null;
   postJson("/api/start", {
-    mode: els.mode.value,
+    mode: els.mode?.value || "reducer",
     source_path: els.sourcePath.value.trim(),
     targets: els.targets.value.split(",").map(item => item.trim()).filter(Boolean),
-    implementation_target: els.implementationTarget.value.trim(),
+    implementation_target: els.implementationTarget?.value.trim() || "",
     section_limit: Number(els.sectionLimit.value || 3),
     max_concurrency: Number(els.maxConcurrency.value || 2),
-    branch_count: Number(els.branchCount.value || 3),
-    max_depth: Number(els.maxDepth.value || 4)
+    branch_count: Number(els.branchCount?.value || 3),
+    max_depth: Number(els.maxDepth?.value || 4)
   });
 });
 
-els.mode.addEventListener("change", () => {
+els.mode?.addEventListener("change", () => {
   if (els.mode.value === "imaginer") {
     els.sourcePath.value = "components/implementation-imaginer/spec.md";
     els.targets.value = "implementation_plan";
@@ -954,13 +1323,13 @@ els.closeThreadInspector.addEventListener("click", () => {
   renderRail();
 });
 
-els.closeSelectedPanel.addEventListener("click", () => {
+els.closeSelectedPanel?.addEventListener("click", () => {
   selectedPanelOpen = false;
-  const selectedPanel = els.decisionGraph.closest("section");
+  const selectedPanel = els.decisionGraph?.closest("section");
   if (selectedPanel) selectedPanel.dataset.popover = "closed";
 });
 
-els.steerForm.addEventListener("submit", event => {
+els.steerForm?.addEventListener("submit", event => {
   event.preventDefault();
   const body = els.steerBody.value.trim();
   if (!body) return;
@@ -974,7 +1343,7 @@ els.steerForm.addEventListener("submit", event => {
   updateSteerFormState();
 });
 
-els.queueBranch.addEventListener("click", () => {
+els.queueBranch?.addEventListener("click", () => {
   const target = selectedCluster?.label || "current search state";
   const body = els.steerBody.value.trim() || `Fork a human-steered branch from ${target}.`;
   postJson("/api/actions", {
@@ -986,7 +1355,7 @@ els.queueBranch.addEventListener("click", () => {
   updateSteerFormState();
 });
 
-els.rejectBranch.addEventListener("click", () => {
+els.rejectBranch?.addEventListener("click", () => {
   const branchId = selectedCluster?.branch_id;
   if (!branchId) return;
   const body = els.steerBody.value.trim() || `Reject ${selectedCluster?.label || branchId} as the next planning direction.`;
@@ -999,7 +1368,7 @@ els.rejectBranch.addEventListener("click", () => {
   updateSteerFormState();
 });
 
-els.steerBody.addEventListener("input", updateSteerFormState);
+els.steerBody?.addEventListener("input", updateSteerFormState);
 
 els.noteForm.addEventListener("submit", event => {
   event.preventDefault();
@@ -1037,7 +1406,7 @@ function applyQueryDefaults() {
 function installHotkeys() {
   document.addEventListener("keydown", event => {
     if (isTypingTarget(event.target)) return;
-    if (!els.frontierViewport || els.imaginerPanel.hidden) return;
+    if (!els.frontierViewport || !els.imaginerPanel || els.imaginerPanel.hidden) return;
 
     const scrollStep = event.shiftKey ? 420 : 180;
 
@@ -1063,6 +1432,7 @@ function installHotkeys() {
       els.frontierViewport.focus();
       event.preventDefault();
     } else if (event.key === "s") {
+      if (!els.steerBody) return;
       els.steerBody.focus();
       event.preventDefault();
     } else if (event.key === "t") {
@@ -1078,6 +1448,7 @@ function isTypingTarget(target) {
 
 function installFrontierPan() {
   const viewport = els.frontierViewport;
+  if (!viewport) return;
   viewport.addEventListener("pointerdown", event => {
     if (event.button !== 0 || event.target.closest("button, input, textarea, select, summary")) return;
     panState = {

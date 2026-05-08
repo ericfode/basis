@@ -118,12 +118,20 @@ defmodule Basis.Web.Server do
   end
 
   defp dispatch(socket, %{method: "GET", target: target}) do
-    path = target |> URI.parse() |> Map.fetch!(:path)
+    uri = URI.parse(target)
+    path = uri.path
 
-    if String.starts_with?(path, "/ui/") do
-      serve_static(socket, path)
-    else
-      json(socket, 404, %{error: "not_found"})
+    cond do
+      path == "/api/preview" ->
+        params = URI.decode_query(uri.query || "")
+        source_path = Map.get(params, "source_path", "components/spec-basis-reducer/spec.md")
+        json(socket, 200, Basis.Source.preview(source_path))
+
+      String.starts_with?(path, "/ui/") ->
+        serve_static(socket, path)
+
+      true ->
+        json(socket, 404, %{error: "not_found"})
     end
   end
 

@@ -1,0 +1,1535 @@
+import { CORPUS_SAMPLES } from "./reducer-corpus-samples.js";
+import { renderSpecDocument } from "./reducer-spec-document.js";
+
+const els = {
+  runMeta: document.querySelector("#runMeta"),
+  startForm: document.querySelector("#startForm"),
+  corpusSample: document.querySelector("#corpusSample"),
+  sourcePath: document.querySelector("#sourcePath"),
+  targets: document.querySelector("#targets"),
+  maxConcurrency: document.querySelector("#maxConcurrency"),
+  toggleInspector: document.querySelector("#toggleInspector"),
+  documentStatus: document.querySelector("#documentStatus"),
+  hintLayer: document.querySelector("#hintLayer"),
+  feedbackComposer: document.querySelector("#feedbackComposer"),
+  documentSections: document.querySelector("#documentSections"),
+  activeSectionTitle: document.querySelector("#activeSectionTitle"),
+  activeSectionMeta: document.querySelector("#activeSectionMeta"),
+  connectionState: document.querySelector("#connectionState"),
+  threadCount: document.querySelector("#threadCount"),
+  threadList: document.querySelector("#threadList"),
+  selectedJobLabel: document.querySelector("#selectedJobLabel"),
+  visibleOutputs: document.querySelector("#visibleOutputs"),
+  liveStream: document.querySelector("#liveStream"),
+  contextHash: document.querySelector("#contextHash"),
+  contextPacket: document.querySelector("#contextPacket"),
+  resultCount: document.querySelector("#resultCount"),
+  resultEvidence: document.querySelector("#resultEvidence"),
+  pauseRun: document.querySelector("#pauseRun"),
+  resumeRun: document.querySelector("#resumeRun"),
+  noteForm: document.querySelector("#noteForm"),
+  noteBody: document.querySelector("#noteBody")
+};
+
+let snapshot = null;
+let selectedSectionId = null;
+let selectedJobId = null;
+let observer = null;
+let mermaidPromise = null;
+let mermaidRenderCounter = 0;
+let refreshInFlight = false;
+let refreshPending = false;
+let selectedFeedbackLine = null;
+let previewTimer = null;
+let excludedSectionIds = new Set();
+let localFeedbackEvents = [];
+let activeSourceReference = null;
+let activeChoicePreview = null;
+let suppressSectionObserverUntil = 0;
+
+const API_ORIGIN = window.location.protocol === "file:" ? "http://127.0.0.1:8767" : "";
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value).replaceAll("'", "&#39;").replace(/\r?\n/g, "&#10;");
+}
+
+async function getRun() {
+  if (refreshInFlight) {
+    refreshPending = true;
+    return;
+  }
+
+  refreshInFlight = true;
+  try {
+    const response = await fetch(apiUrl("/api/run"), { cache: "no-store" });
+    applySnapshot(await response.json());
+  } finally {
+    refreshInFlight = false;
+    if (refreshPending) {
+      refreshPending = false;
+      getRun();
+    }
+  }
+}
+
+async function loadPreview() {
+  if (snapshot?.run_id) return;
+  const params = new URLSearchParams({
+    source_path: els.sourcePath.value.trim()
+  });
+  const response = await fetch(apiUrl(`/api/preview?${params.toString()}`), { cache: "no-store" });
+  const preview = await response.json();
+  if (!snapshot?.run_id) applySnapshot(preview, { force: true });
+}
+
+async function postJson(path, payload) {
+  const response = await fetch(apiUrl(path), {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  const next = await response.json();
+  applySnapshot(next, { force: true });
+  return next;
+}
+
+function connectEvents() {
+  const events = new EventSource(apiUrl("/api/events"));
+  events.addEventListener("open", () => setConnection("live"));
+  events.addEventListener("error", () => setConnection("offline"));
+  events.addEventListener("snapshot", event => {
+    applySnapshot(JSON.parse(event.data));
+  });
+  events.addEventListener("event", () => getRun());
+}
+
+function apiUrl(path) {
+  return `${API_ORIGIN}${path}`;
+}
+
+function applySnapshot(next, options = {}) {
+  if (!options.force && !shouldApplySnapshot(next)) return;
+  if (next?.run_id && next.run_id !== snapshot?.run_id) {
+    localFeedbackEvents = loadLocalFeedbackEvents(next.run_id);
+  } else if (!next?.run_id) {
+    localFeedbackEvents = [];
+  }
+  snapshot = next;
+  render();
+}
+
+function shouldApplySnapshot(next) {
+  if (!next) return false;
+  if (!snapshot) return true;
+  if (!snapshot.run_id) return true;
+  if (!next.run_id) return false;
+
+  if (next.run_id !== snapshot.run_id) {
+    return timestampValue(next.started_at) >= timestampValue(snapshot.started_at);
+  }
+
+  const currentEvents = Number(snapshot.counts?.events || 0);
+  const nextEvents = Number(next.counts?.events || 0);
+  if (nextEvents < currentEvents) return false;
+
+  const currentUpdated = timestampValue(snapshot.updated_at);
+  const nextUpdated = timestampValue(next.updated_at);
+  return !currentUpdated || !nextUpdated || nextUpdated >= currentUpdated;
+}
+
+function timestampValue(value) {
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function setConnection(state) {
+  els.connectionState.textContent = state;
+  els.connectionState.classList.toggle("live", state === "live");
+}
+
+function setInspectorOpen(open) {
+  document.body.dataset.inspectorOpen = String(open);
+  els.toggleInspector?.setAttribute("aria-label", open ? "Close inspector" : "Open inspector");
+  els.toggleInspector?.setAttribute("title", open ? "Close inspector" : "Open inspector");
+}
+
+function render() {
+  if (!snapshot) return;
+  const source = snapshot.source || {};
+  els.runMeta.textContent = snapshot.run_id
+    ? `${source.path || "unknown source"} | ${snapshot.run_id} | ${snapshot.provider} | ${snapshot.status}`
+    : source.path
+      ? `${source.path} | preview`
+      : "No run loaded.";
+
+  ensureSelectedSection();
+  renderDocument();
+  renderHints();
+  renderRail();
+}
+
+function installCorpusSamples() {
+  if (!els.corpusSample) return;
+  const options = CORPUS_SAMPLES.map((sample, index) => {
+    const label = `${sample.label} (${sample.docType})`;
+    return `<option value="${index}">${escapeHtml(label)}</option>`;
+  }).join("");
+  els.corpusSample.insertAdjacentHTML("beforeend", options);
+}
+
+function renderDocument() {
+  const sections = snapshot.document_sections || [];
+  const includedCount = sections.filter(section => !isSectionExcluded(section)).length;
+  els.documentStatus.textContent = snapshot.run_id
+    ? statusSummary(sections.length, snapshot.counts || {})
+    : `Previewing source before the run starts. ${includedCount}/${sections.length} sections included.`;
+
+  if (sections.length === 0) {
+    els.documentSections.innerHTML = `<section class="doc-section"><div></div><div class="section-body"><h2>No document loaded</h2><p>Start a run to stream Codex app-server work beside the source.</p></div></section>`;
+    return;
+  }
+
+  els.documentSections.innerHTML = sections.map(section => {
+    const excluded = isSectionExcluded(section);
+    const jobs = jobsForSection(section.id);
+    const running = jobs.filter(job => job.status === "running").length;
+    const completed = jobs.filter(job => job.status === "completed").length;
+    const queued = jobs.filter(job => job.status === "queued").length;
+    const failed = jobs.filter(job => job.status === "failed").length;
+    return `
+      <section id="${escapeHtml(section.id)}" class="doc-section" data-section-id="${escapeHtml(section.id)}" data-active="${section.id === selectedSectionId}" data-excluded="${excluded}">
+        <div class="section-gutter">
+          <button class="section-include-toggle" type="button" data-toggle-section="${escapeHtml(section.id)}" aria-pressed="${excluded ? "false" : "true"}" title="${excluded ? "Include section in analysis" : "Exclude section from analysis"}">
+            <span aria-hidden="true">${excluded ? "+" : "−"}</span>
+            <span class="sr-only">${excluded ? "Include" : "Exclude"} ${escapeHtml(section.id)}</span>
+          </button>
+          <strong>${escapeHtml(section.id)}</strong>
+          <span>${escapeHtml(section.start_line)}-${escapeHtml(section.end_line)}</span>
+          ${excluded ? `<span class="excluded-label">excluded</span>` : ""}
+          <span>${running} active</span>
+          <span>${queued} queued</span>
+          <span>${completed}/${jobs.length} done</span>
+          ${failed ? `<span>${failed} failed</span>` : ""}
+        </div>
+        <div class="section-body">
+          <h2>${escapeHtml(section.title)}</h2>
+          ${renderSourceText(section)}
+        </div>
+      </section>
+    `;
+  }).join("");
+
+  installSectionObserver();
+  bindDocumentInteractions();
+  bindSectionToggleButtons();
+}
+
+function isSectionExcluded(section) {
+  return excludedSectionIds.has(section.id) || section.analysis_included === false;
+}
+
+function bindSectionToggleButtons() {
+  document.querySelectorAll("[data-toggle-section]").forEach(button => {
+    button.addEventListener("click", () => {
+      const sectionId = button.dataset.toggleSection;
+      if (!sectionId) return;
+      if (excludedSectionIds.has(sectionId)) {
+        excludedSectionIds.delete(sectionId);
+      } else {
+        excludedSectionIds.add(sectionId);
+      }
+      render();
+    });
+  });
+}
+
+function statusSummary(sectionCount, counts) {
+  const scheduled = counts.sections || 0;
+  return [
+    `${scheduled} scheduled of ${sectionCount} sections`,
+    `${counts.running || 0} active LLM jobs`,
+    `${counts.active_codex_turns || 0} active app-server turns`,
+    `${counts.codex_threads || 0} Codex threads`,
+    `${counts.queued || 0} queued`,
+    `${counts.failed || 0} failed`
+  ].join(" | ");
+}
+
+function renderHints() {
+  if (!els.hintLayer || !snapshot?.run_id) {
+    if (els.hintLayer) els.hintLayer.innerHTML = "";
+    return;
+  }
+
+  const job = selectedJob();
+  const runningJobs = (snapshot.jobs || []).filter(item => item.status === "running");
+  const queuedJobs = (snapshot.jobs || []).filter(item => item.status === "queued");
+  const latestFeedback = latestEvent("human_line_feedback");
+  const latestOutputCount = job ? visibleToolsWithFallback(job).length : 0;
+
+  const messages = [];
+  if (runningJobs.length) messages.push(`${runningJobs.length} ${runningJobs.length === 1 ? "lens is" : "lenses are"} generating`);
+  if (job?.status === "queued") messages.push(`${job.title || job.lens_role} is queued behind active work`);
+  if (latestOutputCount) messages.push(`${latestOutputCount} visible projection ${latestOutputCount === 1 ? "is" : "are"} ready`);
+  if (latestFeedback) {
+    messages.push(`Intent feedback recorded for line ${latestFeedback.payload?.line_number || "unknown"}`);
+  }
+
+  if (!messages.length && !queuedJobs.length) {
+    els.hintLayer.innerHTML = "";
+    return;
+  }
+
+  const headline = latestFeedback ? "Intent guidance applied" : "Live reduction";
+  const detail = messages.join(" · ") || `${queuedJobs.length} ${queuedJobs.length === 1 ? "lens is" : "lenses are"} queued`;
+  els.hintLayer.innerHTML = `
+    <div class="floating-hint">
+      <div class="activity-gif" aria-hidden="true"><span></span></div>
+      <div class="floating-hint-body">
+        <strong>${escapeHtml(headline)}</strong>
+        <span>${escapeHtml(detail)}</span>
+      </div>
+      <div class="floating-hint-actions">
+        ${runningJobs.length ? `<button type="button" data-focus-job="${escapeHtml(runningJobs[0].id)}">Focus</button>` : ""}
+        <button type="button" data-open-inspector>Details</button>
+      </div>
+    </div>
+  `;
+  bindHintButtons();
+}
+
+function latestEvent(type) {
+  return [...projectionEvents()].reverse().find(event => event.type === type) || null;
+}
+
+function projectionEvents() {
+  const seen = new Set();
+  return [...(snapshot.events || []), ...(snapshot.interventions || []), ...localFeedbackEvents]
+    .filter(event => {
+      const id = projectionEventKey(event);
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    })
+    .sort((a, b) => timestampValue(a.timestamp) - timestampValue(b.timestamp));
+}
+
+function projectionEventKey(event) {
+  if (event.type === "human_line_feedback") {
+    return [
+      event.type,
+      event.payload?.section_id || "",
+      event.payload?.line_number || "",
+      event.message || ""
+    ].join("|");
+  }
+
+  return event.id || `${event.type}-${event.timestamp}-${event.message}`;
+}
+
+function bindHintButtons() {
+  els.hintLayer.querySelectorAll("[data-open-inspector]").forEach(button => {
+    button.addEventListener("click", () => setInspectorOpen(true));
+  });
+  els.hintLayer.querySelectorAll("[data-focus-job]").forEach(button => {
+    button.addEventListener("click", () => {
+      selectedJobId = button.dataset.focusJob;
+      setInspectorOpen(true);
+      render();
+    });
+  });
+}
+
+function renderSourceText(section) {
+  const anchors = [
+    ...diagramAnchorsForSection(section),
+    ...feedbackAnchorsForSection(section),
+    ...sourceReferenceAnchorsForSection(section),
+    ...choicePreviewAnchorsForSection(section)
+  ];
+  return renderSpecDocument(section, anchors);
+}
+
+function sourceReferenceAnchorsForSection(section) {
+  if (!activeSourceReference || activeSourceReference.section_id !== section.id) return [];
+  return [activeSourceReference];
+}
+
+function choicePreviewAnchorsForSection(section) {
+  if (!activeChoicePreview || activeChoicePreview.section_id !== section.id) return [];
+  return [activeChoicePreview];
+}
+
+function feedbackAnchorsForSection(section) {
+  return projectionEvents()
+    .filter(event => event.type === "human_line_feedback")
+    .filter(event => event.payload?.section_id === section.id)
+    .map(event => ({
+      kind: "feedback",
+      section_id: section.id,
+      start_line: Number(event.payload?.line_number),
+      end_line: Number(event.payload?.line_number),
+      quote: event.payload?.source_text || "",
+      title: "Intent guidance applied",
+      body: feedbackImpactText(event)
+    }));
+}
+
+function feedbackImpactText(event) {
+  const line = event.payload?.line_number || "the selected line";
+  const mode = event.payload?.mode || "additive";
+  return `Recorded ${mode} guidance for line ${line}; an intent refinement lens is now queued or running.`;
+}
+
+function diagramAnchorsForSection(section) {
+  const job = selectedJob();
+  const sectionId = section.id;
+  const tools = visibleToolsForJob(job).filter(tool => isMermaidTool(tool.tool));
+
+  return tools
+    .map(tool => normalizeSourceAnchor(tool, job))
+    .filter(anchor => !anchor.section_id || anchor.section_id === sectionId)
+    .map(anchor => ({
+      ...anchor,
+      section_id: anchor.section_id || sectionId
+    }));
+}
+
+function visibleToolsForJob(job) {
+  if (!job) return [];
+  return (snapshot.streams?.[job.id] || [])
+    .filter(item => item.type === "item/tool/call")
+    .map(item => parseRawEvent(item.raw))
+    .filter(Boolean)
+    .map(parsed => normalizeToolParams(parsed.params || {}, job));
+}
+
+function visibleToolsWithFallback(job) {
+  const tools = visibleToolsForJob(job);
+  if (tools.some(tool => isMermaidTool(tool.tool))) return tools;
+
+  const fallback = fallbackMermaidToolForJob(job);
+  return fallback ? [fallback, ...tools] : tools;
+}
+
+function fallbackMermaidToolForJob(job) {
+  const result = resultForJob(job);
+  if (!job || !result) return null;
+
+  const section = sectionForJob(job);
+  const anchor = sourceRefForJob(job);
+  const findings = (result.findings || []).slice(0, 6);
+  const title = section?.title || job.title || job.lens_role || job.id;
+  const lines = [
+    "graph TD",
+    `  S["${mermaidLabel(title)}"]`
+  ];
+
+  if (!findings.length) {
+    lines.push(`  S --> Summary["${mermaidLabel(result.summary || "Completed result")}"]`);
+  } else {
+    findings.forEach((finding, index) => {
+      const id = `F${index + 1}`;
+      lines.push(`  S --> ${id}["${mermaidLabel(finding.title || finding.kind || "finding")}"]`);
+      const ref = sourceRefFromText(finding.evidence || finding.falsifiable_test || "", job);
+      if (ref?.start_line) {
+        lines.push(`  ${id} --> L${index + 1}["source lines ${ref.start_line}-${ref.end_line || ref.start_line}"]`);
+      }
+    });
+  }
+
+  return {
+    tool: "basis_show_mermaid",
+    title: "Evidence Map",
+    body: lines.join("\n"),
+    generated_fallback: true,
+    source_anchor: anchor
+  };
+}
+
+function mermaidLabel(value) {
+  return String(value || "")
+    .replace(/[\[\]{}"]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 96);
+}
+
+function normalizeToolParams(params, job = null) {
+  return normalizeVisibleTool({
+    ...(params.arguments || {}),
+    tool: params.tool,
+    call_id: params.callId,
+    turn_id: params.turnId,
+    thread_id: params.threadId,
+    fallback_section_id: job?.section_id || selectedSectionId,
+    fallback_source_range: contextPacketForJob(job)?.source_range
+  });
+}
+
+function contextPacketForJob(job) {
+  if (!job) return null;
+  return (snapshot.context_packets || []).find(item => item.id === job.context_packet) || null;
+}
+
+function normalizeSourceAnchor(tool, job = null) {
+  const raw = tool.source_anchor && typeof tool.source_anchor === "object" ? tool.source_anchor : tool;
+  const fallbackRange = tool.fallback_source_range || contextPacketForJob(job)?.source_range || "";
+  const parsedFallback = parseLineRange(fallbackRange);
+  const parsedExplicit = parseLineRange(raw.source_range || raw.range || "");
+
+  return {
+    section_id: raw.section_id || tool.section_id || tool.fallback_section_id || job?.section_id || "",
+    start_line:
+      numberOrNull(raw.start_line ?? raw.line_start ?? raw.start) ??
+      parsedExplicit.start_line ??
+      parsedFallback.start_line,
+    end_line:
+      numberOrNull(raw.end_line ?? raw.line_end ?? raw.end) ??
+      parsedExplicit.end_line ??
+      parsedFallback.end_line,
+    quote: raw.quote || tool.quote || ""
+  };
+}
+
+function parseLineRange(value) {
+  const match = String(value || "").match(/(\d+)\s*(?:-|:|to|–)\s*(\d+)/i);
+  if (!match) return {};
+  const start = Number(match[1]);
+  const end = Number(match[2]);
+  return {
+    start_line: Number.isFinite(start) ? Math.min(start, end) : null,
+    end_line: Number.isFinite(end) ? Math.max(start, end) : null
+  };
+}
+
+function numberOrNull(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
+function resultForJob(job) {
+  if (!job) return null;
+  return (snapshot.results || []).find(item => item.job_id === job.id) || null;
+}
+
+function sectionForJob(job) {
+  if (!job) return null;
+  return (snapshot.document_sections || []).find(item => item.id === job.section_id) || null;
+}
+
+function sectionForLine(line) {
+  const number = Number(line);
+  if (!Number.isFinite(number)) return null;
+  return (snapshot.document_sections || []).find(section => {
+    return number >= Number(section.start_line) && number <= Number(section.end_line);
+  }) || null;
+}
+
+function sourceRefForJob(job) {
+  const section = sectionForJob(job);
+  const packetRange = parseLineRange(contextPacketForJob(job)?.source_range || "");
+  return {
+    kind: "source_reference",
+    section_id: job?.section_id || section?.id || "",
+    start_line: packetRange.start_line || Number(section?.start_line) || null,
+    end_line: packetRange.end_line || Number(section?.end_line) || null,
+    title: "Source reference",
+    body: section ? `${section.title} source range` : "Job source range"
+  };
+}
+
+function sourceRefFromText(text, job = null) {
+  return lineReferencesInText(text, job)[0] || null;
+}
+
+function lineReferencesInText(text, job = null) {
+  const refs = [];
+  const pattern = /\b[Ll]ines?\s+(\d+)(?:\s*(?:-|–|to)\s*(\d+))?/g;
+  let match;
+
+  while ((match = pattern.exec(String(text || ""))) !== null) {
+    const start = Number(match[1]);
+    const end = Number(match[2] || match[1]);
+    const section = sectionForLine(start) || sectionForJob(job);
+    refs.push({
+      label: match[0],
+      index: match.index,
+      end_index: match.index + match[0].length,
+      kind: "source_reference",
+      section_id: section?.id || job?.section_id || "",
+      start_line: Math.min(start, end),
+      end_line: Math.max(start, end),
+      title: "Source reference",
+      body: match[0]
+    });
+  }
+
+  return refs;
+}
+
+function installSectionObserver() {
+  if (observer) observer.disconnect();
+  const sections = [...document.querySelectorAll(".doc-section[data-section-id]")];
+  observer = new IntersectionObserver(entries => {
+    const visible = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visible) return;
+    if (Date.now() < suppressSectionObserverUntil) return;
+    const id = visible.target.dataset.sectionId;
+    if (id && id !== selectedSectionId) {
+      selectedSectionId = id;
+      selectedJobId = defaultJobForSection(id)?.id || selectedJobId;
+      renderDocument();
+      renderRail();
+      document.querySelectorAll(".doc-section").forEach(section => {
+        section.dataset.active = String(section.dataset.sectionId === selectedSectionId);
+      });
+    }
+  }, { rootMargin: "-110px 0px -45% 0px", threshold: [0.1, 0.35, 0.65] });
+  sections.forEach(section => observer.observe(section));
+}
+
+function bindDocumentInteractions() {
+  document.querySelectorAll(".line-marker").forEach(button => {
+    button.addEventListener("click", event => {
+      event.preventDefault();
+      selectedFeedbackLine = {
+        section_id: button.dataset.sectionId,
+        line_number: Number(button.dataset.line),
+        source_text: button.dataset.sourceText || ""
+      };
+      renderFeedbackComposer();
+    });
+  });
+}
+
+function renderFeedbackComposer() {
+  if (!els.feedbackComposer || !selectedFeedbackLine) return;
+  const line = selectedFeedbackLine;
+  els.feedbackComposer.hidden = false;
+  els.feedbackComposer.innerHTML = `
+    <form class="feedback-card" id="lineFeedbackForm">
+      <div>
+        <strong>Line ${escapeHtml(line.line_number)}</strong>
+        <p class="thread-meta">Guide the reducer search from this source line. Feedback is additive unless you say to replace or remove something.</p>
+      </div>
+      <div class="feedback-source">${escapeHtml(line.source_text || "Blank source line")}</div>
+      <textarea id="lineFeedbackBody" placeholder="Example: the reducer should own an interface for intelligence to guide the reduction search and refine intent."></textarea>
+      <div class="impact-preview">
+        <strong>Preview effect</strong>
+        <p id="feedbackImpact">This will record source-anchored intent guidance and queue an intent refinement lens for ${escapeHtml(line.section_id || "the current section")}.</p>
+      </div>
+      <div class="feedback-actions">
+        <button type="button" data-cancel-feedback>Cancel</button>
+        <button type="submit">Apply guidance</button>
+      </div>
+    </form>
+  `;
+
+  els.feedbackComposer.querySelector("[data-cancel-feedback]").addEventListener("click", closeFeedbackComposer);
+  els.feedbackComposer.querySelector("#lineFeedbackForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const body = els.feedbackComposer.querySelector("#lineFeedbackBody").value.trim();
+    if (!body) return;
+    recordLocalFeedback(line, body);
+    renderFeedbackApplied(line, body, "submitting");
+
+    try {
+      await postJson("/api/actions", {
+        type: "line_feedback",
+        body,
+        mode: "additive",
+        section_id: line.section_id,
+        line_number: line.line_number,
+        source_text: line.source_text
+      });
+      renderFeedbackApplied(line, body, "applied");
+    } catch (error) {
+      renderFeedbackApplied(line, body, "failed", error);
+    }
+  });
+}
+
+function recordLocalFeedback(line, body) {
+  localFeedbackEvents = [
+    ...localFeedbackEvents,
+    {
+      id: `local-feedback-${Date.now()}-${line.line_number}`,
+      type: "human_line_feedback",
+      actor: "human",
+      message: body,
+      payload: {
+        mode: "additive",
+        section_id: line.section_id,
+        line_number: line.line_number,
+        source_text: line.source_text || ""
+      },
+      timestamp: new Date().toISOString()
+    }
+  ].slice(-50);
+  saveLocalFeedbackEvents(snapshot?.run_id, localFeedbackEvents);
+}
+
+function localFeedbackStorageKey(runId) {
+  return runId ? `basis.feedbackImpacts.${runId}` : "";
+}
+
+function loadLocalFeedbackEvents(runId) {
+  const key = localFeedbackStorageKey(runId);
+  if (!key) return [];
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(parsed) ? parsed.slice(-50) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalFeedbackEvents(runId, events) {
+  const key = localFeedbackStorageKey(runId);
+  if (!key) return;
+  try {
+    localStorage.setItem(key, JSON.stringify(events.slice(-50)));
+  } catch {
+    // The impact card is still visible in memory if local storage is unavailable.
+  }
+}
+
+function renderFeedbackApplied(line, body, state, error = null) {
+  if (!els.feedbackComposer) return;
+  els.feedbackComposer.hidden = false;
+
+  const title = state === "failed" ? "Guidance was not recorded" : state === "submitting" ? "Applying guidance" : "Guidance applied";
+  const detail = state === "failed"
+    ? `The request failed: ${error?.message || error || "unknown error"}`
+    : state === "submitting"
+      ? "Recording the intervention event and preparing an intent refinement lens."
+      : `Recorded additive guidance for line ${line.line_number}; an intent refinement lens is queued or running for ${line.section_id}.`;
+
+  els.feedbackComposer.innerHTML = `
+    <div class="feedback-card feedback-applied-card" role="status">
+      <div>
+        <strong>${escapeHtml(title)}</strong>
+        <p class="thread-meta">${escapeHtml(detail)}</p>
+      </div>
+      <div class="impact-preview">
+        <strong>Impact</strong>
+        <p>${escapeHtml(body)}</p>
+      </div>
+      <div class="feedback-actions">
+        <button type="button" data-cancel-feedback>${state === "failed" ? "Close" : "Done"}</button>
+      </div>
+    </div>
+  `;
+  els.feedbackComposer.querySelector("[data-cancel-feedback]").addEventListener("click", closeFeedbackComposer);
+}
+
+function closeFeedbackComposer() {
+  selectedFeedbackLine = null;
+  if (els.feedbackComposer) {
+    els.feedbackComposer.hidden = true;
+    els.feedbackComposer.innerHTML = "";
+  }
+}
+
+function ensureSelectedSection() {
+  if (selectedSectionId) return;
+  const first = (snapshot.document_sections || [])[0];
+  if (first) {
+    selectedSectionId = first.id;
+    selectedJobId = defaultJobForSection(first.id)?.id || null;
+  }
+}
+
+function jobsForSection(sectionId) {
+  return (snapshot.jobs || []).filter(job => job.section_id === sectionId);
+}
+
+function defaultJobForSection(sectionId) {
+  const jobs = jobsForSection(sectionId);
+  return jobs.find(job => job.status === "running") || jobs.find(job => job.status === "queued") || jobs[0] || null;
+}
+
+function selectedJob() {
+  const jobs = snapshot.jobs || [];
+  const selected = jobs.find(job => job.id === selectedJobId);
+  const sectionDefault = defaultJobForSection(selectedSectionId);
+  const activeWithStream = jobs.find(job => job.status === "running" && streamForJob(job).length > 0);
+
+  if (selected && (streamForJob(selected).length > 0 || selected.status === "running")) return selected;
+  if (sectionDefault && (streamForJob(sectionDefault).length > 0 || sectionDefault.status === "running")) return sectionDefault;
+  return activeWithStream || selected || sectionDefault || jobs[0] || null;
+}
+
+function renderRail() {
+  const section = (snapshot.document_sections || []).find(item => item.id === selectedSectionId);
+  const sectionJobs = jobsForSection(selectedSectionId);
+  const jobs = sectionJobs.length ? sectionJobs : fallbackJobs();
+  const job = selectedJob();
+  if (job) selectedJobId = job.id;
+
+  els.activeSectionTitle.textContent = section ? section.title : "No section selected";
+  els.activeSectionMeta.textContent = section
+    ? `${section.id} | lines ${section.start_line}-${section.end_line}`
+    : "Scroll the document to focus a section.";
+  els.threadCount.textContent = String(jobs.length);
+  els.threadList.innerHTML = jobs.length
+    ? jobs.map(renderJobCard).join("")
+    : `<p>No lens jobs queued for this section yet.</p>`;
+  els.selectedJobLabel.textContent = job ? `${job.id} ${job.lens_role}` : "no job";
+  renderStream(job);
+  renderContext(job);
+  renderResults(job);
+  bindRailButtons();
+}
+
+function fallbackJobs() {
+  const jobs = snapshot.jobs || [];
+  return jobs.filter(job => job.kind === "root_read" || job.status === "running" || job.status === "failed").slice(0, 4);
+}
+
+function renderJobCard(job) {
+  const streamCount = (snapshot.streams?.[job.id] || []).length;
+  const cwdLabel = job.execution_cwd ? displayPath(job.execution_cwd) : "cwd pending";
+  const threadLink = job.codex_thread_url
+    ? `<a href="${escapeHtml(job.codex_thread_url)}">Open Codex Thread</a>`
+    : `<span class="thread-meta">app-server thread pending</span>`;
+  const turnLabel = job.codex_turn_id ? `turn ${job.codex_turn_id}` : "turn pending";
+  return `
+    <details class="thread-card" data-job-id="${escapeHtml(job.id)}" data-status="${escapeHtml(job.status)}" data-selected="${job.id === selectedJobId}">
+      <summary>
+        <span>
+          <strong>${escapeHtml(job.title || job.lens_role)}</strong>
+          <span class="thread-meta">${escapeHtml(job.id)} | ${streamCount} events</span>
+        </span>
+        <span class="job-status ${escapeHtml(job.status)}">${escapeHtml(job.status)}</span>
+      </summary>
+      <div class="thread-card-body">
+        <div class="thread-meta">${escapeHtml(job.provider || snapshot.provider)} | ${escapeHtml(job.codex_thread_id || "thread pending")} | ${escapeHtml(turnLabel)}</div>
+        <div class="thread-meta">cwd ${escapeHtml(cwdLabel)}</div>
+        <div class="thread-actions">
+          <button type="button" data-focus-job="${escapeHtml(job.id)}">Focus</button>
+          <button type="button" data-stop-job="${escapeHtml(job.id)}">Stop</button>
+          <button type="button" data-rerun-job="${escapeHtml(job.id)}">Rerun</button>
+          ${threadLink}
+        </div>
+      </div>
+    </details>
+  `;
+}
+
+function renderStream(job) {
+  if (!job) {
+    els.liveStream.innerHTML = "";
+    return;
+  }
+  const stream = streamForJob(job);
+  const visibleOutputs = visibleToolsWithFallback(job).map(tool => renderVisibleTool(tool, job));
+  els.visibleOutputs.innerHTML = visibleOutputs.length
+    ? `
+      <div class="visible-outputs-head">
+        <strong>Summary And Diagrams</strong>
+        <span>${visibleOutputs.length}</span>
+      </div>
+      ${visibleOutputs.join("")}
+    `
+    : `<div class="visible-outputs-empty">No summary or diagram tool output yet.</div>`;
+  els.liveStream.innerHTML = stream.length
+    ? renderGeneratedSurface(stream)
+    : renderStreamEmpty(job);
+  hydrateMermaid();
+}
+
+function streamForJob(job) {
+  return job ? (snapshot.streams?.[job.id] || []) : [];
+}
+
+function renderStreamEmpty(job) {
+  const activeJobs = (snapshot.jobs || []).filter(item => item.status === "running");
+  const activeElsewhere = activeJobs.filter(item => item.id !== job.id);
+  const activeTurnCount = Number(snapshot.counts?.active_codex_turns || 0);
+  const headline = job.status === "queued"
+    ? "This lens is queued."
+    : job.status === "running"
+      ? "Codex turn is starting."
+      : "No stream events for this lens.";
+
+  return `
+    <div class="generation-stage" data-active="${job.status === "running" || activeTurnCount > 0}">
+      <div class="activity-strip">
+        <span class="activity-gif" aria-hidden="true"><span></span></span>
+        <span>${escapeHtml(headline)}</span>
+      </div>
+      <div class="generated-transcript">
+        ${job.codex_thread_id ? `<div class="generated-placeholder">thread ${escapeHtml(job.codex_thread_id)}</div>` : ""}
+        ${job.codex_turn_id ? `<div class="generated-placeholder">turn ${escapeHtml(job.codex_turn_id)}</div>` : ""}
+        ${activeElsewhere.length ? `<div class="generated-placeholder">${activeElsewhere.length} other Codex ${activeElsewhere.length === 1 ? "lens is" : "lenses are"} running. Focus a running thread to see its text.</div>` : ""}
+        ${!activeTurnCount && !activeElsewhere.length ? `<div class="generated-placeholder">No active app-server turn is attached to this selected lens yet.</div>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function renderGeneratedSurface(stream) {
+  const generated = generatedTextChunks(stream);
+  const isActive = stream.some(item => item.type === "turn/started") && !stream.some(item => item.type === "turn/completed" || item.type === "turn/failed" || item.type === "turn/cancelled");
+  const text = generated.length
+    ? renderGeneratedText(generated)
+    : `<span class="generated-placeholder">Waiting for model text.</span>`;
+
+  return `
+    <div class="generation-stage compact-activity" data-active="${isActive}">
+      <div class="activity-strip">
+        <span class="activity-gif" aria-hidden="true"><span></span></span>
+        <span>${isActive ? "Codex is generating" : "Codex turn text is available"}</span>
+      </div>
+    </div>
+    <details class="generated-text-log">
+      <summary>Generated text</summary>
+      <div class="generated-transcript">${text}</div>
+    </details>
+    <details class="raw-stream-log">
+      <summary>Protocol log (${stream.length} events)</summary>
+      <div class="raw-stream-events">${stream.map(renderStreamEvent).join("")}</div>
+    </details>
+  `;
+}
+
+function renderGeneratedText(chunks) {
+  const joined = chunks.join("");
+  const parsed = parseJsonText(joined.trim());
+  if (isChoicePacket(parsed)) return renderChoicePacket(parsed, selectedJob());
+
+  return chunks
+    .map((chunk, index) => `<span class="generation-chunk" style="--fade-delay:${Math.min(index * 35, 700)}ms">${escapeHtml(chunk)}</span>`)
+    .join("");
+}
+
+function generatedTextChunks(stream) {
+  const chunks = stream
+    .map(item => {
+      const parsed = parseRawEvent(item.raw);
+      if (parsed?.method === "item/agentMessage/delta") return parsed.params?.delta || "";
+      if (parsed?.method === "item/reasoning/summaryTextDelta") return "";
+      if (item.type === "item/agentMessage/delta") return item.summary || "";
+      return "";
+    })
+    .filter(Boolean);
+
+  if (chunks.length) return chunks;
+
+  return stream
+    .filter(item => item.type === "item/reasoning/summaryTextDelta" || item.type === "item/reasoning/textDelta")
+    .map(item => formattedStreamMessage(item, parseRawEvent(item.raw)))
+    .filter(Boolean);
+}
+
+function renderStreamEvent(item) {
+  const parsed = parseRawEvent(item.raw);
+  const type = item.type || parsed?.method || parsed?.type || "event";
+  const threadId = item.thread_id || parsed?.params?.threadId || parsed?.params?.thread?.id || parsed?.thread_id || "";
+  const turnId = item.turn_id || parsed?.params?.turnId || parsed?.params?.turn?.id || "";
+  const message = formattedStreamMessage(item, parsed);
+  const raw = item.raw || "";
+  const kind = streamEventKind(type);
+  const body = renderStreamBody(item, parsed, type, message);
+  return `
+    <article class="stream-event" data-event-type="${escapeHtml(type)}" data-event-kind="${escapeHtml(kind)}">
+      <div class="stream-event-head">
+        <span class="stream-type">${escapeHtml(type)}</span>
+        <span>${escapeHtml(formatTime(item.at))}</span>
+      </div>
+      ${threadId ? `<div class="stream-thread">thread ${escapeHtml(threadId)}</div>` : ""}
+      ${turnId ? `<div class="stream-thread">turn ${escapeHtml(turnId)}</div>` : ""}
+      <div class="stream-message">${body}</div>
+      ${raw ? `<details class="stream-raw"><summary>raw protocol message</summary><pre>${escapeHtml(formatRaw(raw, parsed))}</pre></details>` : ""}
+    </article>
+  `;
+}
+
+function parseRawEvent(raw) {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function formattedStreamMessage(item, parsed) {
+  if (!parsed) return item.summary || item.raw || "Provider event.";
+  if (parsed.method === "thread/started") return `Created Codex app-server thread ${parsed.params?.thread?.id || item.thread_id || ""}.`;
+  if (parsed.method === "turn/started") return `Started Codex app-server turn ${parsed.params?.turn?.id || item.turn_id || ""}.`;
+  if (parsed.method === "item/agentMessage/delta") return parsed.params?.delta || item.summary || "";
+  if (parsed.method === "item/tool/call") return item.summary || `${parsed.params?.tool || "dynamic tool"} requested.`;
+  if (parsed.method === "item/reasoning/summaryTextDelta") return parsed.params?.delta || item.summary || "";
+  if (parsed.method === "item/reasoning/textDelta") return parsed.params?.delta || item.summary || "";
+  if (parsed.method === "item/plan/delta") return parsed.params?.delta || item.summary || "";
+  if (parsed.method === "item/reasoning/summaryPartAdded") return item.summary || "Started reasoning summary.";
+  if (parsed.method === "turn/completed") return "Turn completed.";
+  if (parsed.method === "turn/failed") return "Turn failed.";
+  if (parsed.method === "turn/cancelled") return "Turn cancelled.";
+  return item.summary || parsed.method || parsed.type || "Provider event.";
+}
+
+function streamEventKind(type) {
+  if (type.startsWith("item/reasoning/")) return "thought";
+  if (type === "item/plan/delta") return "thought";
+  if (type === "item/tool/call") return "tool";
+  if (type === "item/agentMessage/delta") return "model";
+  return "protocol";
+}
+
+function renderStreamBody(item, parsed, type, message) {
+  if (parsed?.method === "item/tool/call") return renderDynamicToolCall(parsed.params || {});
+  return renderRichMessage(message, type);
+}
+
+function renderDynamicToolCall(params) {
+  const tool = normalizeToolParams(params);
+  return renderVisibleTool(tool);
+}
+
+function renderRichMessage(message, type) {
+  const text = String(message || "");
+  const parts = splitVisibleToolLines(text);
+  return parts.map(part => {
+    if (part.kind === "tool") return renderVisibleTool(part.tool);
+    return renderMermaidAndText(part.text, type);
+  }).join("");
+}
+
+function splitVisibleToolLines(text) {
+  const parts = [];
+  let buffer = [];
+  text.split(/\r?\n/).forEach(line => {
+    const match = line.match(/^\s*BASIS_STREAM\s+({.*})\s*$/);
+    if (!match) {
+      buffer.push(line);
+      return;
+    }
+    if (buffer.length) {
+      parts.push({ kind: "text", text: buffer.join("\n") });
+      buffer = [];
+    }
+    try {
+      parts.push({ kind: "tool", tool: normalizeVisibleTool(JSON.parse(match[1])) });
+    } catch {
+      parts.push({ kind: "text", text: line });
+    }
+  });
+  if (buffer.length) parts.push({ kind: "text", text: buffer.join("\n") });
+  return parts;
+}
+
+function normalizeVisibleTool(tool) {
+  const name = String(tool.tool || tool.type || tool.name || "").toLowerCase().replaceAll("-", "_");
+  return { ...tool, tool: name || "unknown" };
+}
+
+function renderVisibleTool(tool) {
+  if (["thought", "show_thought", "basis_show_thought"].includes(tool.tool)) {
+    return renderThoughtCard(tool.body || tool.message || tool.text || "", tool.title || "Thought");
+  }
+  if (isMermaidTool(tool.tool)) {
+    return renderMermaidBlock(tool.body || tool.diagram || tool.source || "", tool.title || "Mermaid", tool);
+  }
+  if (["delegate", "delegate_lens", "spawn_delegate", "basis_delegate_lens"].includes(tool.tool)) {
+    return renderDelegateCard(tool);
+  }
+  return `
+    <div class="visible-tool-card">
+      <div class="visible-tool-label">${escapeHtml(tool.tool || "tool")}</div>
+      <pre>${escapeHtml(JSON.stringify(tool, null, 2))}</pre>
+    </div>
+  `;
+}
+
+function isMermaidTool(name) {
+  return ["mermaid", "show_mermaid", "diagram", "basis_show_mermaid"].includes(name);
+}
+
+function renderMermaidAndText(text, type) {
+  if (!text) return "";
+  const html = [];
+  const pattern = /```mermaid\s*([\s\S]*?)```/gi;
+  let cursor = 0;
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    html.push(renderTextChunk(text.slice(cursor, match.index), type));
+    html.push(renderMermaidBlock(match[1], "Mermaid"));
+    cursor = match.index + match[0].length;
+  }
+  html.push(renderTextChunk(text.slice(cursor), type));
+  return html.join("");
+}
+
+function renderTextChunk(text, type) {
+  const trimmed = text.trim();
+  if (!trimmed) return "";
+
+  if (streamEventKind(type) === "thought") {
+    return renderThoughtCard(trimmed, type.includes("plan") ? "Plan" : "Reasoning");
+  }
+
+  const lines = text.split(/\r?\n/);
+  const html = [];
+  let buffer = [];
+  lines.forEach(line => {
+    const thought = line.match(/^\s*THOUGHT:\s*(.*)$/i);
+    if (!thought) {
+      buffer.push(line);
+      return;
+    }
+    if (buffer.join("\n").trim()) {
+      html.push(renderPlainText(buffer.join("\n")));
+    }
+    buffer = [];
+    html.push(renderThoughtCard(thought[1], "Thought"));
+  });
+  if (buffer.join("\n").trim()) html.push(renderPlainText(buffer.join("\n")));
+  return html.join("");
+}
+
+function renderPlainText(text) {
+  const trimmed = text.trim();
+  if (looksLikeJson(trimmed)) {
+    const parsed = parseJsonText(trimmed);
+    if (isChoicePacket(parsed)) return renderChoicePacket(parsed, selectedJob());
+    return `<pre class="stream-json">${escapeHtml(prettyJson(trimmed))}</pre>`;
+  }
+  return `<div class="stream-text">${escapeHtml(text)}</div>`;
+}
+
+function parseJsonText(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function isChoicePacket(value) {
+  return value && Array.isArray(value.questions) && value.questions.length > 0;
+}
+
+function renderChoicePacket(packet, job) {
+  const questions = packet.questions || [];
+  const cards = questions.map((question, index) => {
+    const ref = sourceRefFromText(JSON.stringify(question), job) || sourceRefForJob(job);
+    const prompt = question.question || question.title || question.kind || `Choice ${index + 1}`;
+    const effect = question.decision_effect || question.why_now || question.evidence || "";
+    const draft = choiceDraftText(question);
+    return `
+      <article class="choice-card">
+        <div class="choice-card-head">
+          <strong>${escapeHtml(question.title || prompt)}</strong>
+          ${ref?.start_line ? `<span>lines ${escapeHtml(ref.start_line)}-${escapeHtml(ref.end_line || ref.start_line)}</span>` : ""}
+        </div>
+        ${question.question ? `<p>${escapeHtml(question.question)}</p>` : ""}
+        ${question.why_now ? `<p class="choice-note">${escapeHtml(question.why_now)}</p>` : ""}
+        ${effect ? `<div class="draft-edit-preview"><strong>Effect</strong><span>${escapeHtml(effect)}</span></div>` : ""}
+        <div class="choice-actions">
+          <button type="button"
+            data-preview-choice
+            data-section-id="${escapeAttr(ref?.section_id || "")}"
+            data-start-line="${escapeAttr(ref?.start_line || "")}"
+            data-end-line="${escapeAttr(ref?.end_line || ref?.start_line || "")}"
+            data-choice-title="${escapeAttr(prompt)}"
+            data-choice-body="${escapeAttr(draft)}">Preview edit</button>
+          <button type="button"
+            data-apply-choice
+            data-section-id="${escapeAttr(ref?.section_id || "")}"
+            data-start-line="${escapeAttr(ref?.start_line || "")}"
+            data-end-line="${escapeAttr(ref?.end_line || ref?.start_line || "")}"
+            data-choice-title="${escapeAttr(prompt)}"
+            data-choice-body="${escapeAttr(draft)}">Apply as guidance</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  return `
+    <div class="choice-packet">
+      <div class="choice-packet-head">
+        <strong>Choice Packet</strong>
+        <span>${escapeHtml(questions.length)} ${questions.length === 1 ? "choice" : "choices"}</span>
+      </div>
+      ${packet.title ? `<p class="choice-note">${escapeHtml(packet.title)}</p>` : ""}
+      ${cards}
+      <details class="choice-raw">
+        <summary>raw packet</summary>
+        <pre>${escapeHtml(JSON.stringify(packet, null, 2))}</pre>
+      </details>
+    </div>
+  `;
+}
+
+function choiceDraftText(question) {
+  const parts = [
+    question.question ? `Selected choice: ${question.question}` : "",
+    question.decision_effect ? `Document effect: ${question.decision_effect}` : "",
+    question.why_now ? `Why now: ${question.why_now}` : ""
+  ].filter(Boolean);
+  return parts.join("\n");
+}
+
+function renderThoughtCard(body, label) {
+  return `
+    <div class="thought-card">
+      <div class="thought-label">${escapeHtml(label)}</div>
+      <div>${escapeHtml(body)}</div>
+    </div>
+  `;
+}
+
+function renderDelegateCard(tool) {
+  const rows = [
+    ["role", tool.role || tool.lens_role || "visible_delegate_lens"],
+    ["task", tool.task || tool.body || tool.message || ""],
+    ["why", tool.why || ""],
+    ["handoff", tool.handoff || ""]
+  ].filter(([, value]) => String(value || "").trim());
+  return `
+    <div class="delegate-card">
+      <div class="visible-tool-label">Delegate Requested</div>
+      <dl>
+        ${rows.map(([key, value]) => `<dt>${escapeHtml(key)}</dt><dd>${escapeHtml(value)}</dd>`).join("")}
+      </dl>
+    </div>
+  `;
+}
+
+function renderMermaidBlock(code, title, tool = {}) {
+  const source = String(code || "").trim();
+  if (!source) return "";
+  const anchor = normalizeSourceAnchor(tool);
+  const hasAnchor = anchor.start_line || anchor.quote;
+  return `
+    <div class="mermaid-card" data-mermaid="${escapeHtml(encodeURIComponent(source))}" data-has-anchor="${hasAnchor ? "true" : "false"}">
+      <div class="mermaid-card-head">
+        <div class="visible-tool-label">${escapeHtml(title || "Mermaid")}</div>
+        ${hasAnchor ? `<button type="button" data-scroll-anchor="${escapeHtml(anchor.section_id || "")}" data-start-line="${escapeHtml(anchor.start_line || "")}">Show source</button>` : ""}
+      </div>
+      ${hasAnchor ? `<div class="diagram-anchor">Projects ${escapeHtml(anchor.section_id || "source")} ${anchor.start_line ? `lines ${escapeHtml(anchor.start_line)}-${escapeHtml(anchor.end_line || anchor.start_line)}` : "quoted source"}</div>` : ""}
+      <div class="mermaid-output"><pre class="mermaid-source-inline">${escapeHtml(source)}</pre></div>
+      <details class="mermaid-source">
+        <summary>mermaid source</summary>
+        <pre>${escapeHtml(source)}</pre>
+      </details>
+    </div>
+  `;
+}
+
+function looksLikeJson(text) {
+  return text.startsWith("{") && text.endsWith("}");
+}
+
+function prettyJson(text) {
+  try {
+    return JSON.stringify(JSON.parse(text), null, 2);
+  } catch {
+    return text;
+  }
+}
+
+async function hydrateMermaid() {
+  const nodes = [...document.querySelectorAll(".mermaid-card:not([data-rendered])")];
+  if (!nodes.length) return;
+  const mermaid = await loadMermaid();
+  nodes.forEach(async node => {
+    node.dataset.rendered = "true";
+    const output = node.querySelector(".mermaid-output");
+    const source = decodeURIComponent(node.dataset.mermaid || "");
+    if (!mermaid) {
+      node.classList.add("mermaid-fallback");
+      return;
+    }
+    try {
+      const id = `basis-mermaid-${++mermaidRenderCounter}`;
+      const rendered = await mermaid.render(id, source);
+      output.innerHTML = rendered.svg;
+      node.classList.add("mermaid-rendered");
+    } catch (error) {
+      output.textContent = `Mermaid render failed: ${error?.message || error}`;
+      node.classList.add("mermaid-fallback");
+    }
+  });
+}
+
+function loadMermaid() {
+  if (!mermaidPromise) {
+    mermaidPromise = import("https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs")
+      .then(module => {
+        module.default.initialize({ startOnLoad: false, securityLevel: "strict" });
+        return module.default;
+      })
+      .catch(() => null);
+  }
+  return mermaidPromise;
+}
+
+function formatRaw(raw, parsed) {
+  return parsed ? JSON.stringify(parsed, null, 2) : raw;
+}
+
+function formatTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+function displayPath(path) {
+  const text = String(path || "");
+  const marker = "components/spec-basis-reducer/";
+  const index = text.indexOf(marker);
+  return index >= 0 ? text.slice(index) : text;
+}
+
+function renderContext(job) {
+  if (!job) {
+    els.contextHash.textContent = "";
+    els.contextPacket.innerHTML = "";
+    return;
+  }
+  const packet = (snapshot.context_packets || []).find(item => item.id === job.context_packet);
+  els.contextHash.textContent = packet ? packet.context_hash.slice(0, 10) : "";
+  els.contextPacket.innerHTML = packet ? `
+    <dl>
+      <dt>packet</dt><dd>${escapeHtml(packet.id)}</dd>
+      <dt>role</dt><dd>${escapeHtml(packet.lens_role)}</dd>
+      <dt>source</dt><dd>${escapeHtml(packet.source_path)}</dd>
+      <dt>absolute</dt><dd>${escapeHtml(packet.source_absolute_path ? displayPath(packet.source_absolute_path) : "")}</dd>
+      <dt>range</dt><dd>${escapeHtml(packet.source_range)}</dd>
+      <dt>targets</dt><dd>${escapeHtml((packet.target_projections || []).join(", "))}</dd>
+      <dt>cwd</dt><dd>${escapeHtml(job.execution_cwd ? displayPath(job.execution_cwd) : "pending")}</dd>
+      <dt>excluded</dt><dd>${escapeHtml((packet.excluded_context || []).join(", "))}</dd>
+    </dl>
+  ` : `<p>No packet found.</p>`;
+}
+
+function renderResults(job) {
+  if (!job) {
+    els.resultCount.textContent = "0";
+    els.resultEvidence.innerHTML = "";
+    return;
+  }
+  const result = resultForJob(job);
+  const findings = result?.findings || [];
+  els.resultCount.textContent = String(findings.length);
+  els.resultEvidence.innerHTML = result ? `
+    <div class="finding"><strong>Summary</strong><span>${renderSourceLinkedText(result.summary || "No summary.", job)}</span></div>
+    ${result.error ? `<div class="finding error"><strong>Error</strong><span>${renderSourceLinkedText(result.error, job)}</span></div>` : ""}
+    ${findings.map(finding => `
+      <div class="finding">
+        <strong>${escapeHtml(finding.title || finding.kind || "finding")}</strong>
+        <span>${renderSourceLinkedText(finding.evidence || finding.falsifiable_test || "", job)}</span>
+      </div>
+    `).join("")}
+  ` : `<p>No completed result yet.</p>`;
+}
+
+function renderSourceLinkedText(text, job) {
+  const value = String(text || "");
+  const refs = lineReferencesInText(value, job);
+  if (!refs.length) return escapeHtml(value);
+
+  let cursor = 0;
+  const html = [];
+  refs.forEach(ref => {
+    html.push(escapeHtml(value.slice(cursor, ref.index)));
+    html.push(`
+      <button type="button"
+        class="source-ref"
+        data-source-ref
+        data-section-id="${escapeAttr(ref.section_id)}"
+        data-start-line="${escapeAttr(ref.start_line)}"
+        data-end-line="${escapeAttr(ref.end_line)}">${escapeHtml(ref.label)}</button>
+    `);
+    cursor = ref.end_index;
+  });
+  html.push(escapeHtml(value.slice(cursor)));
+  return html.join("");
+}
+
+function bindRailButtons() {
+  document.querySelectorAll("[data-focus-job]").forEach(button => {
+    button.addEventListener("click", () => {
+      selectedJobId = button.dataset.focusJob;
+      render();
+    });
+  });
+  document.querySelectorAll("[data-stop-job]").forEach(button => {
+    button.addEventListener("click", () => postJson("/api/actions", { type: "stop_lens", job_id: button.dataset.stopJob }));
+  });
+  document.querySelectorAll("[data-rerun-job]").forEach(button => {
+    button.addEventListener("click", () => postJson("/api/actions", { type: "rerun_lens", job_id: button.dataset.rerunJob }));
+  });
+  document.querySelectorAll("[data-scroll-anchor]").forEach(button => {
+    button.addEventListener("click", () => {
+      const sectionId = button.dataset.scrollAnchor || selectedSectionId;
+      const line = button.dataset.startLine;
+      const target =
+        (line && document.querySelector(`.source-line[data-line="${CSS.escape(line)}"]`)) ||
+        document.querySelector(`.doc-section[data-section-id="${CSS.escape(sectionId)}"]`);
+      target?.scrollIntoView({ block: "center", behavior: "smooth" });
+    });
+  });
+  document.querySelectorAll("[data-source-ref]").forEach(button => {
+    button.addEventListener("mouseenter", () => previewSourceReference(button));
+    button.addEventListener("focus", () => previewSourceReference(button));
+    button.addEventListener("click", () => previewSourceReference(button));
+    button.addEventListener("mouseleave", clearSourceReference);
+    button.addEventListener("blur", clearSourceReference);
+  });
+  document.querySelectorAll("[data-preview-choice]").forEach(button => {
+    button.addEventListener("click", () => previewChoice(button));
+  });
+  document.querySelectorAll("[data-apply-choice]").forEach(button => {
+    button.addEventListener("click", () => applyChoice(button));
+  });
+}
+
+function referenceFromButton(button, kind = "source_reference") {
+  const start = Number(button.dataset.startLine);
+  const end = Number(button.dataset.endLine || button.dataset.startLine);
+  return {
+    kind,
+    section_id: button.dataset.sectionId || selectedSectionId || "",
+    start_line: Number.isFinite(start) ? start : null,
+    end_line: Number.isFinite(end) ? end : start,
+    title: button.dataset.choiceTitle || "Source reference",
+    body: button.dataset.choiceBody || ""
+  };
+}
+
+function previewSourceReference(button) {
+  activeSourceReference = referenceFromButton(button, "source_reference");
+  renderDocument();
+  scrollToSourceReference(activeSourceReference);
+}
+
+function clearSourceReference() {
+  if (!activeSourceReference) return;
+  activeSourceReference = null;
+  renderDocument();
+}
+
+function previewChoice(button) {
+  activeChoicePreview = {
+    ...referenceFromButton(button, "choice_preview"),
+    title: "Choice preview",
+    body: button.dataset.choiceBody || "Previewing the selected choice as source-anchored guidance."
+  };
+  renderDocument();
+  scrollToSourceReference(activeChoicePreview);
+}
+
+async function applyChoice(button) {
+  const anchor = referenceFromButton(button, "choice_preview");
+  const body = button.dataset.choiceBody || button.dataset.choiceTitle || "Choice selected.";
+  activeChoicePreview = {
+    ...anchor,
+    title: "Choice selected",
+    body
+  };
+  renderDocument();
+  scrollToSourceReference(activeChoicePreview);
+
+  const line = {
+    section_id: anchor.section_id,
+    line_number: anchor.start_line,
+    source_text: button.dataset.choiceTitle || "choice packet"
+  };
+  recordLocalFeedback(line, body);
+  renderFeedbackApplied(line, body, "submitting");
+
+  try {
+    await postJson("/api/actions", {
+      type: "line_feedback",
+      body,
+      mode: "additive",
+      section_id: line.section_id,
+      line_number: line.line_number,
+      source_text: line.source_text
+    });
+    renderFeedbackApplied(line, body, "applied");
+  } catch (error) {
+    renderFeedbackApplied(line, body, "failed", error);
+  }
+}
+
+function scrollToSourceReference(anchor) {
+  if (!anchor) return;
+  suppressSectionObserverUntil = Date.now() + 900;
+  requestAnimationFrame(() => {
+    const line = anchor.start_line ? String(anchor.start_line) : "";
+    const target =
+      (line && document.querySelector(`.source-line[data-line="${CSS.escape(line)}"]`)) ||
+      (anchor.section_id && document.querySelector(`.doc-section[data-section-id="${CSS.escape(anchor.section_id)}"]`));
+    target?.scrollIntoView({ block: "center", behavior: "smooth" });
+  });
+}
+
+els.startForm.addEventListener("submit", event => {
+  event.preventDefault();
+  selectedSectionId = null;
+  selectedJobId = null;
+  postJson("/api/start", {
+    mode: "reducer",
+    source_path: els.sourcePath.value.trim(),
+    targets: els.targets.value.split(",").map(item => item.trim()).filter(Boolean),
+    max_concurrency: Number(els.maxConcurrency.value || 4),
+    excluded_section_ids: [...excludedSectionIds]
+  });
+});
+
+els.corpusSample?.addEventListener("change", () => {
+  const sample = CORPUS_SAMPLES[Number(els.corpusSample.value)];
+  els.sourcePath.value = sample?.path || "components/spec-basis-reducer/spec.md";
+  excludedSectionIds = new Set();
+  queuePreview();
+});
+
+function queuePreview() {
+  if (snapshot?.run_id) return;
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(loadPreview, 160);
+}
+
+els.sourcePath.addEventListener("change", queuePreview);
+
+els.pauseRun.addEventListener("click", () => postJson("/api/actions", { type: "pause" }));
+els.resumeRun.addEventListener("click", () => postJson("/api/actions", { type: "resume" }));
+els.toggleInspector?.addEventListener("click", () => {
+  setInspectorOpen(document.body.dataset.inspectorOpen !== "true");
+});
+els.noteForm.addEventListener("submit", event => {
+  event.preventDefault();
+  const body = els.noteBody.value.trim();
+  if (!body) return;
+  const job = selectedJob();
+  postJson("/api/actions", {
+    type: "note",
+    body,
+    subject_kind: job ? "lens_job" : "section",
+    subject_id: job?.id || selectedSectionId
+  });
+  els.noteBody.value = "";
+});
+
+installCorpusSamples();
+connectEvents();
+getRun().then(() => loadPreview());

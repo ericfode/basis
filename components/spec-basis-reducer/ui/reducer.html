@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Basis.Reduce</title>
+    <script>
+      if (window.location.protocol === "file:") {
+        window.location.replace("http://127.0.0.1:8767/ui/reducer.html");
+      }
+    </script>
+    <link rel="stylesheet" href="./reducer.css">
+  </head>
+  <body data-app-shell="reducer">
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <img class="brand-logo" src="./assets/basis-logo.svg" alt="Basis reducer logo: document lenses converging into structured state.">
+          <div>
+            <h1>Basis.Reduce</h1>
+            <p id="runMeta">No run loaded.</p>
+          </div>
+        </div>
+        <form id="startForm" class="controls">
+          <label class="control-field" title="Sample document">
+            <span class="field-icon" aria-hidden="true">▤</span>
+            <span class="sr-only">Sample document</span>
+            <select id="corpusSample" aria-label="Sample document"><option value="">Basis reducer spec</option></select>
+          </label>
+          <input id="sourcePath" value="components/spec-basis-reducer/spec.md" aria-label="Source path">
+          <input id="targets" value="code,schema,proof,runbook" aria-label="Targets">
+          <label class="control-field compact-control" title="Concurrency">
+            <span class="field-icon" aria-hidden="true">⇉</span>
+            <span class="sr-only">Concurrency</span>
+            <input id="maxConcurrency" type="number" min="1" max="6" value="4" aria-label="Concurrency">
+          </label>
+          <button class="icon-button" type="submit" aria-label="Start run" title="Start run">▶</button>
+          <button id="pauseRun" class="icon-button" type="button" aria-label="Pause run" title="Pause run">⏸</button>
+          <button id="resumeRun" class="icon-button" type="button" aria-label="Resume run" title="Resume run">↻</button>
+          <button id="toggleInspector" class="icon-button" type="button" aria-label="Open inspector" title="Open inspector">◧</button>
+        </form>
+      </header>
+
+      <section class="workspace">
+        <article class="document-pane">
+          <div class="document-head">
+            <strong>Document</strong>
+            <span id="documentStatus">Loading source preview.</span>
+          </div>
+          <div id="hintLayer" class="hint-layer"></div>
+          <div id="feedbackComposer" class="feedback-composer" hidden></div>
+          <div id="documentSections"></div>
+        </article>
+
+        <aside class="thread-pane">
+          <section class="section-card">
+            <div class="section-title">
+              <div>
+                <h2 id="activeSectionTitle">No section selected</h2>
+                <p id="activeSectionMeta">Scroll the document to focus a section.</p>
+              </div>
+              <span id="connectionState" class="pill">offline</span>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Codex Threads For Visible Section</h2>
+              <span id="threadCount">0</span>
+            </div>
+            <div id="threadList" class="thread-list"></div>
+          </section>
+
+          <section class="panel stream-panel">
+            <div class="stream-head">
+              <h2>Diagrams And Summary</h2>
+              <span id="selectedJobLabel">no job</span>
+            </div>
+            <div id="visibleOutputs" class="visible-outputs"></div>
+            <div id="liveStream" class="live-stream"></div>
+          </section>
+
+          <details class="panel diagnostic-panel">
+            <summary class="panel-summary">
+              <span>Context Packet</span>
+              <span id="contextHash"></span>
+            </summary>
+            <div id="contextPacket" class="context-packet"></div>
+          </details>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Result Evidence</h2>
+              <span id="resultCount">0</span>
+            </div>
+            <div id="resultEvidence" class="result-evidence"></div>
+          </section>
+
+          <details class="panel intervention-panel">
+            <summary class="panel-summary">
+              <span>Intervention Note</span>
+              <span>event log</span>
+            </summary>
+            <form id="noteForm" class="note-form">
+              <p class="panel-help">Records a human note against the focused lens or section. It does not accept, reject, or mutate reducer output.</p>
+              <textarea id="noteBody" placeholder="Write the intervention note"></textarea>
+              <button type="submit">Record Note</button>
+            </form>
+          </details>
+        </aside>
+      </section>
+    </main>
+    <script type="module" src="./reducer-app.js"></script>
+  </body>
+</html>
