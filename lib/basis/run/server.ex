@@ -12,6 +12,12 @@ defmodule Basis.Run.Server do
   alias Basis.LLM.{ContextPacket, LensSpec}
 
   @terminal_statuses MapSet.new(["completed", "failed", "stopped"])
+  @retained_event_tail 800
+  @projection_event_tail 250
+  @projection_stream_tail 80
+  @projection_result_text_limit 8_000
+  @projection_raw_limit 2_000
+  @projection_tool_raw_limit 16_000
 
   defstruct run_id: nil,
             mode: "reducer",
@@ -1590,7 +1596,7 @@ defmodule Basis.Run.Server do
 
     state = %{
       state
-      | events: state.events ++ [event],
+      | events: retain_events(state.events ++ [event]),
         next_event: state.next_event + 1,
         updated_at: event.timestamp
     }
@@ -1622,7 +1628,7 @@ defmodule Basis.Run.Server do
       steering_notes: state.steering_notes,
       rejected_paths: state.rejected_paths,
       counts: %{
-        events: length(state.events),
+        events: state.next_event - 1,
         sections: length(state.sections),
         jobs: length(state.jobs),
         queued: Enum.count(state.jobs, &(&1.status == "queued")),
@@ -1645,14 +1651,91 @@ defmodule Basis.Run.Server do
       document_sections: document_sections(state),
       jobs: Enum.map(state.jobs, &project_job/1),
       context_packets: Enum.map(state.jobs, &project_packet(&1.context_packet)),
-      streams: state.streams,
-      results: result_values,
+      streams: project_streams(state.streams),
+      results: Enum.map(result_values, &project_result/1),
       proposed_records: records,
       questions: questions,
       imaginer: imaginer_projection(state, result_values, records),
       interventions: interventions(state.events),
-      events: Enum.take(state.events, -250)
+      events: Enum.take(state.events, -@projection_event_tail)
     }
+  end
+
+  defp retain_events(events) do
+    {important, disposable} = Enum.split_with(events, &important_event?/1)
+
+    (important ++ Enum.take(disposable, -@retained_event_tail))
+    |> Enum.uniq_by(& &1.id)
+    |> Enum.sort_by(&event_number/1)
+  end
+
+  defp important_event?(%{type: type}) do
+    type in [
+      "run_started",
+      "source_loaded",
+      "run_completed",
+      "run_failed",
+      "human_line_feedback",
+      "human_note",
+      "human_record_decision"
+    ]
+  end
+
+  defp important_event?(_event), do: false
+
+  defp event_number(%{id: "evt-" <> number}) do
+    case Integer.parse(number) do
+      {value, _rest} -> value
+      :error -> 0
+    end
+  end
+
+  defp event_number(_event), do: 0
+
+  defp project_streams(streams) do
+    Map.new(streams, fn {job_id, stream} ->
+      {job_id, stream |> Enum.take(-@projection_stream_tail) |> Enum.map(&project_stream_item/1)}
+    end)
+  end
+
+  defp project_stream_item(item) do
+    item
+    |> Map.update(:summary, "", &truncate_text(&1, 800))
+    |> project_stream_raw()
+  end
+
+  defp project_stream_raw(%{type: "item/agentMessage/delta"} = item), do: Map.delete(item, :raw)
+
+  defp project_stream_raw(%{type: "item/reasoning/summaryTextDelta"} = item),
+    do: Map.delete(item, :raw)
+
+  defp project_stream_raw(%{type: "item/reasoning/textDelta"} = item), do: Map.delete(item, :raw)
+  defp project_stream_raw(%{type: "item/plan/delta"} = item), do: Map.delete(item, :raw)
+
+  defp project_stream_raw(%{type: "item/tool/call"} = item) do
+    Map.update(item, :raw, "", &truncate_text(&1, @projection_tool_raw_limit))
+  end
+
+  defp project_stream_raw(item) do
+    Map.update(item, :raw, "", &truncate_text(&1, @projection_raw_limit))
+  end
+
+  defp project_result(result) do
+    result
+    |> Map.update(:raw_text, "", &truncate_text(&1, @projection_result_text_limit))
+    |> Map.update(:console_excerpt, "", &truncate_text(&1, @projection_result_text_limit))
+  end
+
+  defp truncate_text(nil, _limit), do: ""
+
+  defp truncate_text(value, limit) when is_binary(value) do
+    String.slice(value, 0, limit)
+  end
+
+  defp truncate_text(value, limit) do
+    value
+    |> to_string()
+    |> String.slice(0, limit)
   end
 
   defp interventions(events) do
