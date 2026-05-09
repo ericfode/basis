@@ -73,9 +73,15 @@ export function renderSpecDocument(section, anchors = []) {
       while (index < lines.length) {
         const current = parseListItem(lines[index]);
         if (!current || current.ordered !== list.ordered) break;
-        const currentLine = Number(section.start_line) + index;
-        items.push(`<li>${lineSpan(section, current.text, currentLine, anchors)}</li>`);
+        const parts = [{ text: current.text, line: Number(section.start_line) + index }];
         index += 1;
+
+        while (index < lines.length && isListContinuationLine(lines[index])) {
+          parts.push({ text: lines[index].trim(), line: Number(section.start_line) + index });
+          index += 1;
+        }
+
+        items.push(`<li>${renderProseSpans(section, parts, anchors)}</li>`);
       }
       blocks.push(`<${tag} class="spec-list">${items.join("")}</${tag}>`);
       continue;
@@ -96,27 +102,87 @@ export function renderSpecDocument(section, anchors = []) {
     const paragraph = [];
     while (index < lines.length && isParagraphLine(lines[index])) {
       const current = lines[index];
-      const currentLine = Number(section.start_line) + index;
-      paragraph.push(lineSpan(section, current.trim(), currentLine, anchors));
+      paragraph.push({ text: current.trim(), line: Number(section.start_line) + index });
       index += 1;
     }
-    blocks.push(`<p class="spec-paragraph">${paragraph.join(" ")}</p>`);
+    blocks.push(`<p class="spec-paragraph">${renderProseSpans(section, paragraph, anchors)}</p>`);
   }
 
   return `<div class="source-document">${blocks.join("")}</div>`;
 }
 
 function lineSpan(section, line, lineNumber, anchors, className = "", options = {}) {
-  const matchingAnchors = anchors.filter(item => lineMatchesAnchor(section, line, lineNumber, item));
+  return sourceRangeSpan(section, line, lineNumber, lineNumber, anchors, className, options);
+}
+
+function sourceRangeSpan(section, textValue, startLine, endLine, anchors, className = "", options = {}) {
+  const matchingAnchors = anchors.filter(item => rangeMatchesAnchor(section, textValue, startLine, endLine, item));
   const anchor = matchingAnchors[0];
-  const text = options.inline === false ? escapeHtml(line || " ") : renderInline(line || " ");
+  const text = options.inline === false ? escapeHtml(textValue || " ") : renderInline(textValue || " ");
+  const label = startLine === endLine ? String(startLine) : `${startLine}-${endLine}`;
   return `
-    <span class="source-line ${className}" data-line="${lineNumber}" data-projected="${anchor ? "true" : "false"}">
-      <button class="line-marker" type="button" data-section-id="${escapeAttr(section.id)}" data-line="${lineNumber}" data-source-text="${escapeAttr(line || "")}" aria-label="Give feedback on line ${lineNumber}">${lineNumber}</button>
+    <span class="source-line ${className}" data-line="${startLine}" data-end-line="${endLine}" data-projected="${anchor ? "true" : "false"}">
+      <button class="line-marker" type="button" data-section-id="${escapeAttr(section.id)}" data-line="${startLine}" data-end-line="${endLine}" data-source-text="${escapeAttr(textValue || "")}" aria-label="Give feedback on lines ${label}">${label}</button>
       <span class="source-line-text">${text}</span>
     </span>
     ${renderLineImpacts(matchingAnchors)}
   `;
+}
+
+function renderProseSpans(section, parts, anchors) {
+  return sentenceRanges(parts)
+    .map(range => sourceRangeSpan(section, range.text, range.start_line, range.end_line, anchors, "source-sentence"))
+    .join(" ");
+}
+
+function sentenceRanges(parts) {
+  const normalizedParts = parts
+    .map(part => ({ text: String(part.text || "").trim(), line: Number(part.line) }))
+    .filter(part => part.text);
+
+  if (!normalizedParts.length) return [];
+
+  const text = normalizedParts.map(part => part.text).join(" ");
+  const protectedText = text.replace(/(\b[vV]?\d)\.(?=\d)/g, "$1\u0007");
+  const lineAtOffsets = [];
+  let offset = 0;
+
+  normalizedParts.forEach((part, index) => {
+    const start = offset;
+    const end = start + part.text.length;
+    lineAtOffsets.push({ start, end, line: part.line });
+    offset = end + (index === normalizedParts.length - 1 ? 0 : 1);
+  });
+
+  const ranges = [];
+  const pattern = /[^.!?]+(?:[.!?]+["')\]]*|$)/g;
+  let match;
+
+  while ((match = pattern.exec(protectedText)) !== null) {
+    const raw = match[0];
+    const trimmed = raw.replaceAll("\u0007", ".").trim();
+    if (!trimmed) continue;
+    const leading = raw.search(/\S/);
+    const start = match.index + (leading < 0 ? 0 : leading);
+    const end = start + trimmed.length;
+    ranges.push({
+      text: trimmed,
+      start_line: lineForOffset(lineAtOffsets, start),
+      end_line: lineForOffset(lineAtOffsets, Math.max(start, end - 1))
+    });
+  }
+
+  return ranges.length ? ranges : [{
+    text,
+    start_line: normalizedParts[0].line,
+    end_line: normalizedParts[normalizedParts.length - 1].line
+  }];
+}
+
+function lineForOffset(lineAtOffsets, target) {
+  const match = lineAtOffsets.find(item => target >= item.start && target <= item.end);
+  if (match) return match.line;
+  return lineAtOffsets[lineAtOffsets.length - 1]?.line || 0;
 }
 
 function renderLineImpacts(anchors) {
@@ -152,15 +218,15 @@ function renderInline(value) {
   return text;
 }
 
-function lineMatchesAnchor(section, line, lineNumber, anchor) {
+function rangeMatchesAnchor(section, textValue, startLine, endLine, anchor) {
   if (anchor.start_line && anchor.end_line) {
-    return lineNumber >= anchor.start_line && lineNumber <= anchor.end_line;
+    return endLine >= anchor.start_line && startLine <= anchor.end_line;
   }
 
   const quote = String(anchor.quote || "").trim();
   if (!quote) return false;
-  const normalizedLine = String(line || "").trim();
-  return normalizedLine && (quote.includes(normalizedLine) || normalizedLine.includes(quote));
+  const normalizedText = String(textValue || "").trim();
+  return normalizedText && (quote.includes(normalizedText) || normalizedText.includes(quote));
 }
 
 function parseHeading(line) {
@@ -185,6 +251,10 @@ function isParagraphLine(line) {
     !isRule(line) &&
     !isTableLine(line) &&
     !isBlockquote(line);
+}
+
+function isListContinuationLine(line) {
+  return isParagraphLine(line) && !parseListItem(line);
 }
 
 function isBlank(line) {

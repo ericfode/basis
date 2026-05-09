@@ -1,0 +1,35 @@
+{
+  "date": "2026-05-08",
+  "fixture": "uxn-vm-spec-ladder",
+  "condition": "minimum-implied-L5",
+  "worker_visible_spec": "/private/tmp/uxn-minimum-implied-spec.md",
+  "repo_spec_copy": "specs/l5-minimum-implied.md",
+  "isolation_note": "Worker prompt named only the temporary spec and output path. The evaluator still existed in the parent repository, so this is improved but not a formally sandboxed blind eval.",
+  "solution": "/private/tmp/basis-uxn-ladder/min-implied-L5-01/solution.mjs",
+  "result": {
+    "passed": 21,
+    "total": 21,
+    "score": 1.0,
+    "byLevel": {
+      "L0": 1.0,
+      "L1": 1.0,
+      "L2": 1.0,
+      "L3": 1.0,
+      "L4": 1.0,
+      "L5": 1.0
+    }
+  },
+  "process_proxy": {
+    "solution_lines": 408,
+    "clean_l5_solution_lines": 342,
+    "degraded_metaphor_l5_solution_lines": 400
+  },
+  "leakage_audit": {
+    "obvious_forbidden_string_scan": "no hits for evaluator/result/oracle/hidden-case markers"
+  },
+  "interpretation": [
+    "The minimum-implied spec still passes current L5 behavior tests.",
+    "It is not minimal in process cost: the generated implementation is longer than both the clean L5 and degraded metaphor L5 samples.",
+    "This suggests many details can be implied for a strong builder when the compact semantic table is accurate, but implication shifts effort into reconstruction rather than reducing implementation size."
+  ]
+}

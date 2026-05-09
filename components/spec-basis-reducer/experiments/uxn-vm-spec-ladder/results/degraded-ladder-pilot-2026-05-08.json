@@ -1,0 +1,86 @@
+{
+  "date": "2026-05-08",
+  "fixture": "uxn-vm-spec-ladder",
+  "method": "one degraded builder for L2-L5 plus one clean L5 builder; each solution scored only up to its requested level",
+  "clean_l5": {
+    "specs": [
+      "specs/l0-good-stack-smoke.md",
+      "specs/l1-good-byte-core.md",
+      "specs/l2-good-modes.md",
+      "specs/l3-good-memory-control.md",
+      "specs/l4-good-devices.md",
+      "specs/l5-good-varvara-program-smoke.md"
+    ],
+    "solution": "/private/tmp/basis-uxn-ladder/good-L5-01/solution.mjs",
+    "passed": 21,
+    "total": 21,
+    "score": 1.0,
+    "solution_lines": 342
+  },
+  "degraded": {
+    "L2_entangled_modes": {
+      "specs": [
+        "specs/l0-good-stack-smoke.md",
+        "specs/l1-good-byte-core.md",
+        "specs/l2-bad-entangled-modes.md"
+      ],
+      "solution": "/private/tmp/basis-uxn-ladder/bad-L2-01/solution.mjs",
+      "passed": 11,
+      "total": 11,
+      "score": 1.0,
+      "solution_lines": 239,
+      "clean_level_solution_lines": 231
+    },
+    "L3_scattered_memory_control": {
+      "specs": [
+        "specs/l0-good-stack-smoke.md",
+        "specs/l1-good-byte-core.md",
+        "specs/l2-good-modes.md",
+        "specs/l3-bad-scattered-memory-control.md"
+      ],
+      "solution": "/private/tmp/basis-uxn-ladder/bad-L3-01/solution.mjs",
+      "passed": 15,
+      "total": 15,
+      "score": 1.0,
+      "solution_lines": 328,
+      "clean_level_solution_lines": 335
+    },
+    "L4_crossref_devices": {
+      "specs": [
+        "specs/l0-good-stack-smoke.md",
+        "specs/l1-good-byte-core.md",
+        "specs/l2-good-modes.md",
+        "specs/l3-good-memory-control.md",
+        "specs/l4-bad-crossref-devices.md"
+      ],
+      "solution": "/private/tmp/basis-uxn-ladder/bad-L4-01/solution.mjs",
+      "passed": 18,
+      "total": 18,
+      "score": 1.0,
+      "solution_lines": 372,
+      "clean_level_solution_lines": 362
+    },
+    "L5_metaphor_varvara_programs": {
+      "specs": [
+        "specs/l0-good-stack-smoke.md",
+        "specs/l1-good-byte-core.md",
+        "specs/l2-good-modes.md",
+        "specs/l3-good-memory-control.md",
+        "specs/l4-good-devices.md",
+        "specs/l5-bad-metaphor-varvara-programs.md"
+      ],
+      "solution": "/private/tmp/basis-uxn-ladder/bad-L5-01/solution.mjs",
+      "passed": 21,
+      "total": 21,
+      "score": 1.0,
+      "solution_lines": 400,
+      "clean_l5_solution_lines": 342
+    }
+  },
+  "interpretation": [
+    "All degraded overlays passed the current hidden behavior tests.",
+    "The current degraded overlays are not strong enough to separate final behavior for a strong builder.",
+    "The largest process-cost movement was L5: the degraded Varvara metaphor spec produced a 400-line solution versus 342 lines for the clean L5 spec.",
+    "The next discriminator should either use multiple builders per condition or introduce L6 real ROM compatibility with stronger public ROM/test-program coverage."
+  ]
+}

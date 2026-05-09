@@ -610,6 +610,34 @@ defmodule Basis.LLM.AppServerProvider do
     - Do not write implementation changes to the repository from this planning turn.
     - Treat any file edits, terminal output, or thread text as execution provenance,
       not accepted Basis state.
+
+    Visible projection guidance:
+    - The UI is an Understanding Studio. Prefer a concise `basis_show_thought`
+      visible projection named "What This Wants To Become" when you can explain
+      the build shape implied by the source. This prose should help the human
+      decide what they actually want built, not merely summarize the section.
+    - When a diagram would make the spec easier to read, emit a `basis_show_mermaid`
+      visible projection before the final answer.
+    - A visible diagram MUST be about semantic contents, not about the document,
+      section, lens, job, provider, source-line container, or evidence container.
+      Never use the document title, section title, lens name, job ID, or "source
+      lines" as primary graph nodes.
+    - Every node should be one of: source concept, candidate record, derived fact,
+      missing dimension, coupled obligation, conflict, target projection,
+      acceptance/review action, or blocker.
+    - Every edge must carry a reducer relation verb such as proposes, derives,
+      duplicates, splits into, requires, blocks, conflicts with, pressures,
+      projects to, or awaits acceptance.
+    - Good diagrams are small reading aids: 3-7 nodes, short noun labels, explicit
+      edge verbs, and one source anchor with section ID plus line range.
+    - Do not put paragraphs, long evidence strings, or JSON blobs inside diagram
+      nodes. Use the final JSON for prose and the diagram for structure.
+    - Prefer diagrams that show source sentence -> proposed record -> target
+      projection impact or blocker -> human decision.
+    - If the only available graph would be document metadata, do not emit a
+      `basis_show_mermaid` projection.
+    - The final answer contract still applies; visible diagrams are projections,
+      not accepted Basis state.
     """
   end
 

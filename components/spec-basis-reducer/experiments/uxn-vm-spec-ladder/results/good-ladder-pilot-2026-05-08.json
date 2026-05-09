@@ -1,0 +1,67 @@
+{
+  "date": "2026-05-08",
+  "fixture": "uxn-vm-spec-ladder",
+  "condition": "good",
+  "method": "one builder per level; each builder received only specs up to that level; each solution was scored only up to its requested level",
+  "oracle_check": {
+    "solution": "/private/tmp/uxn-ladder-oracle-solution.mjs",
+    "passed": 21,
+    "total": 21,
+    "score": 1.0
+  },
+  "levels": {
+    "L0": {
+      "specs": ["specs/l0-good-stack-smoke.md"],
+      "solution": "/private/tmp/basis-uxn-ladder/good-L0-01/solution.mjs",
+      "passed": 3,
+      "total": 3,
+      "score": 1.0,
+      "solution_lines": 78
+    },
+    "L1": {
+      "specs": ["specs/l0-good-stack-smoke.md", "specs/l1-good-byte-core.md"],
+      "solution": "/private/tmp/basis-uxn-ladder/good-L1-01/solution.mjs",
+      "passed": 7,
+      "total": 7,
+      "score": 1.0,
+      "solution_lines": 193
+    },
+    "L2": {
+      "specs": ["specs/l0-good-stack-smoke.md", "specs/l1-good-byte-core.md", "specs/l2-good-modes.md"],
+      "solution": "/private/tmp/basis-uxn-ladder/good-L2-01/solution.mjs",
+      "passed": 11,
+      "total": 11,
+      "score": 1.0,
+      "solution_lines": 231
+    },
+    "L3": {
+      "specs": ["specs/l0-good-stack-smoke.md", "specs/l1-good-byte-core.md", "specs/l2-good-modes.md", "specs/l3-good-memory-control.md"],
+      "solution": "/private/tmp/basis-uxn-ladder/good-L3-01/solution.mjs",
+      "passed": 15,
+      "total": 15,
+      "score": 1.0,
+      "solution_lines": 335
+    },
+    "L4": {
+      "specs": ["specs/l0-good-stack-smoke.md", "specs/l1-good-byte-core.md", "specs/l2-good-modes.md", "specs/l3-good-memory-control.md", "specs/l4-good-devices.md"],
+      "solution": "/private/tmp/basis-uxn-ladder/good-L4-01/solution.mjs",
+      "passed": 18,
+      "total": 18,
+      "score": 1.0,
+      "solution_lines": 362
+    },
+    "L5": {
+      "specs": ["specs/l0-good-stack-smoke.md", "specs/l1-good-byte-core.md", "specs/l2-good-modes.md", "specs/l3-good-memory-control.md", "specs/l4-good-devices.md", "specs/l5-good-varvara-program-smoke.md"],
+      "solution": "/private/tmp/basis-uxn-ladder/good-L5-01/solution.mjs",
+      "passed": 21,
+      "total": 21,
+      "score": 1.0,
+      "solution_lines": 342
+    }
+  },
+  "interpretation": [
+    "The good spec ladder is currently buildable through L5 by one builder per level.",
+    "This establishes a green baseline before degraded Uxn specs are introduced.",
+    "The line-count process proxy generally rises with semantic complexity, from 78 lines at L0 to 342 lines at L5 in this sample."
+  ]
+}

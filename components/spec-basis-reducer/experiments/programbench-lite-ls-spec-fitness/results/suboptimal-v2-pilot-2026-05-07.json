@@ -1,0 +1,110 @@
+{
+  "results": [
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/good-01/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 1,
+        "hidden": 1,
+        "indicators": 1,
+        "operands": 1,
+        "recursive": 1,
+        "errors": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/good-02/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 1,
+        "hidden": 1,
+        "indicators": 1,
+        "operands": 1,
+        "recursive": 1,
+        "errors": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/good-03/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 1,
+        "hidden": 1,
+        "indicators": 1,
+        "operands": 1,
+        "recursive": 1,
+        "errors": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/suboptimal-v2-01/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 1,
+        "hidden": 1,
+        "indicators": 1,
+        "operands": 1,
+        "recursive": 1,
+        "errors": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/suboptimal-v2-02/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 1,
+        "hidden": 1,
+        "indicators": 1,
+        "operands": 1,
+        "recursive": 1,
+        "errors": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/suboptimal-v2-03/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 1,
+        "hidden": 1,
+        "indicators": 1,
+        "operands": 1,
+        "recursive": 1,
+        "errors": 1
+      },
+      "total": 1,
+      "failures": []
+    }
+  ],
+  "summary": {
+    "good": {
+      "n": 3,
+      "mean": 1,
+      "median": 1,
+      "min": 1,
+      "max": 1
+    },
+    "suboptimal": {
+      "n": 3,
+      "mean": 1,
+      "median": 1,
+      "min": 1,
+      "max": 1
+    }
+  }
+}

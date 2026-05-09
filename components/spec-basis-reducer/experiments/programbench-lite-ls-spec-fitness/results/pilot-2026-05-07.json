@@ -1,0 +1,224 @@
+{
+  "results": [
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/good-01/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 1,
+        "hidden": 1,
+        "indicators": 1,
+        "operands": 1,
+        "recursive": 1,
+        "errors": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/good-02/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 1,
+        "hidden": 1,
+        "indicators": 1,
+        "operands": 1,
+        "recursive": 1,
+        "errors": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/good-03/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 1,
+        "hidden": 1,
+        "indicators": 1,
+        "operands": 1,
+        "recursive": 1,
+        "errors": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/suboptimal-01/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 0,
+        "hidden": 0,
+        "indicators": 0.5,
+        "operands": 0.25,
+        "recursive": 0,
+        "errors": 0
+      },
+      "total": 0.2875,
+      "failures": [
+        "default current directory hides dotfiles: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \"alpha.txt  Beta.txt  dir  link-alpha  run.sh\\n\", stderr \"\"",
+        "all includes dot dotdot and hidden: expected status 0, stdout \".\\n..\\n.hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \".  ..  .hidden  alpha.txt  Beta.txt  dir  link-alpha  run.sh\\n\", stderr \"\"",
+        "almost all excludes dot dotdot: expected status 0, stdout \".hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \".hidden  alpha.txt  Beta.txt  dir  link-alpha  run.sh\\n\", stderr \"\"",
+        "type indicators: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir/\\nlink-alpha@\\nrun.sh*\\n\", stderr \"\"; got status 0, stdout \"alpha.txt  Beta.txt  dir/  link-alpha@  run.sh*\\n\", stderr \"\"",
+        "single directory operand no header: expected status 0, stdout \"child.txt\\nnested\\n\", stderr \"\"; got status 0, stdout \"child.txt  nested\\n\", stderr \"\"",
+        "multiple operands mixed: expected status 0, stdout \"Beta.txt\\nalpha.txt\\n\\ndir:\\nchild.txt\\nnested\\n\", stderr \"\"; got status 0, stdout \"alpha.txt  Beta.txt\\n\\ndir:\\nchild.txt  nested\\n\", stderr \"\"",
+        "reverse order: expected status 0, stdout \"run.sh\\nlink-alpha\\ndir\\nalpha.txt\\nBeta.txt\\n\", stderr \"\"; got status 0, stdout \"run.sh  link-alpha  dir  Beta.txt  alpha.txt\\n\", stderr \"\"",
+        "recursive listing: expected status 0, stdout \"dir:\\nchild.txt\\nnested\\n\\ndir/nested:\\ndeep.txt\\n\", stderr \"\"; got status 0, stdout \"dir:\\nchild.txt  nested\\n\\ndir/nested:\\ndeep.txt\\n\", stderr \"\"",
+        "recursive all traverses hidden directory: expected status 0, stdout \"dir:\\n.\\n..\\n.hidden-child\\nchild.txt\\nnested\\n\\ndir/.hidden-child:\\n.\\n..\\nsecret.txt\\n\\ndir/nested:\\n.\\n..\\ndeep.txt\\n\", stderr \"\"; got status 0, stdout \"dir:\\n.  ..  .hidden-child  child.txt  nested\\n\\ndir/.hidden-child:\\n.  ..  secret.txt\\n\\ndir/nested:\\n.  ..  deep.txt\\n\", stderr \"\"",
+        "missing operand continues: expected status 1, stdout \"alpha.txt\\n\", stderr \"ls-lite: cannot access 'missing': No such file or directory\\n\"; got status 1, stdout \"alpha.txt\\n\", stderr \"solution.mjs: cannot access 'missing': ENOENT: no such file or directory, lstat 'missing'\\n\"",
+        "usage invalid option: expected status 2, stdout \"\", stderr \"ls-lite: usage\\n\"; got status 2, stdout \"\", stderr \"solution.mjs: invalid option -- 'z'\\nusage: node solution.mjs [-1aAdFRr] [file...]\\n\""
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/suboptimal-02/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 0.3333333333333333,
+        "hidden": 0.3333333333333333,
+        "indicators": 0.5,
+        "operands": 0.5,
+        "recursive": 1,
+        "errors": 0
+      },
+      "total": 0.5583,
+      "failures": [
+        "default current directory hides dotfiles: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"",
+        "all includes dot dotdot and hidden: expected status 0, stdout \".\\n..\\n.hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \".\\n..\\n.hidden\\nalpha.txt\\nBeta.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"",
+        "almost all excludes dot dotdot: expected status 0, stdout \".hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \".hidden\\nalpha.txt\\nBeta.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"",
+        "type indicators: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir/\\nlink-alpha@\\nrun.sh*\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\ndir/\\nlink-alpha@\\nrun.sh*\\n\", stderr \"\"",
+        "multiple operands mixed: expected status 0, stdout \"Beta.txt\\nalpha.txt\\n\\ndir:\\nchild.txt\\nnested\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\n\\ndir:\\nchild.txt\\nnested\\n\", stderr \"\"",
+        "reverse order: expected status 0, stdout \"run.sh\\nlink-alpha\\ndir\\nalpha.txt\\nBeta.txt\\n\", stderr \"\"; got status 0, stdout \"run.sh\\nlink-alpha\\ndir\\nBeta.txt\\nalpha.txt\\n\", stderr \"\"",
+        "missing operand continues: expected status 1, stdout \"alpha.txt\\n\", stderr \"ls-lite: cannot access 'missing': No such file or directory\\n\"; got status 1, stdout \"alpha.txt\\n\", stderr \"ls-lite: cannot access 'missing': ENOENT: no such file or directory, lstat 'missing'\\n\"",
+        "usage invalid option: expected status 2, stdout \"\", stderr \"ls-lite: usage\\n\"; got status 2, stdout \"\", stderr \"ls-lite: invalid option -- 'z'\\nusage: node solution.mjs [-1aAdFRr] [file...]\\n\""
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/suboptimal-03/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 0.3333333333333333,
+        "hidden": 0.3333333333333333,
+        "indicators": 0.5,
+        "operands": 0.5,
+        "recursive": 1,
+        "errors": 0
+      },
+      "total": 0.5583,
+      "failures": [
+        "default current directory hides dotfiles: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"",
+        "all includes dot dotdot and hidden: expected status 0, stdout \".\\n..\\n.hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \".\\n..\\n.hidden\\nalpha.txt\\nBeta.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"",
+        "almost all excludes dot dotdot: expected status 0, stdout \".hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \".hidden\\nalpha.txt\\nBeta.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"",
+        "type indicators: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir/\\nlink-alpha@\\nrun.sh*\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\ndir/\\nlink-alpha@\\nrun.sh*\\n\", stderr \"\"",
+        "multiple operands mixed: expected status 0, stdout \"Beta.txt\\nalpha.txt\\n\\ndir:\\nchild.txt\\nnested\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\n\\ndir:\\nchild.txt\\nnested\\n\", stderr \"\"",
+        "reverse order: expected status 0, stdout \"run.sh\\nlink-alpha\\ndir\\nalpha.txt\\nBeta.txt\\n\", stderr \"\"; got status 0, stdout \"run.sh\\nlink-alpha\\ndir\\nBeta.txt\\nalpha.txt\\n\", stderr \"\"",
+        "missing operand continues: expected status 1, stdout \"alpha.txt\\n\", stderr \"ls-lite: cannot access 'missing': No such file or directory\\n\"; got status 1, stdout \"alpha.txt\\n\", stderr \"ls-lite: cannot access 'missing': ENOENT: no such file or directory, lstat 'missing'\\n\"",
+        "usage invalid option: expected status 2, stdout \"\", stderr \"ls-lite: usage\\n\"; got status 2, stdout \"\", stderr \"ls-lite: invalid option -- z\\nusage: node solution.mjs [-1aAdFRr] [file ...]\\n\""
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/bad-01/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 0.3333333333333333,
+        "hidden": 0,
+        "indicators": 0.5,
+        "operands": 0.5,
+        "recursive": 0,
+        "errors": 0
+      },
+      "total": 0.4083,
+      "failures": [
+        "default current directory hides dotfiles: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"",
+        "all includes dot dotdot and hidden: expected status 0, stdout \".\\n..\\n.hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \".hidden\\nalpha.txt\\nBeta.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"",
+        "almost all excludes dot dotdot: expected status 0, stdout \".hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 2, stdout \"\", stderr \"solution.mjs: illegal option -- A\\nusage: node solution.mjs [-a] [-d] [-F] [-R] [-r] [-1] [file ...]\\n\"",
+        "type indicators: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir/\\nlink-alpha@\\nrun.sh*\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\ndir/\\nlink-alpha@\\nrun.sh*\\n\", stderr \"\"",
+        "multiple operands mixed: expected status 0, stdout \"Beta.txt\\nalpha.txt\\n\\ndir:\\nchild.txt\\nnested\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\n\\ndir:\\nchild.txt\\nnested\\n\", stderr \"\"",
+        "reverse order: expected status 0, stdout \"run.sh\\nlink-alpha\\ndir\\nalpha.txt\\nBeta.txt\\n\", stderr \"\"; got status 0, stdout \"run.sh\\nlink-alpha\\ndir\\nBeta.txt\\nalpha.txt\\n\", stderr \"\"",
+        "recursive listing: expected status 0, stdout \"dir:\\nchild.txt\\nnested\\n\\ndir/nested:\\ndeep.txt\\n\", stderr \"\"; got status 0, stdout \"child.txt\\nnested\\n\\ndir/nested:\\ndeep.txt\\n\", stderr \"\"",
+        "recursive all traverses hidden directory: expected status 0, stdout \"dir:\\n.\\n..\\n.hidden-child\\nchild.txt\\nnested\\n\\ndir/.hidden-child:\\n.\\n..\\nsecret.txt\\n\\ndir/nested:\\n.\\n..\\ndeep.txt\\n\", stderr \"\"; got status 0, stdout \".hidden-child\\nchild.txt\\nnested\\n\\ndir/.hidden-child:\\nsecret.txt\\n\\ndir/nested:\\ndeep.txt\\n\", stderr \"\"",
+        "missing operand continues: expected status 1, stdout \"alpha.txt\\n\", stderr \"ls-lite: cannot access 'missing': No such file or directory\\n\"; got status 1, stdout \"alpha.txt\\n\", stderr \"solution.mjs: cannot access 'missing': ENOENT: no such file or directory, lstat 'missing'\\n\"",
+        "usage invalid option: expected status 2, stdout \"\", stderr \"ls-lite: usage\\n\"; got status 2, stdout \"\", stderr \"solution.mjs: illegal option -- z\\nusage: node solution.mjs [-a] [-d] [-F] [-R] [-r] [-1] [file ...]\\n\""
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/bad-02/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 0,
+        "hidden": 0,
+        "indicators": 0.5,
+        "operands": 0.25,
+        "recursive": 0,
+        "errors": 0
+      },
+      "total": 0.2875,
+      "failures": [
+        "default current directory hides dotfiles: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \"alpha.txt  Beta.txt  dir  link-alpha  run.sh\\n\", stderr \"\"",
+        "all includes dot dotdot and hidden: expected status 0, stdout \".\\n..\\n.hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \".hidden  alpha.txt  Beta.txt  dir  link-alpha  run.sh\\n\", stderr \"\"",
+        "almost all excludes dot dotdot: expected status 0, stdout \".hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 2, stdout \"\", stderr \"ls-lite: illegal option -- A\\n\"",
+        "type indicators: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir/\\nlink-alpha@\\nrun.sh*\\n\", stderr \"\"; got status 0, stdout \"alpha.txt  Beta.txt  dir/  link-alpha@  run.sh*\\n\", stderr \"\"",
+        "single directory operand no header: expected status 0, stdout \"child.txt\\nnested\\n\", stderr \"\"; got status 0, stdout \"child.txt  nested\\n\", stderr \"\"",
+        "multiple operands mixed: expected status 0, stdout \"Beta.txt\\nalpha.txt\\n\\ndir:\\nchild.txt\\nnested\\n\", stderr \"\"; got status 0, stdout \"alpha.txt  Beta.txt\\n\\ndir:\\nchild.txt  nested\\n\", stderr \"\"",
+        "reverse order: expected status 0, stdout \"run.sh\\nlink-alpha\\ndir\\nalpha.txt\\nBeta.txt\\n\", stderr \"\"; got status 0, stdout \"run.sh  link-alpha  dir  Beta.txt  alpha.txt\\n\", stderr \"\"",
+        "recursive listing: expected status 0, stdout \"dir:\\nchild.txt\\nnested\\n\\ndir/nested:\\ndeep.txt\\n\", stderr \"\"; got status 0, stdout \"child.txt  nested\\n\\ndir/nested:\\ndeep.txt\\n\", stderr \"\"",
+        "recursive all traverses hidden directory: expected status 0, stdout \"dir:\\n.\\n..\\n.hidden-child\\nchild.txt\\nnested\\n\\ndir/.hidden-child:\\n.\\n..\\nsecret.txt\\n\\ndir/nested:\\n.\\n..\\ndeep.txt\\n\", stderr \"\"; got status 0, stdout \".hidden-child  child.txt  nested\\n\\ndir/.hidden-child:\\nsecret.txt\\n\\ndir/nested:\\ndeep.txt\\n\", stderr \"\"",
+        "missing operand continues: expected status 1, stdout \"alpha.txt\\n\", stderr \"ls-lite: cannot access 'missing': No such file or directory\\n\"; got status 1, stdout \"alpha.txt\\n\", stderr \"ls-lite: cannot access 'missing': ENOENT: no such file or directory, lstat 'missing'\\n\"",
+        "usage invalid option: expected status 2, stdout \"\", stderr \"ls-lite: usage\\n\"; got status 2, stdout \"\", stderr \"ls-lite: illegal option -- z\\n\""
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-ls-spec-fitness/runs/bad-03/solution.mjs",
+      "vector": {
+        "sourcePolicy": 1,
+        "interface": 1,
+        "listing": 0.3333333333333333,
+        "hidden": 0.3333333333333333,
+        "indicators": 0.5,
+        "operands": 0.5,
+        "recursive": 1,
+        "errors": 0
+      },
+      "total": 0.5583,
+      "failures": [
+        "default current directory hides dotfiles: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"",
+        "all includes dot dotdot and hidden: expected status 0, stdout \".\\n..\\n.hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 0, stdout \".\\n..\\n.hidden\\nalpha.txt\\nBeta.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"",
+        "almost all excludes dot dotdot: expected status 0, stdout \".hidden\\nBeta.txt\\nalpha.txt\\ndir\\nlink-alpha\\nrun.sh\\n\", stderr \"\"; got status 2, stdout \"\", stderr \"ls-lite: invalid option -- 'A'\\n\"",
+        "type indicators: expected status 0, stdout \"Beta.txt\\nalpha.txt\\ndir/\\nlink-alpha@\\nrun.sh*\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\ndir/\\nlink-alpha@\\nrun.sh*\\n\", stderr \"\"",
+        "multiple operands mixed: expected status 0, stdout \"Beta.txt\\nalpha.txt\\n\\ndir:\\nchild.txt\\nnested\\n\", stderr \"\"; got status 0, stdout \"alpha.txt\\nBeta.txt\\n\\ndir:\\nchild.txt\\nnested\\n\", stderr \"\"",
+        "reverse order: expected status 0, stdout \"run.sh\\nlink-alpha\\ndir\\nalpha.txt\\nBeta.txt\\n\", stderr \"\"; got status 0, stdout \"run.sh\\nlink-alpha\\ndir\\nBeta.txt\\nalpha.txt\\n\", stderr \"\"",
+        "missing operand continues: expected status 1, stdout \"alpha.txt\\n\", stderr \"ls-lite: cannot access 'missing': No such file or directory\\n\"; got status 1, stdout \"alpha.txt\\n\", stderr \"ls-lite: cannot access 'missing': ENOENT: no such file or directory, lstat 'missing'\\n\"",
+        "usage invalid option: expected status 2, stdout \"\", stderr \"ls-lite: usage\\n\"; got status 2, stdout \"\", stderr \"ls-lite: invalid option -- 'z'\\n\""
+      ]
+    }
+  ],
+  "summary": {
+    "good": {
+      "n": 3,
+      "mean": 1,
+      "median": 1,
+      "min": 1,
+      "max": 1
+    },
+    "suboptimal": {
+      "n": 3,
+      "mean": 0.468,
+      "median": 0.5583,
+      "min": 0.2875,
+      "max": 0.5583
+    },
+    "bad": {
+      "n": 3,
+      "mean": 0.418,
+      "median": 0.4083,
+      "min": 0.2875,
+      "max": 0.5583
+    }
+  }
+}

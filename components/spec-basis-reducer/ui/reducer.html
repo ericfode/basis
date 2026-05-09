@@ -41,18 +41,80 @@
         </form>
       </header>
 
-      <section class="workspace">
+      <section class="workspace understanding-workspace">
         <article class="document-pane">
           <div class="document-head">
-            <strong>Document</strong>
-            <span id="documentStatus">Loading source preview.</span>
+            <div>
+              <strong>Evidence Source</strong>
+              <span id="documentStatus">Loading source preview.</span>
+            </div>
+            <div id="studioEvidenceList" class="evidence-list"></div>
           </div>
           <div id="hintLayer" class="hint-layer"></div>
           <div id="feedbackComposer" class="feedback-composer" hidden></div>
           <div id="documentSections"></div>
         </article>
 
-        <aside class="thread-pane">
+        <section class="understanding-pane" aria-label="Understanding Studio">
+          <section class="understanding-hero">
+            <div>
+              <span class="studio-eyebrow">Understanding Studio</span>
+              <h2>What This Wants To Become</h2>
+              <p id="studioIntro">Load or run the reducer to project prose into buildable understanding.</p>
+            </div>
+            <div id="studioRunState" class="studio-state"></div>
+          </section>
+
+          <section class="understanding-card diagram-studio">
+            <div class="understanding-card-head">
+              <div>
+                <span class="studio-eyebrow">Diagram</span>
+                <h3>Current Build Shape</h3>
+              </div>
+              <span>source-backed projection</span>
+            </div>
+            <div id="studioBuildShape"></div>
+          </section>
+
+          <section class="understanding-card prose-card">
+            <div class="understanding-card-head">
+              <div>
+                <span class="studio-eyebrow">Interpretation</span>
+                <h3>Build Understanding</h3>
+              </div>
+              <span class="state-badge">proposal only</span>
+            </div>
+            <div id="studioNarrative" class="studio-narrative"></div>
+          </section>
+
+          <section class="understanding-card">
+            <div class="understanding-card-head">
+              <div>
+                <span class="studio-eyebrow">Choices</span>
+                <h3>Projection Impact</h3>
+              </div>
+              <span>what would still be invented</span>
+            </div>
+            <div id="studioProjectionMatrix"></div>
+          </section>
+
+          <section class="panel stream-panel">
+            <div class="stream-head">
+              <div>
+                <span class="studio-eyebrow">Generated Prose And Diagrams</span>
+                <h2>Visible Understanding</h2>
+              </div>
+              <span id="selectedJobLabel">no job</span>
+            </div>
+            <div id="visibleOutputs" class="visible-outputs"></div>
+            <details class="generated-turn-details">
+              <summary>Generated turn text</summary>
+              <div id="liveStream" class="live-stream"></div>
+            </details>
+          </section>
+        </section>
+
+        <aside class="thread-pane decision-pane">
           <section class="section-card">
             <div class="section-title">
               <div>
@@ -63,21 +125,28 @@
             </div>
           </section>
 
+          <section class="panel decision-panel">
+            <div class="panel-head">
+              <h2>Next Decisions</h2>
+              <span>proposal state</span>
+            </div>
+            <div id="studioDecisionQueue" class="decision-queue"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Result Evidence</h2>
+              <span id="resultCount">0</span>
+            </div>
+            <div id="resultEvidence" class="result-evidence"></div>
+          </section>
+
           <section class="panel">
             <div class="panel-head">
               <h2>Codex Threads For Visible Section</h2>
               <span id="threadCount">0</span>
             </div>
             <div id="threadList" class="thread-list"></div>
-          </section>
-
-          <section class="panel stream-panel">
-            <div class="stream-head">
-              <h2>Diagrams And Summary</h2>
-              <span id="selectedJobLabel">no job</span>
-            </div>
-            <div id="visibleOutputs" class="visible-outputs"></div>
-            <div id="liveStream" class="live-stream"></div>
           </section>
 
           <details class="panel diagnostic-panel">
@@ -87,14 +156,6 @@
             </summary>
             <div id="contextPacket" class="context-packet"></div>
           </details>
-
-          <section class="panel">
-            <div class="panel-head">
-              <h2>Result Evidence</h2>
-              <span id="resultCount">0</span>
-            </div>
-            <div id="resultEvidence" class="result-evidence"></div>
-          </section>
 
           <details class="panel intervention-panel">
             <summary class="panel-summary">

@@ -1,0 +1,377 @@
+{
+  "results": [
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/good-01/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 1,
+        "ordering": 0.5,
+        "reasons": 1,
+        "validation": 1,
+        "purity": 1
+      },
+      "total": 0.9,
+      "failures": [
+        "tie breakers: ordering differs"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/good-02/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0.5,
+        "ordering": 1,
+        "reasons": 0.5,
+        "validation": 1,
+        "purity": 1
+      },
+      "total": 0.8,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: reasons incomplete"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/good-03/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 1,
+        "ordering": 1,
+        "reasons": 1,
+        "validation": 1,
+        "purity": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/good-04/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 1,
+        "ordering": 1,
+        "reasons": 1,
+        "validation": 1,
+        "purity": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/good-05/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 1,
+        "ordering": 1,
+        "reasons": 1,
+        "validation": 1,
+        "purity": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/good-06/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0.5,
+        "ordering": 1,
+        "reasons": 0.5,
+        "validation": 1,
+        "purity": 1
+      },
+      "total": 0.8,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: reasons incomplete"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/good-07/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 1,
+        "ordering": 1,
+        "reasons": 1,
+        "validation": 1,
+        "purity": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/good-08/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 1,
+        "ordering": 1,
+        "reasons": 1,
+        "validation": 1,
+        "purity": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/good-09/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0.5,
+        "ordering": 1,
+        "reasons": 1,
+        "validation": 1,
+        "purity": 1
+      },
+      "total": 0.875,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/good-10/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 1,
+        "ordering": 1,
+        "reasons": 1,
+        "validation": 1,
+        "purity": 1
+      },
+      "total": 1,
+      "failures": []
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/bad-01/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0,
+        "ordering": 0,
+        "reasons": 0,
+        "validation": 0,
+        "purity": 1
+      },
+      "total": 0.25,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: ordering differs",
+        "scores and orders mixed queue: reasons incomplete",
+        "tie breakers: scores or bands differ",
+        "tie breakers: ordering differs",
+        "tie breakers: reasons incomplete",
+        "invalid ticket did not throw",
+        "invalid nowIso did not throw"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/bad-02/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0,
+        "ordering": 0,
+        "reasons": 0,
+        "validation": 0,
+        "purity": 1
+      },
+      "total": 0.25,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: ordering differs",
+        "scores and orders mixed queue: reasons incomplete",
+        "tie breakers: scores or bands differ",
+        "tie breakers: ordering differs",
+        "tie breakers: reasons incomplete",
+        "invalid ticket did not throw",
+        "invalid nowIso did not throw"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/bad-03/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0,
+        "ordering": 0,
+        "reasons": 0,
+        "validation": 0,
+        "purity": 1
+      },
+      "total": 0.25,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: ordering differs",
+        "scores and orders mixed queue: reasons incomplete",
+        "tie breakers: scores or bands differ",
+        "tie breakers: ordering differs",
+        "tie breakers: reasons incomplete",
+        "invalid ticket did not throw",
+        "invalid nowIso did not throw"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/bad-04/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0,
+        "ordering": 0,
+        "reasons": 0,
+        "validation": 0,
+        "purity": 1
+      },
+      "total": 0.25,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: ordering differs",
+        "scores and orders mixed queue: reasons incomplete",
+        "tie breakers: scores or bands differ",
+        "tie breakers: ordering differs",
+        "tie breakers: reasons incomplete",
+        "invalid ticket did not throw",
+        "invalid nowIso did not throw"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/bad-05/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0,
+        "ordering": 0,
+        "reasons": 0,
+        "validation": 0.5,
+        "purity": 1
+      },
+      "total": 0.325,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: ordering differs",
+        "scores and orders mixed queue: reasons incomplete",
+        "tie breakers: scores or bands differ",
+        "tie breakers: ordering differs",
+        "tie breakers: reasons incomplete",
+        "invalid ticket did not throw"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/bad-06/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0,
+        "ordering": 0,
+        "reasons": 0,
+        "validation": 0,
+        "purity": 1
+      },
+      "total": 0.25,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: ordering differs",
+        "scores and orders mixed queue: reasons incomplete",
+        "tie breakers: scores or bands differ",
+        "tie breakers: ordering differs",
+        "tie breakers: reasons incomplete",
+        "invalid ticket did not throw",
+        "invalid nowIso did not throw"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/bad-07/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0,
+        "ordering": 0,
+        "reasons": 0,
+        "validation": 0,
+        "purity": 1
+      },
+      "total": 0.25,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: ordering differs",
+        "scores and orders mixed queue: reasons incomplete",
+        "tie breakers: scores or bands differ",
+        "tie breakers: ordering differs",
+        "tie breakers: reasons incomplete",
+        "invalid ticket did not throw",
+        "invalid nowIso did not throw"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/bad-08/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0,
+        "ordering": 0,
+        "reasons": 0,
+        "validation": 0,
+        "purity": 1
+      },
+      "total": 0.25,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: ordering differs",
+        "scores and orders mixed queue: reasons incomplete",
+        "tie breakers: scores or bands differ",
+        "tie breakers: ordering differs",
+        "tie breakers: reasons incomplete",
+        "invalid ticket did not throw",
+        "invalid nowIso did not throw"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/bad-09/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0,
+        "ordering": 0.5,
+        "reasons": 0,
+        "validation": 0,
+        "purity": 1
+      },
+      "total": 0.35,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: ordering differs",
+        "scores and orders mixed queue: reasons incomplete",
+        "tie breakers: scores or bands differ",
+        "tie breakers: reasons incomplete",
+        "invalid ticket did not throw",
+        "invalid nowIso did not throw"
+      ]
+    },
+    {
+      "file": "/private/tmp/basis-spec-fitness-discrimination/runs/bad-10/solution.mjs",
+      "vector": {
+        "interface": 1,
+        "scoring": 0,
+        "ordering": 0.5,
+        "reasons": 0,
+        "validation": 0,
+        "purity": 1
+      },
+      "total": 0.35,
+      "failures": [
+        "scores and orders mixed queue: scores or bands differ",
+        "scores and orders mixed queue: ordering differs",
+        "scores and orders mixed queue: reasons incomplete",
+        "tie breakers: scores or bands differ",
+        "tie breakers: reasons incomplete",
+        "invalid ticket did not throw",
+        "invalid nowIso did not throw"
+      ]
+    }
+  ],
+  "summary": {
+    "good": {
+      "n": 10,
+      "mean": 0.9375,
+      "median": 1,
+      "min": 0.8,
+      "max": 1
+    },
+    "bad": {
+      "n": 10,
+      "mean": 0.2775,
+      "median": 0.25,
+      "min": 0.25,
+      "max": 0.35
+    }
+  }
+}

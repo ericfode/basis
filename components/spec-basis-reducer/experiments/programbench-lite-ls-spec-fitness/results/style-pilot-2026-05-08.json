@@ -1,0 +1,100 @@
+{
+  "date": "2026-05-08",
+  "fixture": "programbench-lite-ls-spec-fitness",
+  "purpose": "rerun ls-lite spec-fitness experiment with technically correct but stylistically degraded specs",
+  "pre_correction_pass": {
+    "note": "The first pass exposed that four degraded specs failed to state the recursive single-directory root header crisply enough. This made the pass a useful reducer finding but not a clean technically-correct-bad-spec trial.",
+    "conditions": {
+      "entangled": {
+        "n": 2,
+        "scores": [0.85, 0.85],
+        "failure_shape": "Both implementations omitted the initial recursive operand header for `-R dir`."
+      },
+      "scattered_edge_cases": {
+        "n": 2,
+        "scores": [1.0, 1.0],
+        "failure_shape": "none"
+      },
+      "cross_reference_maze": {
+        "n": 2,
+        "scores": [0.85, 0.85],
+        "failure_shape": "Both implementations omitted the initial recursive operand header for `-R dir`."
+      },
+      "nontechnical_metaphor": {
+        "n": 2,
+        "scores": [0.85, 0.85],
+        "failure_shape": "Both implementations omitted the initial recursive operand header for `-R dir`."
+      },
+      "verbose_redundant": {
+        "n": 2,
+        "scores": [0.85, 0.85],
+        "failure_shape": "Both implementations omitted the initial recursive operand header for `-R dir`."
+      }
+    },
+    "summary": {
+      "n": 10,
+      "mean": 0.88,
+      "median": 0.85,
+      "min": 0.85,
+      "max": 1.0
+    }
+  },
+  "corrected_pass": {
+    "note": "The degraded specs were patched to explicitly state the recursive root-header rule while preserving their bad style.",
+    "conditions": {
+      "entangled": {
+        "n": 1,
+        "scores": [1.0],
+        "solution_lines": [326],
+        "failure_shape": "none"
+      },
+      "scattered_edge_cases": {
+        "n": 1,
+        "scores": [1.0],
+        "solution_lines": [274],
+        "failure_shape": "none"
+      },
+      "cross_reference_maze": {
+        "n": 1,
+        "scores": [1.0],
+        "solution_lines": [277],
+        "failure_shape": "none"
+      },
+      "nontechnical_metaphor": {
+        "n": 1,
+        "scores": [1.0],
+        "solution_lines": [267],
+        "failure_shape": "none"
+      },
+      "verbose_redundant": {
+        "n": 1,
+        "scores": [0.9625],
+        "solution_lines": [291],
+        "failure_shape": "Implementation printed a nested directory block during a non-recursive multiple-operand listing."
+      }
+    },
+    "summary": {
+      "n": 5,
+      "mean": 0.9925,
+      "median": 1.0,
+      "min": 0.9625,
+      "max": 1.0
+    }
+  },
+  "process_proxy": {
+    "prior_good_spec_solution_lines": [195, 190, 187],
+    "prior_good_spec_mean_lines": 190.7,
+    "prior_suboptimal_v2_solution_lines": [185, 170, 206],
+    "prior_suboptimal_v2_mean_lines": 187.0,
+    "first_badstyle_pass_solution_lines": [257, 212, 240, 258, 295, 264, 254, 186, 275, 276],
+    "first_badstyle_pass_mean_lines": 251.7,
+    "corrected_badstyle_solution_lines": [277, 326, 267, 274, 291],
+    "corrected_badstyle_mean_lines": 287.0
+  },
+  "interpretation": [
+    "When all operational facts are recoverable, strong builder agents still often pass hidden behavior tests.",
+    "The first pass shows the reducer can find projection-critical gaps: the recursive root-header rule looked present but was not operationally anchored.",
+    "The corrected pass suggests final behavior is a weak discriminator for technically correct bad specs on this small task.",
+    "Solution length moved materially upward, so process-cost metrics are the next necessary fitness dimension."
+  ]
+}

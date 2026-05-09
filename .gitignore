@@ -1,5 +1,7 @@
 /_build/
 /deps/
 /.elixir_ls/
+/__pycache__/
+*.py[cod]
 /components/spec-basis-reducer/.basis/
 /components/spec-basis-reducer/out/

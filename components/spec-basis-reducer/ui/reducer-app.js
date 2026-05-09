@@ -10,9 +10,16 @@ const els = {
   maxConcurrency: document.querySelector("#maxConcurrency"),
   toggleInspector: document.querySelector("#toggleInspector"),
   documentStatus: document.querySelector("#documentStatus"),
+  studioEvidenceList: document.querySelector("#studioEvidenceList"),
   hintLayer: document.querySelector("#hintLayer"),
   feedbackComposer: document.querySelector("#feedbackComposer"),
   documentSections: document.querySelector("#documentSections"),
+  studioIntro: document.querySelector("#studioIntro"),
+  studioRunState: document.querySelector("#studioRunState"),
+  studioNarrative: document.querySelector("#studioNarrative"),
+  studioBuildShape: document.querySelector("#studioBuildShape"),
+  studioProjectionMatrix: document.querySelector("#studioProjectionMatrix"),
+  studioDecisionQueue: document.querySelector("#studioDecisionQueue"),
   activeSectionTitle: document.querySelector("#activeSectionTitle"),
   activeSectionMeta: document.querySelector("#activeSectionMeta"),
   connectionState: document.querySelector("#connectionState"),
@@ -41,6 +48,10 @@ let refreshInFlight = false;
 let refreshPending = false;
 let selectedFeedbackLine = null;
 let previewTimer = null;
+let autoBuildTimer = null;
+let autoBuildInFlight = false;
+let autoBuildMessage = "";
+let lastAutoBuildKey = "";
 let excludedSectionIds = new Set();
 let localFeedbackEvents = [];
 let activeSourceReference = null;
@@ -48,6 +59,7 @@ let activeChoicePreview = null;
 let suppressSectionObserverUntil = 0;
 
 const API_ORIGIN = window.location.protocol === "file:" ? "http://127.0.0.1:8767" : "";
+const REDUCER_MODE = "reducer";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -80,14 +92,17 @@ async function getRun() {
   }
 }
 
-async function loadPreview() {
-  if (snapshot?.run_id) return;
+async function loadPreview(options = {}) {
+  if (snapshot?.run_id && !options.force) return;
   const params = new URLSearchParams({
     source_path: els.sourcePath.value.trim()
   });
   const response = await fetch(apiUrl(`/api/preview?${params.toString()}`), { cache: "no-store" });
   const preview = await response.json();
-  if (!snapshot?.run_id) applySnapshot(preview, { force: true });
+  if (!snapshot?.run_id || options.force) {
+    applySnapshot(preview, { force: true, allowPreview: true });
+    scheduleAutomaticBuild(preview, options);
+  }
 }
 
 async function postJson(path, payload) {
@@ -96,9 +111,69 @@ async function postJson(path, payload) {
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload)
   });
+  if (!response.ok) throw new Error(`${path} failed with HTTP ${response.status}`);
   const next = await response.json();
   applySnapshot(next, { force: true });
   return next;
+}
+
+function selectedTargets() {
+  return els.targets.value.split(",").map(item => item.trim()).filter(Boolean);
+}
+
+function runStartPayload() {
+  return {
+    mode: REDUCER_MODE,
+    source_path: els.sourcePath.value.trim(),
+    targets: selectedTargets(),
+    max_concurrency: Number(els.maxConcurrency.value || 4),
+    excluded_section_ids: [...excludedSectionIds]
+  };
+}
+
+function autoBuildKey() {
+  const payload = runStartPayload();
+  if (!payload.source_path) return "";
+  return JSON.stringify({
+    source_path: payload.source_path,
+    targets: payload.targets,
+    max_concurrency: payload.max_concurrency,
+    excluded_section_ids: [...payload.excluded_section_ids].sort()
+  });
+}
+
+function scheduleAutomaticBuild(preview, options = {}) {
+  if (options.autoBuild === false) return;
+  if (preview?.run_id) return;
+  if (!Array.isArray(preview?.document_sections) || preview.document_sections.length === 0) return;
+
+  const key = autoBuildKey();
+  if (!key || key === lastAutoBuildKey || autoBuildInFlight) return;
+
+  clearTimeout(autoBuildTimer);
+  autoBuildTimer = setTimeout(startAutomaticBuild, 260);
+}
+
+async function startAutomaticBuild() {
+  const key = autoBuildKey();
+  if (!key || key === lastAutoBuildKey || autoBuildInFlight || snapshot?.run_id) return;
+
+  autoBuildInFlight = true;
+  autoBuildMessage = "Starting generated interpretation for this spec.";
+  lastAutoBuildKey = key;
+  render();
+
+  try {
+    await postJson("/api/start", runStartPayload());
+    autoBuildMessage = "";
+  } catch (error) {
+    lastAutoBuildKey = "";
+    autoBuildMessage = `Automatic reducer start failed: ${error.message || error}`;
+    console.error(error);
+  } finally {
+    autoBuildInFlight = false;
+    render();
+  }
 }
 
 function connectEvents() {
@@ -116,6 +191,14 @@ function apiUrl(path) {
 }
 
 function applySnapshot(next, options = {}) {
+  if (!options.allowForeign && isForeignRun(next)) {
+    if (!snapshot || snapshot.run_id) {
+      snapshot = null;
+      loadPreview({ force: true });
+    }
+    return;
+  }
+
   if (!options.force && !shouldApplySnapshot(next)) return;
   if (next?.run_id && next.run_id !== snapshot?.run_id) {
     localFeedbackEvents = loadLocalFeedbackEvents(next.run_id);
@@ -128,6 +211,7 @@ function applySnapshot(next, options = {}) {
 
 function shouldApplySnapshot(next) {
   if (!next) return false;
+  if (isForeignRun(next)) return false;
   if (!snapshot) return true;
   if (!snapshot.run_id) return true;
   if (!next.run_id) return false;
@@ -143,6 +227,10 @@ function shouldApplySnapshot(next) {
   const currentUpdated = timestampValue(snapshot.updated_at);
   const nextUpdated = timestampValue(next.updated_at);
   return !currentUpdated || !nextUpdated || nextUpdated >= currentUpdated;
+}
+
+function isForeignRun(next) {
+  return Boolean(next?.run_id && next.mode && next.mode !== REDUCER_MODE);
 }
 
 function timestampValue(value) {
@@ -289,11 +377,18 @@ function renderHints() {
     return;
   }
 
-  const headline = latestFeedback ? "Intent guidance applied" : "Live reduction";
+  const isActive = runningJobs.length > 0;
+  const headline = latestFeedback
+    ? "Intent guidance applied"
+    : isActive
+      ? "Live reduction"
+      : snapshot.status === "complete"
+        ? "Reduction complete"
+        : "Reduction ready";
   const detail = messages.join(" · ") || `${queuedJobs.length} ${queuedJobs.length === 1 ? "lens is" : "lenses are"} queued`;
   els.hintLayer.innerHTML = `
     <div class="floating-hint">
-      <div class="activity-gif" aria-hidden="true"><span></span></div>
+      <div class="activity-gif" data-active="${isActive ? "true" : "false"}" aria-hidden="true"><span></span></div>
       <div class="floating-hint-body">
         <strong>${escapeHtml(headline)}</strong>
         <span>${escapeHtml(detail)}</span>
@@ -415,53 +510,49 @@ function visibleToolsForJob(job) {
 
 function visibleToolsWithFallback(job) {
   const tools = visibleToolsForJob(job);
-  if (tools.some(tool => isMermaidTool(tool.tool))) return tools;
+  const semanticMap = semanticStateToolForJob(job);
+  const usefulTools = tools.filter(tool => !isWeakMermaidTool(tool, job));
 
-  const fallback = fallbackMermaidToolForJob(job);
-  return fallback ? [fallback, ...tools] : tools;
+  return semanticMap ? [semanticMap, ...usefulTools] : usefulTools;
 }
 
-function fallbackMermaidToolForJob(job) {
+function semanticStateToolForJob(job) {
   const result = resultForJob(job);
   if (!job || !result) return null;
-
-  const section = sectionForJob(job);
-  const anchor = sourceRefForJob(job);
-  const findings = (result.findings || []).slice(0, 6);
-  const title = section?.title || job.title || job.lens_role || job.id;
-  const lines = [
-    "graph TD",
-    `  S["${mermaidLabel(title)}"]`
-  ];
-
-  if (!findings.length) {
-    lines.push(`  S --> Summary["${mermaidLabel(result.summary || "Completed result")}"]`);
-  } else {
-    findings.forEach((finding, index) => {
-      const id = `F${index + 1}`;
-      lines.push(`  S --> ${id}["${mermaidLabel(finding.title || finding.kind || "finding")}"]`);
-      const ref = sourceRefFromText(finding.evidence || finding.falsifiable_test || "", job);
-      if (ref?.start_line) {
-        lines.push(`  ${id} --> L${index + 1}["source lines ${ref.start_line}-${ref.end_line || ref.start_line}"]`);
-      }
-    });
-  }
+  const graph = buildSemanticStateGraph(job, result);
+  if (!graph.rows.length) return null;
 
   return {
-    tool: "basis_show_mermaid",
-    title: "Evidence Map",
-    body: lines.join("\n"),
-    generated_fallback: true,
-    source_anchor: anchor
+    tool: "basis_semantic_state_map",
+    title: "Semantic Reduction Map",
+    graph,
+    source_anchor: sourceRefForJob(job)
   };
 }
 
-function mermaidLabel(value) {
+function mermaidLabel(value, maxLength = 72) {
   return String(value || "")
     .replace(/[\[\]{}"]/g, "'")
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 96);
+    .slice(0, maxLength);
+}
+
+function isWeakMermaidTool(tool, job) {
+  if (!isMermaidTool(tool.tool)) return false;
+  if (tool.generated_fallback) return true;
+
+  const source = String(tool.body || tool.diagram || tool.source || "");
+  const title = String(sectionForJob(job)?.title || "");
+  const lens = String(job?.title || job?.lens_role || "");
+  const lower = source.toLowerCase();
+
+  return (
+    lower.includes("evidence map") ||
+    (title && source.includes(title)) ||
+    (lens && source.includes(lens)) ||
+    /source\s+lines?\s+\d/i.test(source)
+  );
 }
 
 function normalizeToolParams(params, job = null) {
@@ -574,7 +665,27 @@ function lineReferencesInText(text, job = null) {
     });
   }
 
-  return refs;
+  const filePattern = /\b((?:[\w.-]+\/)+[\w.-]+\.\w+):(\d+)(?:-(\d+))?/g;
+  while ((match = filePattern.exec(String(text || ""))) !== null) {
+    const path = match[1];
+    const start = Number(match[2]);
+    const end = Number(match[3] || match[2]);
+    const section = sectionForLine(start) || sectionForJob(job);
+    refs.push({
+      label: match[0],
+      index: match.index,
+      end_index: match.index + match[0].length,
+      kind: "source_reference",
+      section_id: section?.id || job?.section_id || "",
+      source_path: path,
+      start_line: Math.min(start, end),
+      end_line: Math.max(start, end),
+      title: "Source reference",
+      body: match[0]
+    });
+  }
+
+  return refs.sort((a, b) => a.index - b.index);
 }
 
 function installSectionObserver() {
@@ -788,10 +899,287 @@ function renderRail() {
     ? jobs.map(renderJobCard).join("")
     : `<p>No lens jobs queued for this section yet.</p>`;
   els.selectedJobLabel.textContent = job ? `${job.id} ${job.lens_role}` : "no job";
+  renderStudio(job, section);
   renderStream(job);
   renderContext(job);
   renderResults(job);
   bindRailButtons();
+}
+
+function renderStudio(job, section) {
+  const result = resultForJob(job);
+  const targets = targetProjectionList(job);
+  const decisions = decisionRowsForResult(job, result);
+  const currentSection = section || sectionForJob(job) || (snapshot.document_sections || [])[0];
+
+  els.studioIntro.textContent = studioIntroText(job, result, currentSection);
+  els.studioRunState.innerHTML = renderStudioState(job, result, targets);
+  els.studioNarrative.innerHTML = renderStudioNarrative(job, result, currentSection, targets, decisions);
+  els.studioBuildShape.innerHTML = renderBuildShapeDiagram(job, result, targets);
+  els.studioProjectionMatrix.innerHTML = renderProjectionImpactMatrix(job, result, targets, decisions);
+  els.studioDecisionQueue.innerHTML = renderDecisionQueue(decisions);
+  els.studioEvidenceList.innerHTML = renderStudioEvidenceList(decisions);
+}
+
+function studioIntroText(job, result, section) {
+  if (autoBuildMessage) return autoBuildMessage;
+  if (result?.summary) {
+    return `Focused on ${section?.title || job?.title || "the current reducer lens"}: generated interpretation is ready to read before choosing what to build.`;
+  }
+  if (job?.status === "running") return "The reducer is generating interpretation prose, diagrams, and source-backed proposal pressure.";
+  if (job?.status === "queued") return "The selected lens is queued; the source preview remains available for orientation.";
+  if (snapshot?.run_id) return "The run is loaded. Select a completed lens to read generated understanding and projection impacts.";
+  return "Preview the source, choose targets, then start a reducer run to generate build understanding.";
+}
+
+function renderStudioState(job, result, targets) {
+  const status = job?.status || snapshot?.status || "preview";
+  const resultState = result ? "understanding ready" : snapshot?.run_id ? "waiting for result" : "source preview";
+  return `
+    <span class="state-badge">${escapeHtml(status)}</span>
+    ${autoBuildInFlight ? `<span class="state-badge active">auto starting</span>` : ""}
+    <span class="state-badge stable">proposal only</span>
+    <span class="state-badge stable">accepted Basis state unchanged</span>
+    <span class="state-badge">${escapeHtml(resultState)}</span>
+    ${targets.slice(0, 4).map(target => `<span class="target-chip">${escapeHtml(target)}</span>`).join("")}
+  `;
+}
+
+function renderStudioNarrative(job, result, section, targets, decisions) {
+  const title = section?.title || job?.title || "selected source";
+  if (!result) {
+    return `
+      <p>The source is loaded as evidence, but this lens has not produced build understanding yet.</p>
+      <p>Start or focus a reducer run to turn the prose into an interpretation: what component is implied, which target projections are pressured, and which choices remain open.</p>
+      <p>The UI will keep source evidence and proposal actions visible without treating them as accepted Basis state.</p>
+    `;
+  }
+
+  const summaryParagraphs = proseParagraphs(result.summary || "").slice(0, 2);
+  const primaryDecision = decisions[0];
+  const recordCount = (result.proposed_records || []).length;
+  const findingCount = (result.findings || []).length;
+  const pressure = primaryDecision
+    ? `The strongest current pressure is ${primaryDecision.kind}: ${primaryDecision.title}. It affects ${primaryDecision.targets.join(", ")} and should be resolved before those projections pretend the policy is known.`
+    : `This lens produced ${findingCount} findings and ${recordCount} proposed records; no high-pressure decision is visible for the selected target set.`;
+
+  return `
+    <p><strong>${escapeHtml(title)}</strong> is being read as a buildable system shape, not as a document inventory.</p>
+    ${summaryParagraphs.map(paragraph => `<p>${renderSourceLinkedText(paragraph, job)}</p>`).join("")}
+    <p>${escapeHtml(pressure)}</p>
+    <p>The active targets are ${escapeHtml(targets.join(", ") || "not named")}. Actions below update proposal or guidance state only; a separate acceptance record is still required for durable Basis state.</p>
+  `;
+}
+
+function proseParagraphs(text) {
+  const compact = String(text || "").replace(/\s+/g, " ").trim();
+  if (!compact) return [];
+  const sentences = compact.match(/[^.!?]+(?:[.!?]+|$)/g) || [compact];
+  const paragraphs = [];
+  for (let index = 0; index < sentences.length; index += 2) {
+    paragraphs.push(sentences.slice(index, index + 2).join(" ").trim());
+  }
+  return paragraphs.filter(Boolean);
+}
+
+function renderBuildShapeDiagram(job, result, targets) {
+  const recordCount = (result?.proposed_records || []).length;
+  const findingCount = (result?.findings || []).length;
+  const sourceLabel = displayPath(snapshot.source?.path || els.sourcePath.value || "source spec");
+  const runLabel = job?.lens_role ? conciseLabel(job.lens_role.replaceAll("_", " "), 32) : "Reducer run";
+  return `
+    <div class="build-shape-diagram" role="img" aria-label="Source spec anchors reducer run, proposed records, and target projection packets.">
+      <div class="shape-mainline">
+        ${renderShapeNode("Source Spec", sourceLabel, "source")}
+        ${renderShapeEdge("anchors")}
+        ${renderShapeNode("Reducer Run", runLabel, "run")}
+        ${renderShapeEdge("proposes")}
+        ${renderShapeNode("Proposed Records", `${recordCount} records · ${findingCount} findings`, "records")}
+        ${renderShapeEdge("projects to")}
+        ${renderShapeNode("Projection Packets", targets.join(", ") || "targets pending", "targets")}
+      </div>
+      <div class="shape-support">
+        ${renderShapeNode("Evidence Store", "sentence anchors and source refs", "support")}
+        ${renderShapeNode("Human Guidance", "notes, refinements, blocker records", "support")}
+        ${renderShapeNode("Acceptance Gate", "durable state requires separate record", "gate")}
+      </div>
+    </div>
+  `;
+}
+
+function renderShapeNode(title, body, kind) {
+  return `
+    <div class="shape-node" data-kind="${escapeAttr(kind)}">
+      <strong>${escapeHtml(title)}</strong>
+      <span>${escapeHtml(body)}</span>
+    </div>
+  `;
+}
+
+function renderShapeEdge(label) {
+  return `<div class="shape-edge"><span>${escapeHtml(label)}</span></div>`;
+}
+
+function renderProjectionImpactMatrix(job, result, targets, decisions) {
+  const rows = decisions.length ? decisions.slice(0, 5) : fallbackDecisionRows(job, result, targets);
+  if (!rows.length) {
+    return `<p class="empty-state">No projection pressure yet. Completed lenses will populate choices, blockers, and diagram implications here.</p>`;
+  }
+
+  return `
+    <table class="projection-matrix">
+      <thead>
+        <tr>
+          <th>Choice or record</th>
+          <th>Kind</th>
+          ${targets.slice(0, 5).map(target => `<th>${escapeHtml(target)}</th>`).join("")}
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(row => `
+          <tr>
+            <th>${escapeHtml(row.title)}</th>
+            <td><span class="kind-chip" data-kind="${escapeAttr(row.kind)}">${escapeHtml(row.kind)}</span></td>
+            ${targets.slice(0, 5).map(target => renderProjectionCell(row, target)).join("")}
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderProjectionCell(row, target) {
+  const pressured = row.targets.length === 0 || row.targets.includes(target);
+  const label = pressured ? impactLabelForKind(row.kind) : "not pressured";
+  return `<td data-pressure="${pressured ? "true" : "false"}">${escapeHtml(label)}</td>`;
+}
+
+function impactLabelForKind(kind) {
+  if (kind === "missing") return "would invent";
+  if (kind === "coupled") return "split needed";
+  if (kind === "conflict") return "policy needed";
+  if (kind === "redundant") return "duplicate";
+  if (kind === "loss") return "loss risk";
+  return "readable";
+}
+
+function renderDecisionQueue(decisions) {
+  if (!decisions.length) {
+    return `<p class="empty-state">No decisions yet. Run or focus a lens that has completed reducer output.</p>`;
+  }
+  return decisions.slice(0, 6).map(row => {
+    const ref = row.source_ref || {};
+    return `
+      <article class="decision-card" data-kind="${escapeAttr(row.kind)}">
+        <div class="decision-card-head">
+          <span class="kind-chip" data-kind="${escapeAttr(row.kind)}">${escapeHtml(row.kind)}</span>
+          <span>${escapeHtml(row.targets.join(", ") || "review")}</span>
+        </div>
+        <strong>${escapeHtml(row.title)}</strong>
+        <p>${escapeHtml(row.impact)}</p>
+        <div class="decision-actions">
+          <button type="button"
+            data-semantic-ref
+            data-section-id="${escapeAttr(ref.section_id || "")}"
+            data-source-path="${escapeAttr(ref.source_path || "")}"
+            data-start-line="${escapeAttr(ref.start_line || "")}"
+            data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}"
+            data-choice-title="${escapeAttr(row.title)}"
+            data-choice-body="${escapeAttr(row.evidence || row.impact)}">Show evidence</button>
+          <button type="button" data-request-synthesis>Explore option</button>
+          <button type="button"
+            data-record-note
+            data-subject-kind="finding"
+            data-subject-id="${escapeAttr(row.id)}"
+            data-note-body="${escapeAttr(`Make buildable: ${row.title}. ${row.impact}`)}">Make buildable</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderStudioEvidenceList(decisions) {
+  const refs = [];
+  decisions.forEach(row => {
+    const ref = row.source_ref || {};
+    if (!ref.start_line) return;
+    const key = `${ref.section_id}:${ref.start_line}:${ref.end_line || ref.start_line}`;
+    if (refs.some(item => item.key === key)) return;
+    refs.push({ key, ref, title: row.title });
+  });
+
+  if (!refs.length) return `<p>No evidence pinned yet.</p>`;
+  return refs.slice(0, 5).map(({ ref, title }) => `
+    <button type="button"
+      class="evidence-chip"
+      data-source-ref
+      data-section-id="${escapeAttr(ref.section_id || "")}"
+      data-source-path="${escapeAttr(ref.source_path || "")}"
+      data-start-line="${escapeAttr(ref.start_line || "")}"
+      data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}"
+      data-choice-title="${escapeAttr(title)}"
+      data-choice-body="${escapeAttr(title)}">
+      <span>${escapeHtml(sourceRefLabel(ref))}</span>
+      <strong>${escapeHtml(conciseLabel(title, 42))}</strong>
+    </button>
+  `).join("");
+}
+
+function decisionRowsForResult(job, result) {
+  const findings = result?.findings || [];
+  const records = result?.proposed_records || [];
+  const fallbackTargets = targetProjectionList(job).slice(0, 4);
+  return findings.map((finding, index) => {
+    const evidence = finding.evidence || finding.falsifiable_test || finding.body || "";
+    const targets = arrayField(finding.target_projection || finding.target_projections);
+    const rowTargets = targets.length ? targets.slice(0, 4) : fallbackTargets.slice(0, 3);
+    const kind = semanticKind(finding);
+    const title = conciseLabel(finding.title || finding.kind || `finding ${index + 1}`, 64);
+    const record = recordForFinding(finding, records, rowTargets);
+    const impact = decisionImpact(kind, rowTargets, record);
+    return {
+      id: `${result.id || result.job_id || job?.id || "result"}:decision:${index + 1}`,
+      kind,
+      title,
+      evidence,
+      targets: rowTargets,
+      source_ref: sourceRefFromText(evidence, job) || sourceRefForJob(job),
+      record,
+      impact
+    };
+  });
+}
+
+function decisionImpact(kind, targets, record) {
+  const targetText = targets.length ? targets.join(", ") : "selected targets";
+  if (kind === "missing") return `${targetText} would invent behavior unless this missing record is resolved.`;
+  if (kind === "coupled") return `${targetText} needs the obligation split before projection can stay precise.`;
+  if (kind === "conflict") return `${targetText} needs a policy decision before projection is trustworthy.`;
+  if (kind === "redundant") return `${targetText} may be simplified by merging duplicate pressure.`;
+  if (kind === "loss") return `${targetText} risks losing source meaning during reduction.`;
+  if (record?.id) return `${targetText} has a source-backed proposal ready for working-packet review.`;
+  return `${targetText} has readable reducer pressure.`;
+}
+
+function fallbackDecisionRows(job, result, targets) {
+  if (result) return [];
+  return targets.slice(0, 4).map((target, index) => ({
+    id: `pending:${target}:${index}`,
+    kind: "pending",
+    title: `${target} projection understanding`,
+    evidence: "",
+    targets: [target],
+    source_ref: sourceRefForJob(job),
+    record: null,
+    impact: "Waiting for completed reducer output."
+  }));
+}
+
+function targetProjectionList(job) {
+  const packetTargets = arrayField(contextPacketForJob(job)?.target_projections);
+  const snapshotTargets = arrayField(snapshot?.target_projections);
+  const inputTargets = arrayField(els.targets?.value || "");
+  return [...new Set([...packetTargets, ...snapshotTargets, ...inputTargets])].filter(Boolean);
 }
 
 function fallbackJobs() {
@@ -839,12 +1227,12 @@ function renderStream(job) {
   els.visibleOutputs.innerHTML = visibleOutputs.length
     ? `
       <div class="visible-outputs-head">
-        <strong>Summary And Diagrams</strong>
+        <strong>Prose And Diagrams</strong>
         <span>${visibleOutputs.length}</span>
       </div>
       ${visibleOutputs.join("")}
     `
-    : `<div class="visible-outputs-empty">No summary or diagram tool output yet.</div>`;
+    : `<div class="visible-outputs-empty">No generated prose or diagram projection yet.</div>`;
   els.liveStream.innerHTML = stream.length
     ? renderGeneratedSurface(stream)
     : renderStreamEmpty(job);
@@ -1042,6 +1430,9 @@ function renderVisibleTool(tool) {
   if (["thought", "show_thought", "basis_show_thought"].includes(tool.tool)) {
     return renderThoughtCard(tool.body || tool.message || tool.text || "", tool.title || "Thought");
   }
+  if (tool.tool === "basis_semantic_state_map") {
+    return renderSemanticStateMap(tool.graph, tool.title || "Semantic Reduction Map");
+  }
   if (isMermaidTool(tool.tool)) {
     return renderMermaidBlock(tool.body || tool.diagram || tool.source || "", tool.title || "Mermaid", tool);
   }
@@ -1058,6 +1449,195 @@ function renderVisibleTool(tool) {
 
 function isMermaidTool(name) {
   return ["mermaid", "show_mermaid", "diagram", "basis_show_mermaid"].includes(name);
+}
+
+function buildSemanticStateGraph(job, result) {
+  const findings = (result.findings || []).slice(0, 8);
+  const records = result.proposed_records || [];
+  const fallbackTargets = arrayField(contextPacketForJob(job)?.target_projections || snapshot.target_projections).slice(0, 4);
+  const rows = findings.map((finding, index) => {
+    const body = finding.evidence || finding.falsifiable_test || finding.body || "";
+    const sourceRef = sourceRefFromText(body, job) || sourceRefForJob(job);
+    const targets = arrayField(finding.target_projection || finding.target_projections).length
+      ? arrayField(finding.target_projection || finding.target_projections)
+      : fallbackTargets;
+    const record = recordForFinding(finding, records, targets);
+    const actionable = isActionableFinding(finding, body);
+    return {
+      id: `semantic-row-${job.id}-${index + 1}`,
+      kind: semanticKind(finding),
+      relation: semanticRelation(finding),
+      title: conciseLabel(finding.title || finding.kind || "finding", 52),
+      evidence: body,
+      severity: finding.severity || "",
+      source_ref: sourceRef,
+      targets: targets.length ? targets.slice(0, 4) : ["review"],
+      record,
+      actionable,
+      action: semanticAction(finding, body, record)
+    };
+  });
+
+  return {
+    rows,
+    records,
+    summary: result.summary || "",
+    target_count: new Set(rows.flatMap(row => row.targets)).size
+  };
+}
+
+function recordForFinding(finding, records, targets) {
+  if (!records.length) return null;
+  const findingText = `${finding.kind || ""} ${finding.title || ""} ${finding.evidence || ""}`.toLowerCase();
+  const targetSet = new Set(targets.map(target => String(target).toLowerCase()));
+  return records.find(record => {
+    const title = String(record.title || "").toLowerCase();
+    const kind = String(record.kind || "").toLowerCase();
+    const recordTargets = arrayField(record.target_projection || record.target_projections).map(target => String(target).toLowerCase());
+    const titleTokens = title.split(/\W+/).filter(token => token.length > 4);
+    return (
+      (title && findingText.includes(title)) ||
+      (kind && findingText.includes(kind)) ||
+      titleTokens.some(token => findingText.includes(token)) ||
+      recordTargets.some(target => targetSet.has(target))
+    );
+  }) || null;
+}
+
+function arrayField(value) {
+  if (Array.isArray(value)) return value.filter(item => String(item || "").trim()).map(String);
+  if (typeof value === "string") {
+    return value.split(",").map(item => item.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+function semanticKind(finding) {
+  const text = `${finding.kind || ""} ${finding.title || ""}`.toLowerCase();
+  if (text.includes("conflict")) return "conflict";
+  if (text.includes("coupl")) return "coupled";
+  if (text.includes("missing") || text.includes("absent") || text.includes("open")) return "missing";
+  if (text.includes("redundan") || text.includes("duplicat")) return "redundant";
+  if (text.includes("derived")) return "derived";
+  if (text.includes("loss") || text.includes("fidelity")) return "loss";
+  return "pivot";
+}
+
+function semanticRelation(finding) {
+  const kind = semanticKind(finding);
+  if (kind === "conflict") return "conflicts with";
+  if (kind === "coupled") return "needs split";
+  if (kind === "missing") return "blocks";
+  if (kind === "redundant") return "duplicates";
+  if (kind === "derived") return "derives from";
+  if (kind === "loss") return "may lose";
+  return "supports";
+}
+
+function semanticAction(finding, body, record) {
+  const text = `${finding.kind || ""} ${finding.title || ""} ${body || ""}`.toLowerCase();
+  if (record?.id) return "review proposal";
+  if (text.includes("no accepted") || text.includes("acceptance")) return "record decision";
+  if (isActionableFinding(finding, body)) return "ask synthesis";
+  return "inspect";
+}
+
+function conciseLabel(value, maxLength = 44) {
+  const compact = String(value || "")
+    .replace(/[`*_#]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (compact.length <= maxLength) return compact;
+  const sliced = compact.slice(0, maxLength - 1).trim();
+  return `${sliced}…`;
+}
+
+function renderSemanticStateMap(graph, title) {
+  const rows = graph?.rows || [];
+  if (!rows.length) return "";
+  return `
+    <section class="semantic-map-card">
+      <div class="semantic-map-head">
+        <div>
+          <div class="visible-tool-label">${escapeHtml(title)}</div>
+          <strong>Evidence -> reducer claim -> proposal -> projection action</strong>
+        </div>
+        <span>${escapeHtml(rows.length)} claims</span>
+      </div>
+      <div class="semantic-map-lanes" aria-hidden="true">
+        <span>Evidence</span>
+        <span>Semantic claim</span>
+        <span>Proposal state</span>
+        <span>Projection action</span>
+      </div>
+      <div class="semantic-map-rows">
+        ${rows.map(row => renderSemanticMapRow(row)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderSemanticMapRow(row) {
+  const ref = row.source_ref || {};
+  const record = row.record;
+  const subjectId = row.id;
+  const noteBody = `Review blocker: ${row.title}. ${row.evidence || ""}`;
+  return `
+    <article class="semantic-map-row" data-kind="${escapeAttr(row.kind)}" data-actionable="${row.actionable ? "true" : "false"}">
+      <button type="button"
+        class="semantic-source-chip"
+        data-semantic-ref
+        data-section-id="${escapeAttr(ref.section_id || "")}"
+        data-source-path="${escapeAttr(ref.source_path || "")}"
+        data-start-line="${escapeAttr(ref.start_line || "")}"
+        data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}"
+        data-choice-title="${escapeAttr(row.title)}"
+        data-choice-body="${escapeAttr(row.evidence || row.title)}">${escapeHtml(sourceRefLabel(ref))}</button>
+      <div class="semantic-claim-node">
+        <span class="semantic-kind">${escapeHtml(row.kind)}</span>
+        <strong>${escapeHtml(row.title)}</strong>
+        <span>${escapeHtml(row.relation)}</span>
+      </div>
+      <div class="semantic-record-node" data-empty="${record ? "false" : "true"}">
+        ${record ? `
+          <strong>${escapeHtml(conciseLabel(record.title || record.kind || "proposed record", 42))}</strong>
+          <span>${escapeHtml(record.kind || "proposal")} · proposal only</span>
+          ${record.id ? `
+            <div class="semantic-record-actions">
+              <button type="button" data-record-decision="accept_record" data-record-id="${escapeAttr(record.id)}">Keep in working packet</button>
+              <button type="button" data-record-decision="defer_record" data-record-id="${escapeAttr(record.id)}">Defer</button>
+              <button type="button" data-record-decision="reject_record" data-record-id="${escapeAttr(record.id)}">Reject pressure</button>
+            </div>
+          ` : ""}
+        ` : `
+          <strong>No proposal record</strong>
+          <span>gap remains explicit</span>
+        `}
+      </div>
+      <div class="semantic-action-node">
+        <div class="semantic-targets">
+          ${row.targets.map(target => `<span>${escapeHtml(target)}</span>`).join("")}
+        </div>
+        <strong>${escapeHtml(row.action)}</strong>
+        <div class="semantic-action-buttons">
+          ${row.actionable ? `
+            <button type="button"
+              data-record-note
+              data-subject-kind="finding"
+              data-subject-id="${escapeAttr(subjectId)}"
+              data-note-body="${escapeAttr(noteBody)}">Record blocker</button>
+            <button type="button" data-request-synthesis>Ask synthesis</button>
+          ` : `<button type="button" data-semantic-ref data-section-id="${escapeAttr(ref.section_id || "")}" data-start-line="${escapeAttr(ref.start_line || "")}" data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}">Inspect source</button>`}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function sourceRefLabel(ref) {
+  if (!ref?.start_line) return "source";
+  const end = ref.end_line && ref.end_line !== ref.start_line ? `-${ref.end_line}` : "";
+  return `lines ${ref.start_line}${end}`;
 }
 
 function renderMermaidAndText(text, type) {
@@ -1328,17 +1908,85 @@ function renderResults(job) {
   }
   const result = resultForJob(job);
   const findings = result?.findings || [];
+  const records = result?.proposed_records || [];
   els.resultCount.textContent = String(findings.length);
   els.resultEvidence.innerHTML = result ? `
-    <div class="finding"><strong>Summary</strong><span>${renderSourceLinkedText(result.summary || "No summary.", job)}</span></div>
-    ${result.error ? `<div class="finding error"><strong>Error</strong><span>${renderSourceLinkedText(result.error, job)}</span></div>` : ""}
-    ${findings.map(finding => `
-      <div class="finding">
-        <strong>${escapeHtml(finding.title || finding.kind || "finding")}</strong>
-        <span>${renderSourceLinkedText(finding.evidence || finding.falsifiable_test || "", job)}</span>
-      </div>
-    `).join("")}
+    <article class="finding finding-summary">
+      <strong>Summary</strong>
+      <span>${renderSourceLinkedText(result.summary || "No summary.", job)}</span>
+    </article>
+    ${result.error ? `<article class="finding error"><strong>Error</strong><span>${renderSourceLinkedText(result.error, job)}</span></article>` : ""}
+    ${findings.map((finding, index) => renderFinding(job, result, finding, index)).join("")}
+    ${records.length ? `
+      <section class="proposal-records" aria-label="Proposed records">
+        <div class="proposal-records-head">
+          <strong>Proposed Records</strong>
+          <span>${escapeHtml(records.length)}</span>
+        </div>
+        ${records.map(record => renderProposalRecord(record)).join("")}
+      </section>
+    ` : ""}
   ` : `<p>No completed result yet.</p>`;
+}
+
+function renderFinding(job, result, finding, index) {
+  const title = finding.title || finding.kind || "finding";
+  const body = finding.evidence || finding.falsifiable_test || "";
+  const actionable = isActionableFinding(finding, body);
+  const subjectId = `${result.id || result.job_id || job.id}:finding:${index + 1}`;
+
+  return `
+    <article class="finding" data-actionable="${actionable ? "true" : "false"}">
+      <strong>${escapeHtml(title)}</strong>
+      <span>${renderSourceLinkedText(body, job)}</span>
+      ${actionable ? `
+        <div class="finding-actions">
+          <button type="button"
+            data-record-note
+            data-subject-kind="finding"
+            data-subject-id="${escapeAttr(subjectId)}"
+            data-note-body="${escapeAttr(`Review blocker: ${title}. ${body}`)}">Record blocker note</button>
+          <button type="button" data-request-synthesis>Ask synthesis to reconcile</button>
+        </div>
+      ` : ""}
+    </article>
+  `;
+}
+
+function renderProposalRecord(record) {
+  const id = record.id || "";
+  const title = record.title || record.kind || id || "proposed record";
+  const body = record.body || record.evidence || record.falsifiable_test || "";
+  return `
+    <article class="proposal-record">
+      <div>
+        <strong>${escapeHtml(title)}</strong>
+        <span>${escapeHtml(record.kind || "proposal")} | ${escapeHtml(record.acceptance_boundary || "proposal state")}</span>
+      </div>
+      ${body ? `<p>${escapeHtml(body)}</p>` : ""}
+      ${id ? `
+        <div class="record-actions">
+          <button type="button" data-record-decision="accept_record" data-record-id="${escapeAttr(id)}">Keep in working packet</button>
+          <button type="button" data-record-decision="defer_record" data-record-id="${escapeAttr(id)}">Defer</button>
+          <button type="button" data-record-decision="reject_record" data-record-id="${escapeAttr(id)}">Reject pressure</button>
+        </div>
+      ` : ""}
+    </article>
+  `;
+}
+
+function isActionableFinding(finding, body) {
+  const text = `${finding.kind || ""} ${finding.title || ""} ${body || ""}`.toLowerCase();
+  return [
+    "missing",
+    "open_question",
+    "conflict",
+    "no accepted",
+    "requires",
+    "must",
+    "unresolved",
+    "block"
+  ].some(token => text.includes(token));
 }
 
 function renderSourceLinkedText(text, job) {
@@ -1355,6 +2003,7 @@ function renderSourceLinkedText(text, job) {
         class="source-ref"
         data-source-ref
         data-section-id="${escapeAttr(ref.section_id)}"
+        data-source-path="${escapeAttr(ref.source_path || "")}"
         data-start-line="${escapeAttr(ref.start_line)}"
         data-end-line="${escapeAttr(ref.end_line)}">${escapeHtml(ref.label)}</button>
     `);
@@ -1377,6 +2026,23 @@ function bindRailButtons() {
   document.querySelectorAll("[data-rerun-job]").forEach(button => {
     button.addEventListener("click", () => postJson("/api/actions", { type: "rerun_lens", job_id: button.dataset.rerunJob }));
   });
+  document.querySelectorAll("[data-request-synthesis]").forEach(button => {
+    button.addEventListener("click", () => postJson("/api/actions", { type: "request_synthesis" }));
+  });
+  document.querySelectorAll("[data-record-note]").forEach(button => {
+    button.addEventListener("click", () => postJson("/api/actions", {
+      type: "note",
+      body: button.dataset.noteBody || "Review blocker.",
+      subject_kind: button.dataset.subjectKind || "finding",
+      subject_id: button.dataset.subjectId || selectedSectionId
+    }));
+  });
+  document.querySelectorAll("[data-record-decision]").forEach(button => {
+    button.addEventListener("click", () => postJson("/api/actions", {
+      type: button.dataset.recordDecision,
+      record_id: button.dataset.recordId
+    }));
+  });
   document.querySelectorAll("[data-scroll-anchor]").forEach(button => {
     button.addEventListener("click", () => {
       const sectionId = button.dataset.scrollAnchor || selectedSectionId;
@@ -1388,6 +2054,13 @@ function bindRailButtons() {
     });
   });
   document.querySelectorAll("[data-source-ref]").forEach(button => {
+    button.addEventListener("mouseenter", () => previewSourceReference(button));
+    button.addEventListener("focus", () => previewSourceReference(button));
+    button.addEventListener("click", () => previewSourceReference(button));
+    button.addEventListener("mouseleave", clearSourceReference);
+    button.addEventListener("blur", clearSourceReference);
+  });
+  document.querySelectorAll("[data-semantic-ref]").forEach(button => {
     button.addEventListener("mouseenter", () => previewSourceReference(button));
     button.addEventListener("focus", () => previewSourceReference(button));
     button.addEventListener("click", () => previewSourceReference(button));
@@ -1408,6 +2081,7 @@ function referenceFromButton(button, kind = "source_reference") {
   return {
     kind,
     section_id: button.dataset.sectionId || selectedSectionId || "",
+    source_path: button.dataset.sourcePath || "",
     start_line: Number.isFinite(start) ? start : null,
     end_line: Number.isFinite(end) ? end : start,
     title: button.dataset.choiceTitle || "Source reference",
@@ -1487,29 +2161,36 @@ els.startForm.addEventListener("submit", event => {
   event.preventDefault();
   selectedSectionId = null;
   selectedJobId = null;
-  postJson("/api/start", {
-    mode: "reducer",
-    source_path: els.sourcePath.value.trim(),
-    targets: els.targets.value.split(",").map(item => item.trim()).filter(Boolean),
-    max_concurrency: Number(els.maxConcurrency.value || 4),
-    excluded_section_ids: [...excludedSectionIds]
-  });
+  clearTimeout(autoBuildTimer);
+  autoBuildMessage = "";
+  lastAutoBuildKey = autoBuildKey();
+  postJson("/api/start", runStartPayload());
 });
 
 els.corpusSample?.addEventListener("change", () => {
   const sample = CORPUS_SAMPLES[Number(els.corpusSample.value)];
   els.sourcePath.value = sample?.path || "components/spec-basis-reducer/spec.md";
   excludedSectionIds = new Set();
-  queuePreview();
+  queueNewSourceLoad();
 });
 
-function queuePreview() {
-  if (snapshot?.run_id) return;
-  clearTimeout(previewTimer);
-  previewTimer = setTimeout(loadPreview, 160);
+function queueNewSourceLoad() {
+  selectedSectionId = null;
+  selectedJobId = null;
+  activeSourceReference = null;
+  activeChoicePreview = null;
+  autoBuildMessage = "";
+  lastAutoBuildKey = "";
+  clearTimeout(autoBuildTimer);
+  queuePreview({ force: true });
 }
 
-els.sourcePath.addEventListener("change", queuePreview);
+function queuePreview(options = {}) {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(() => loadPreview(options), 160);
+}
+
+els.sourcePath.addEventListener("change", queueNewSourceLoad);
 
 els.pauseRun.addEventListener("click", () => postJson("/api/actions", { type: "pause" }));
 els.resumeRun.addEventListener("click", () => postJson("/api/actions", { type: "resume" }));

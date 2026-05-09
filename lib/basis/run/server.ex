@@ -1656,7 +1656,10 @@ defmodule Basis.Run.Server do
   end
 
   defp interventions(events) do
-    Enum.filter(events, &(&1.type in ["human_line_feedback", "human_note", "human_record_decision"]))
+    Enum.filter(
+      events,
+      &(&1.type in ["human_line_feedback", "human_note", "human_record_decision"])
+    )
   end
 
   defp imaginer_projection(%{mode: "imaginer"} = state, results, records) do

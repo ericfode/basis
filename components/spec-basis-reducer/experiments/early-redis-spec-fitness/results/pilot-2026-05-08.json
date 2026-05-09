@@ -1,0 +1,62 @@
+{
+  "date": "2026-05-08",
+  "fixture": "early-redis-spec-fitness",
+  "external_suite": {
+    "client": "redis-py",
+    "version": "7.4.0",
+    "tests": 18,
+    "buckets": [
+      "connection",
+      "strings",
+      "integers",
+      "expiry",
+      "lists",
+      "pipeline",
+      "transaction",
+      "meta"
+    ]
+  },
+  "setup_note": "The first run exposed a spec/evaluator mismatch: redis-py's decr() path used DECRBY, while the spec named DECR but not DECRBY. The spec and evaluator were corrected, then fresh builders were run.",
+  "corrected_run": {
+    "good": {
+      "visible_spec": "/private/tmp/basis-redis-spec-fitness/specs/good.md",
+      "repo_spec": "specs/good-early-redis.md",
+      "server": "/private/tmp/basis-redis-spec-fitness/good-02/server.mjs",
+      "passed": 18,
+      "total": 18,
+      "score": 1.0,
+      "server_lines": 645,
+      "spec_words": 792
+    },
+    "minimum_implied": {
+      "visible_spec": "/private/tmp/basis-redis-spec-fitness/specs/minimum-implied.md",
+      "repo_spec": "specs/minimum-implied-early-redis.md",
+      "server": "/private/tmp/basis-redis-spec-fitness/min-implied-02/server.mjs",
+      "passed": 18,
+      "total": 18,
+      "score": 1.0,
+      "server_lines": 727,
+      "spec_words": 425
+    }
+  },
+  "evaluator_only_run": {
+    "condition": "white-box evaluator only",
+    "visible_artifact": "evaluator.py",
+    "server": "/private/tmp/basis-redis-spec-fitness/evaluator-only-01/server.mjs",
+    "passed": 18,
+    "total": 18,
+    "score": 1.0,
+    "server_lines": 462,
+    "interpretation": "This is not a product-spec condition. It measures whether a builder can implement to the tests when the evaluator is visible."
+  },
+  "leakage_audit": {
+    "obvious_forbidden_string_scan": "no hits for evaluator/result/prior-solution markers in corrected servers",
+    "isolation_limit": "Workers saw temp spec copies and output paths, but the evaluator still existed in the parent repo. This is not a formally sandboxed blind eval."
+  },
+  "interpretation": [
+    "A more complex Redis-like server target still did not separate final behavior between clean and minimum-implied specs on one builder each.",
+    "The minimum-implied spec was about 46 percent shorter by word count, but its implementation was longer: 727 lines versus 645 lines.",
+    "The evaluator-only condition also passed and produced the shortest implementation, 462 lines, which suggests visible tests can serve as a very compact target but invite overfitting.",
+    "This supports the emerging pattern: strong builders recover behavior when enough facts are present, while spec quality shows up more reliably as process cost."
+  ]
+}
