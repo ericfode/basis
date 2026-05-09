@@ -271,7 +271,8 @@ function installCorpusSamples() {
     const label = `${sample.label} (${sample.docType})`;
     return `<option value="${index}">${escapeHtml(label)}</option>`;
   }).join("");
-  els.corpusSample.insertAdjacentHTML("beforeend", options);
+  els.corpusSample.innerHTML = options;
+  els.corpusSample.value = "0";
 }
 
 function renderDocument() {
