@@ -60,6 +60,7 @@ let activeSourceReference = null;
 let activeChoicePreview = null;
 let activeProjectionImpact = null;
 let suppressSectionObserverUntil = 0;
+let lineFeedbackDelegationInstalled = false;
 
 const API_ORIGIN = window.location.protocol === "file:" ? "http://127.0.0.1:8767" : "";
 const REDUCER_MODE = "reducer";
@@ -899,17 +900,24 @@ function installSectionObserver() {
 }
 
 function bindDocumentInteractions() {
-  document.querySelectorAll(".line-marker").forEach(button => {
-    button.addEventListener("click", event => {
-      event.preventDefault();
-      selectedFeedbackLine = {
-        section_id: button.dataset.sectionId,
-        line_number: Number(button.dataset.line),
-        source_text: button.dataset.sourceText || ""
-      };
-      renderFeedbackComposer();
-    });
-  });
+  if (lineFeedbackDelegationInstalled) return;
+  lineFeedbackDelegationInstalled = true;
+  document.body.dataset.lineFeedbackBound = "true";
+  document.addEventListener("click", handleLineFeedbackClick, true);
+}
+
+function handleLineFeedbackClick(event) {
+  const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+  const button = target?.closest?.(".line-marker");
+  if (!button || !els.documentSections?.contains(button)) return;
+  event.preventDefault();
+  event.stopPropagation();
+  selectedFeedbackLine = {
+    section_id: button.dataset.sectionId,
+    line_number: Number(button.dataset.line),
+    source_text: button.dataset.sourceText || ""
+  };
+  renderFeedbackComposer();
 }
 
 function renderFeedbackComposer() {
@@ -928,9 +936,9 @@ function renderFeedbackComposer() {
       <div class="impact-preview">
         <div class="impact-preview-head">
           <strong>Preview effect</strong>
-          <button type="button" data-update-feedback-preview>Update preview</button>
+          <button type="button" data-update-feedback-preview data-dirty="false">Update preview</button>
         </div>
-        <div id="feedbackImpact">${renderFeedbackPreview(initialPreview)}</div>
+        <div id="feedbackImpact">${renderFeedbackPreview(initialPreview, "draft")}</div>
       </div>
       <div class="feedback-actions">
         <button type="button" data-cancel-feedback>Cancel</button>
@@ -943,17 +951,28 @@ function renderFeedbackComposer() {
   const updatePreview = () => {
     const model = feedbackPreviewModel(line, textarea.value.trim());
     const preview = els.feedbackComposer.querySelector("#feedbackImpact");
-    if (preview) preview.innerHTML = renderFeedbackPreview(model);
+    if (preview) preview.innerHTML = renderFeedbackPreview(model, "updated");
     const button = els.feedbackComposer.querySelector("[data-update-feedback-preview]");
-    if (button) delete button.dataset.dirty;
+    if (button) {
+      button.dataset.dirty = "false";
+      button.textContent = "Preview updated";
+    }
   };
-  els.feedbackComposer.querySelector("[data-update-feedback-preview]").addEventListener("click", updatePreview);
-  els.feedbackComposer.addEventListener("click", event => {
-    if (!event.target?.matches?.("[data-update-feedback-preview]")) return;
+  els.feedbackComposer.querySelector("[data-update-feedback-preview]").addEventListener("click", event => {
     event.preventDefault();
     updatePreview();
   });
-  textarea.addEventListener("input", updatePreview);
+  textarea.addEventListener("input", () => {
+    const button = els.feedbackComposer.querySelector("[data-update-feedback-preview]");
+    if (button) {
+      button.dataset.dirty = "true";
+      button.textContent = "Update preview";
+    }
+    const preview = els.feedbackComposer.querySelector("#feedbackImpact");
+    if (preview) {
+      preview.querySelector("[data-preview-state]")?.replaceChildren(document.createTextNode("Preview is stale. Update it to compute project impact from the current guidance."));
+    }
+  });
   els.feedbackComposer.querySelector("[data-cancel-feedback]").addEventListener("click", closeFeedbackComposer);
   els.feedbackComposer.querySelector("#lineFeedbackForm").addEventListener("submit", async event => {
     event.preventDefault();
@@ -1005,8 +1024,18 @@ function feedbackPreviewModel(line, body) {
     kind,
     targets: affectedTargets,
     summary,
+    impact: feedbackProjectImpact(kind, affectedTargets),
     actions: feedbackPreviewActions(kind)
   };
+}
+
+function feedbackProjectImpact(kind, targets) {
+  const targetText = targets.join(", ") || "active projections";
+  if (kind === "redundant") return `May merge or delete duplicate pressure before ${targetText} is treated as settled.`;
+  if (kind === "coupled") return `May split one source claim into separate obligations before ${targetText} is projected.`;
+  if (kind === "missing") return `May add a missing-record blocker so ${targetText} does not invent behavior silently.`;
+  if (kind === "conflict") return `May require an explicit policy choice before ${targetText} can be trusted.`;
+  return `Queues an intent lens and refreshes reducer pressure for ${targetText}.`;
 }
 
 function feedbackPreviewActions(kind) {
@@ -1017,12 +1046,15 @@ function feedbackPreviewActions(kind) {
   return ["queue intent lens", "refresh projection impact"];
 }
 
-function renderFeedbackPreview(model) {
+function renderFeedbackPreview(model, state = "updated") {
+  const stateText = state === "draft" ? "Draft preview. Enter guidance, then update preview." : "Preview updated from the current guidance.";
   return `
+    <p class="preview-state" data-preview-state>${escapeHtml(stateText)}</p>
     <p>${escapeHtml(model.summary)}</p>
     <div class="impact-preview-grid">
       <span><strong>Kind</strong>${escapeHtml(model.kind)}</span>
       <span><strong>Targets</strong>${escapeHtml(model.targets.join(", ") || "active targets")}</span>
+      <span><strong>Project impact</strong>${escapeHtml(model.impact)}</span>
       <span><strong>Next</strong>${escapeHtml(model.actions.join(" · "))}</span>
     </div>
   `;
@@ -1096,7 +1128,7 @@ function renderFeedbackApplied(line, body, state, error = null) {
       </div>
       <div class="impact-preview">
         <strong>Impact</strong>
-        ${renderFeedbackPreview(preview)}
+        ${renderFeedbackPreview(preview, "updated")}
       </div>
       <div class="feedback-actions">
         <button type="button" data-cancel-feedback>${state === "failed" ? "Close" : "Done"}</button>
@@ -1627,6 +1659,7 @@ function fallbackJobs() {
 
 function renderJobCard(job) {
   const streamCount = (snapshot.streams?.[job.id] || []).length;
+  const streamLabel = streamEventLabel(streamCount);
   const cwdLabel = job.execution_cwd ? displayPath(job.execution_cwd) : "cwd pending";
   const threadLink = job.codex_thread_url
     ? `<a href="${escapeHtml(job.codex_thread_url)}">Open Codex Thread</a>`
@@ -1637,7 +1670,7 @@ function renderJobCard(job) {
       <summary>
         <span>
           <strong>${escapeHtml(job.title || job.lens_role)}</strong>
-          <span class="thread-meta">${escapeHtml(job.id)} | ${streamCount} events</span>
+          <span class="thread-meta" title="Projected recent stream tail, not total Codex thread size or turn budget.">${escapeHtml(job.id)} | ${escapeHtml(streamLabel)}</span>
         </span>
         <span class="job-status ${escapeHtml(job.status)}">${escapeHtml(job.status)}</span>
       </summary>
@@ -1653,6 +1686,11 @@ function renderJobCard(job) {
       </div>
     </details>
   `;
+}
+
+function streamEventLabel(count) {
+  if (!count) return "no recent events shown";
+  return `${count} recent ${count === 1 ? "event" : "events"} shown`;
 }
 
 function renderStream(job) {
@@ -1726,7 +1764,7 @@ function renderGeneratedSurface(stream) {
       <div class="generated-transcript">${text}</div>
     </details>
     <details class="raw-stream-log">
-      <summary>Protocol log (${stream.length} events)</summary>
+      <summary>Protocol log (${streamEventLabel(stream.length)})</summary>
       <div class="raw-stream-events">${stream.map(renderStreamEvent).join("")}</div>
     </details>
   `;
@@ -2928,5 +2966,6 @@ els.noteForm.addEventListener("submit", event => {
 });
 
 installCorpusSamples();
+bindDocumentInteractions();
 connectEvents();
 getRun().then(() => loadPreview());

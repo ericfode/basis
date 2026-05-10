@@ -319,6 +319,7 @@ button:hover,
 
 .source-line {
   position: relative;
+  scroll-margin-top: 240px;
   border-radius: 4px;
   padding: 1px 2px;
 }
@@ -326,6 +327,7 @@ button:hover,
 .line-marker {
   display: inline-grid;
   place-items: center;
+  scroll-margin-top: 240px;
   min-width: 2.1em;
   height: 1.55em;
   margin-right: 0.45em;
@@ -610,15 +612,14 @@ body[data-inspector-open="true"] .thread-pane {
 
 .feedback-composer {
   position: fixed;
-  top: 76px;
-  left: 50%;
-  z-index: 30;
-  width: min(640px, calc(100vw - 28px));
-  transform: translateX(-50%);
-  border: 1px solid #b7c9d9;
-  border-radius: 10px;
-  background: #ffffff;
-  box-shadow: 0 18px 60px rgba(15, 23, 42, 0.24);
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: start center;
+  padding: 76px 14px 28px;
+  overflow: auto;
+  background: rgba(238, 245, 247, 0.78);
+  backdrop-filter: blur(3px);
 }
 
 .feedback-composer[hidden] {
@@ -628,7 +629,12 @@ body[data-inspector-open="true"] .thread-pane {
 .feedback-card {
   display: grid;
   gap: 10px;
+  width: min(640px, calc(100vw - 28px));
   padding: 14px;
+  border: 1px solid #b7c9d9;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 18px 60px rgba(15, 23, 42, 0.24);
 }
 
 .feedback-source {
@@ -667,6 +673,11 @@ body[data-inspector-open="true"] .thread-pane {
   font-size: 13px;
 }
 
+.impact-preview .preview-state {
+  color: #087b6d;
+  font-weight: 750;
+}
+
 .impact-preview-head button {
   padding: 4px 7px;
   font-size: 12px;
@@ -679,7 +690,7 @@ body[data-inspector-open="true"] .thread-pane {
 
 .impact-preview-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
 }
 

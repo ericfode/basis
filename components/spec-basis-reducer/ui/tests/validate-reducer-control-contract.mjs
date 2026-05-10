@@ -4,9 +4,11 @@ import path from "node:path";
 const scriptDir = path.dirname(new URL(import.meta.url).pathname);
 const uiDir = path.resolve(scriptDir, "..");
 const appPath = path.join(uiDir, "reducer-app.js");
+const cssPath = path.join(uiDir, "reducer.css");
 const htmlPath = path.join(uiDir, "reducer.html");
 
 const app = await fs.readFile(appPath, "utf8");
+const css = await fs.readFile(cssPath, "utf8");
 const html = await fs.readFile(htmlPath, "utf8");
 const combined = `${html}\n${app}`;
 
@@ -80,6 +82,22 @@ assertIncludes(app, 'return "Ask split plan";', "Coupled synthesis actions must 
 assertIncludes(app, "function openHintDetails", "Floating hint details must open a concrete job detail target.");
 assertIncludes(app, "button.addEventListener(\"click\", openHintDetails)", "Floating hint details button must be bound to the detail opener.");
 assertIncludes(app, '${job.id === selectedJobId ? "open" : ""}', "Selected thread card must render open for visible details.");
+assertIncludes(app, "function streamEventLabel", "Thread stream counts must be labelled as projected recent events.");
+assertIncludes(app, "recent ${count === 1 ? \"event\" : \"events\"} shown", "Thread stream labels must not read as total Codex event counts.");
+assertIncludes(app, "not total Codex thread size or turn budget", "Thread cards must explain the projected stream-tail cap.");
+assertIncludes(app, "function feedbackProjectImpact", "Feedback preview must compute project impact before apply.");
+assertIncludes(app, "document.addEventListener(\"click\", handleLineFeedbackClick, true)", "Line feedback controls must use a stable delegated listener during live re-renders.");
+assertIncludes(app, "installCorpusSamples();\nbindDocumentInteractions();\nconnectEvents();", "Line feedback delegation must be installed during app startup.");
+assertIncludes(app, "document.body.dataset.lineFeedbackBound", "Line feedback startup binding must expose a cheap browser-verifiable state marker.");
+assertIncludes(app, "event.target instanceof Element", "Line feedback delegation must tolerate text-node click targets.");
+assertIncludes(app, "closest?.(\".line-marker\")", "Line feedback delegation must target source line markers.");
+assertIncludes(app, "Preview is stale. Update it to compute project impact", "Feedback textarea edits must visibly stale the preview.");
+assertIncludes(app, "renderFeedbackPreview(model, \"updated\")", "Update preview must render a computed impact state.");
+assertIncludes(app, "Project impact", "Feedback preview must show target/project impact, not only recording mechanics.");
+assertIncludes(css, ".feedback-composer", "Feedback modal must have an explicit overlay container.");
+assertIncludes(css, "z-index: 70", "Feedback modal overlay must sit above rails and floating hints.");
+assertIncludes(css, "backdrop-filter: blur(3px)", "Feedback modal must visually separate the layer behind it.");
+assertIncludes(css, "scroll-margin-top: 240px", "Source line markers must not scroll under the sticky evidence header before clicks.");
 
 if (html.includes('id="targets"') || html.includes("Projection targets")) {
   fail("Projection targets regressed into a user-facing header control.");
