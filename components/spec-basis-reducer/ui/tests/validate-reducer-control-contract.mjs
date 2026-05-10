@@ -71,6 +71,15 @@ assertIncludes(html, 'id="reasoningEffort"', "Reducer header must expose reasoni
 assertIncludes(html, '<option value="low" selected>low</option>', "Reducer reasoning effort must default to low.");
 assertIncludes(app, "const DEFAULT_TARGETS", "Projection targets must stay as internal reducer defaults.");
 assertIncludes(app, "model_effort: selectedReasoningEffort()", "Started reducer runs must send the selected reasoning effort.");
+assertIncludes(app, 'if (kind === "coupled") return "needs split";', "Coupled projection pressure must use clear split wording.");
+assertIncludes(app, "impactMeaningForKind(active.kind)", "Selected projection impact must explain terse pressure labels.");
+assertIncludes(app, 'renderSemanticActionButtons(detailRow, noteBody, "projection_impact")', "Projection detail actions must use model-suggested semantic actions.");
+assertIncludes(app, 'renderSemanticActionButtons(row, `Review pressure: ${row.title}. ${row.impact}`, "decision")', "Decision cards must use model-suggested semantic actions.");
+assertIncludes(app, "function reviewerActionLabel", "Reviewer action labels must normalize generic model actions into readable UI actions.");
+assertIncludes(app, 'return "Ask split plan";', "Coupled synthesis actions must present an explicit split option.");
+assertIncludes(app, "function openHintDetails", "Floating hint details must open a concrete job detail target.");
+assertIncludes(app, "button.addEventListener(\"click\", openHintDetails)", "Floating hint details button must be bound to the detail opener.");
+assertIncludes(app, '${job.id === selectedJobId ? "open" : ""}', "Selected thread card must render open for visible details.");
 
 if (html.includes('id="targets"') || html.includes("Projection targets")) {
   fail("Projection targets regressed into a user-facing header control.");

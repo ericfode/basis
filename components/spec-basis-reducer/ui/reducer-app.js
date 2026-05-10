@@ -600,7 +600,7 @@ function projectionEventKey(event) {
 
 function bindHintButtons() {
   els.hintLayer.querySelectorAll("[data-open-inspector]").forEach(button => {
-    button.addEventListener("click", () => setInspectorOpen(true));
+    button.addEventListener("click", openHintDetails);
   });
   els.hintLayer.querySelectorAll("[data-focus-job]").forEach(button => {
     button.addEventListener("click", () => {
@@ -608,6 +608,24 @@ function bindHintButtons() {
       setInspectorOpen(true);
       render();
     });
+  });
+}
+
+function openHintDetails() {
+  const job =
+    (snapshot.jobs || []).find(item => item.status === "running") ||
+    selectedJob() ||
+    (snapshot.jobs || []).find(item => item.status === "completed") ||
+    (snapshot.jobs || [])[0];
+  if (job) selectedJobId = job.id;
+  setInspectorOpen(true);
+  render();
+  requestAnimationFrame(() => {
+    const selected = selectedJobId
+      ? document.querySelector(`.thread-card[data-job-id="${CSS.escape(selectedJobId)}"]`)
+      : null;
+    if (selected && "open" in selected) selected.open = true;
+    (selected || document.querySelector(".thread-pane"))?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   });
 }
 
@@ -1362,6 +1380,7 @@ function renderProjectionKindButton(row) {
 function renderProjectionCell(row, target) {
   const pressured = row.targets.length === 0 || row.targets.includes(target);
   const label = pressured ? impactLabelForKind(row.kind) : "not pressured";
+  const help = projectionCellHelp(row, target, pressured);
   const selected = activeProjectionImpact?.row_id === row.id && activeProjectionImpact.target === target;
   return `
     <td data-pressure="${pressured ? "true" : "false"}">
@@ -1369,6 +1388,8 @@ function renderProjectionCell(row, target) {
         class="projection-cell"
         data-projection-impact
         aria-pressed="${selected ? "true" : "false"}"
+        aria-label="${escapeAttr(help)}"
+        title="${escapeAttr(help)}"
         ${projectionImpactAttrs(row, target)}
         data-selected="${selected ? "true" : "false"}"
         data-pressure="${pressured ? "true" : "false"}">${escapeHtml(label)}</button>
@@ -1394,13 +1415,23 @@ function projectionImpactAttrs(row, target) {
 
 function renderProjectionImpactDetail(rows) {
   const active = activeProjectionImpact;
-  if (!active || !rows.some(row => row.id === active.row_id)) {
+  const row = rows.find(item => item.id === active?.row_id);
+  if (!active || !row) {
     return `<p class="projection-help">Click any cell to inspect the pressure, source evidence, and available reviewer actions.</p>`;
   }
 
-  const ref = active;
   const noteBody = `Projection pressure: ${active.title}. ${active.impact}`;
   const targetLabel = active.target ? `${active.target} projection` : "all affected projections";
+  const detailRow = {
+    ...row,
+    source_ref: {
+      ...(row.source_ref || {}),
+      section_id: active.section_id || row.source_ref?.section_id || "",
+      source_path: active.source_path || row.source_ref?.source_path || "",
+      start_line: active.start_line || row.source_ref?.start_line || "",
+      end_line: active.end_line || row.source_ref?.end_line || row.source_ref?.start_line || ""
+    }
+  };
   return `
     <article class="projection-impact-detail" data-kind="${escapeAttr(active.kind)}">
       <div>
@@ -1409,42 +1440,8 @@ function renderProjectionImpactDetail(rows) {
         <p>${escapeHtml(targetLabel)} · ${escapeHtml(active.kind)}</p>
       </div>
       <p>${escapeHtml(active.impact || "Review this pressure before treating the projection as known.")}</p>
-      <div class="decision-actions">
-        <button type="button"
-          data-semantic-ref
-          data-section-id="${escapeAttr(ref.section_id || "")}"
-          data-source-path="${escapeAttr(ref.source_path || "")}"
-          data-start-line="${escapeAttr(ref.start_line || "")}"
-          data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}"
-          data-choice-title="${escapeAttr(active.title)}"
-          data-choice-body="${escapeAttr(active.evidence || active.impact)}">Show evidence</button>
-        <button type="button"
-          data-request-synthesis
-          data-subject-kind="projection_impact"
-          data-subject-id="${escapeAttr(active.row_id)}"
-          data-action-key="${escapeAttr(active.row_id)}"
-          data-synthesis-body="${escapeAttr(`Reconcile projection impact for ${active.title}: ${active.impact}`)}">Ask synthesis</button>
-        <button type="button"
-          data-record-note
-          data-subject-kind="projection_impact"
-          data-subject-id="${escapeAttr(active.row_id)}"
-          data-action-key="${escapeAttr(active.row_id)}"
-          data-note-body="${escapeAttr(noteBody)}">Record blocker</button>
-        ${active.kind === "redundant" ? `
-          <button type="button"
-            data-pressure-decision="merge_pressure"
-            data-subject-kind="projection_impact"
-            data-subject-id="${escapeAttr(active.row_id)}"
-            data-action-key="${escapeAttr(active.row_id)}"
-            data-decision-body="${escapeAttr(noteBody)}">Mark duplicate</button>
-          <button type="button"
-            data-pressure-decision="reject_pressure"
-            data-subject-kind="projection_impact"
-            data-subject-id="${escapeAttr(active.row_id)}"
-            data-action-key="${escapeAttr(active.row_id)}"
-            data-decision-body="${escapeAttr(noteBody)}">Delete pressure</button>
-        ` : ""}
-      </div>
+      <p class="projection-impact-meaning">${escapeHtml(impactMeaningForKind(active.kind))}</p>
+      <div class="decision-actions">${renderSemanticActionButtons(detailRow, noteBody, "projection_impact")}</div>
       ${renderActionStatus(active.row_id)}
     </article>
   `;
@@ -1452,7 +1449,7 @@ function renderProjectionImpactDetail(rows) {
 
 function impactLabelForKind(kind) {
   if (kind === "missing") return "would invent";
-  if (kind === "coupled") return "split needed";
+  if (kind === "coupled") return "needs split";
   if (kind === "conflict") return "policy needed";
   if (kind === "redundant") return "duplicate";
   if (kind === "loss") return "loss risk";
@@ -1460,12 +1457,28 @@ function impactLabelForKind(kind) {
   return "readable";
 }
 
+function projectionCellHelp(row, target, pressured) {
+  if (!pressured) return `${target} is not currently pressured by ${row.title}.`;
+  return `${target}: ${impactLabelForKind(row.kind)}. ${impactMeaningForKind(row.kind)}`;
+}
+
+function impactMeaningForKind(kind) {
+  if (kind === "coupled") {
+    return "This means the source claim appears to carry multiple obligations; ask the reducer to split it into separate proposal records before trusting this projection.";
+  }
+  if (kind === "missing") return "This projection would have to invent behavior or policy unless a missing record is added.";
+  if (kind === "conflict") return "This projection needs an explicit policy choice before implementation can treat it as settled.";
+  if (kind === "redundant") return "This pressure appears to duplicate another record and should be merged or deleted.";
+  if (kind === "loss") return "This projection may drop source meaning unless the reviewer preserves it explicitly.";
+  if (kind === "guidance") return "This projection should be rechecked against the latest human guidance.";
+  return "This projection has enough source-backed pressure to read, but it is still proposal state.";
+}
+
 function renderDecisionQueue(decisions) {
   if (!decisions.length) {
     return `<p class="empty-state">No decisions yet. Run or focus a lens that has completed reducer output.</p>`;
   }
   return decisions.slice(0, 6).map(row => {
-    const ref = row.source_ref || {};
     return `
       <article class="decision-card" data-kind="${escapeAttr(row.kind)}">
         <div class="decision-card-head">
@@ -1474,42 +1487,7 @@ function renderDecisionQueue(decisions) {
         </div>
         <strong>${escapeHtml(row.title)}</strong>
         <p>${escapeHtml(row.impact)}</p>
-        <div class="decision-actions">
-          <button type="button"
-            data-semantic-ref
-            data-section-id="${escapeAttr(ref.section_id || "")}"
-            data-source-path="${escapeAttr(ref.source_path || "")}"
-            data-start-line="${escapeAttr(ref.start_line || "")}"
-            data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}"
-            data-choice-title="${escapeAttr(row.title)}"
-            data-choice-body="${escapeAttr(row.evidence || row.impact)}">Show evidence</button>
-          <button type="button"
-            data-request-synthesis
-            data-subject-kind="decision"
-            data-subject-id="${escapeAttr(row.id)}"
-            data-action-key="${escapeAttr(row.id)}"
-            data-synthesis-body="${escapeAttr(`Explore option: ${row.title}. ${row.impact}`)}">Explore option</button>
-          <button type="button"
-            data-record-note
-            data-subject-kind="finding"
-            data-subject-id="${escapeAttr(row.id)}"
-            data-action-key="${escapeAttr(row.id)}"
-            data-note-body="${escapeAttr(`Make buildable: ${row.title}. ${row.impact}`)}">Make buildable</button>
-          ${row.kind === "redundant" ? `
-            <button type="button"
-              data-pressure-decision="merge_pressure"
-              data-subject-kind="decision"
-              data-subject-id="${escapeAttr(row.id)}"
-              data-action-key="${escapeAttr(row.id)}"
-              data-decision-body="${escapeAttr(`Merge duplicate pressure: ${row.title}. ${row.impact}`)}">Mark duplicate</button>
-            <button type="button"
-              data-pressure-decision="reject_pressure"
-              data-subject-kind="decision"
-              data-subject-id="${escapeAttr(row.id)}"
-              data-action-key="${escapeAttr(row.id)}"
-              data-decision-body="${escapeAttr(`Delete duplicate pressure: ${row.title}. ${row.impact}`)}">Delete pressure</button>
-          ` : ""}
-        </div>
+        <div class="decision-actions">${renderSemanticActionButtons(row, `Review pressure: ${row.title}. ${row.impact}`, "decision")}</div>
         ${renderActionStatus(row.id)}
       </article>
     `;
@@ -1575,7 +1553,8 @@ function feedbackRowsForSection(section, fallbackTargets = []) {
           body
         },
         record: null,
-        impact: event.payload?.preview_effect || `Reviewer guidance should be folded into ${targets.join(", ") || "the active projections"}.`
+        impact: event.payload?.preview_effect || `Reviewer guidance should be folded into ${targets.join(", ") || "the active projections"}.`,
+        suggested_actions: []
       };
     });
 }
@@ -1592,7 +1571,7 @@ function decisionRowsForResult(job, result) {
     const title = conciseLabel(finding.title || finding.kind || `finding ${index + 1}`, 64);
     const record = recordForFinding(finding, records, rowTargets, index);
     const impact = decisionImpact(kind, rowTargets, record);
-    return {
+    const row = {
       id: `${result.id || result.job_id || job?.id || "result"}:decision:${index + 1}`,
       kind,
       title,
@@ -1600,7 +1579,12 @@ function decisionRowsForResult(job, result) {
       targets: rowTargets,
       source_ref: sourceRefFromText(evidence, job) || sourceRefForJob(job),
       record,
-      impact
+      impact,
+      suggested_actions: suggestedActionsForFinding(finding)
+    };
+    return {
+      ...row,
+      actions: semanticActionsForRow(row)
     };
   });
 }
@@ -1649,7 +1633,7 @@ function renderJobCard(job) {
     : `<span class="thread-meta">app-server thread pending</span>`;
   const turnLabel = job.codex_turn_id ? `turn ${job.codex_turn_id}` : "turn pending";
   return `
-    <details class="thread-card" data-job-id="${escapeHtml(job.id)}" data-status="${escapeHtml(job.status)}" data-selected="${job.id === selectedJobId}">
+    <details class="thread-card" data-job-id="${escapeHtml(job.id)}" data-status="${escapeHtml(job.status)}" data-selected="${job.id === selectedJobId}" ${job.id === selectedJobId ? "open" : ""}>
       <summary>
         <span>
           <strong>${escapeHtml(job.title || job.lens_role)}</strong>
@@ -2032,7 +2016,8 @@ function suggestedActionsForFinding(finding) {
 }
 
 function semanticActionsForRow(row) {
-  const modelActions = row.suggested_actions
+  const suggestedActions = Array.isArray(row.suggested_actions) ? row.suggested_actions : [];
+  const modelActions = suggestedActions
     .map(action => normalizeSemanticAction(action, row))
     .filter(Boolean)
     .slice(0, 3);
@@ -2224,30 +2209,43 @@ function actionTitleForRow(row) {
   return row.action;
 }
 
-function renderSemanticActionButtons(row, noteBody) {
+function renderSemanticActionButtons(row, noteBody, subjectKind = "semantic_row") {
   const ref = row.source_ref || {};
-  return row.actions.map(action => renderSemanticActionButton(row, action, ref, noteBody)).join("");
+  const actions = Array.isArray(row.actions) ? row.actions : semanticActionsForRow(row);
+  return actions.map(action => renderSemanticActionButton(row, action, ref, noteBody, subjectKind)).join("");
 }
 
-function renderSemanticActionButton(row, action, ref, noteBody) {
+function renderSemanticActionButton(row, action, ref, noteBody, subjectKind) {
+  const label = reviewerActionLabel(row, action);
+  const synthesisBody = action.rationale
+    ? `${label}: ${action.rationale}. ${row.kind}: ${row.title}. Evidence: ${row.evidence || ""}`
+    : `Synthesize next action for ${row.kind}: ${row.title}. Evidence: ${row.evidence || ""}`;
   const common = `
-    data-subject-kind="semantic_row"
+    data-subject-kind="${escapeAttr(subjectKind)}"
     data-subject-id="${escapeAttr(row.id)}"
     data-action-key="${escapeAttr(row.id)}"
   `;
   if (action.type === "inspect_source") {
-    return `<button type="button" data-semantic-ref ${common} data-section-id="${escapeAttr(ref.section_id || "")}" data-start-line="${escapeAttr(ref.start_line || "")}" data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}">${escapeHtml(action.label)}</button>`;
+    return `<button type="button" data-semantic-ref ${common} data-section-id="${escapeAttr(ref.section_id || "")}" data-source-path="${escapeAttr(ref.source_path || "")}" data-start-line="${escapeAttr(ref.start_line || "")}" data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}" data-choice-title="${escapeAttr(row.title)}" data-choice-body="${escapeAttr(row.evidence || row.impact || row.title)}">${escapeHtml(label)}</button>`;
   }
   if (action.type === "record_blocker") {
-    return `<button type="button" data-record-note ${common} data-note-body="${escapeAttr(noteBody)}">${escapeHtml(action.label)}</button>`;
+    return `<button type="button" data-record-note ${common} data-note-body="${escapeAttr(noteBody)}">${escapeHtml(label)}</button>`;
   }
   if (action.type === "ask_synthesis") {
-    return `<button type="button" data-request-synthesis ${common} data-synthesis-body="${escapeAttr(`Synthesize next action for ${row.kind}: ${row.title}. Evidence: ${row.evidence || ""}`)}">${escapeHtml(action.label)}</button>`;
+    return `<button type="button" data-request-synthesis ${common} data-synthesis-body="${escapeAttr(synthesisBody)}">${escapeHtml(label)}</button>`;
   }
   if (["reject_pressure", "defer_pressure", "keep_pressure", "merge_pressure"].includes(action.type)) {
-    return `<button type="button" data-pressure-decision="${escapeAttr(action.type)}" ${common} data-decision-body="${escapeAttr(`${action.label}: ${row.kind} ${row.title}. ${row.evidence || ""}`)}">${escapeHtml(action.label)}</button>`;
+    return `<button type="button" data-pressure-decision="${escapeAttr(action.type)}" ${common} data-decision-body="${escapeAttr(`${label}: ${row.kind} ${row.title}. ${row.evidence || ""}`)}">${escapeHtml(label)}</button>`;
   }
   return "";
+}
+
+function reviewerActionLabel(row, action) {
+  const label = action.label || action.type || "Review";
+  if (row.kind === "coupled" && action.type === "ask_synthesis" && /^ask synthesis$/i.test(label)) {
+    return "Ask split plan";
+  }
+  return label;
 }
 
 function sourceRefLabel(ref) {

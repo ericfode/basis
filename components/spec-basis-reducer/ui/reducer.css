@@ -2048,6 +2048,14 @@ textarea {
   line-height: 1.42;
 }
 
+.projection-impact-meaning {
+  color: #344456;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px;
+}
+
 .projection-impact-detail[data-kind="redundant"] {
   border-top-color: #7f8da2;
 }
