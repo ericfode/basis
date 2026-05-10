@@ -1756,6 +1756,13 @@ textarea {
   cursor: pointer;
 }
 
+.kind-chip-button[data-selected="true"] {
+  border-color: #087b6d;
+  background: #e9fbf7;
+  color: #075e54;
+  box-shadow: 0 0 0 2px rgba(8, 123, 109, 0.14);
+}
+
 .state-badge.stable {
   border-color: #b9d9d3;
   background: #f0fbf8;
@@ -1933,7 +1940,7 @@ textarea {
 }
 
 .shape-support::before {
-  content: "Run custody, not spec contents";
+  content: "Model-derived support";
   grid-column: 1 / -1;
   color: #087b6d;
   font-size: 11px;
@@ -2003,6 +2010,13 @@ textarea {
 
 .projection-cell[data-pressure="true"] {
   background: rgba(255, 248, 230, 0.72);
+}
+
+.projection-cell[data-selected="true"] {
+  border-color: #087b6d;
+  background: #e7fbf6;
+  color: #064e46;
+  box-shadow: 0 0 0 2px rgba(8, 123, 109, 0.14);
 }
 
 .projection-help {

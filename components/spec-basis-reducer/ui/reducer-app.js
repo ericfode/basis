@@ -453,17 +453,18 @@ function renderHints() {
   }
 
   const isActive = runningJobs.length > 0;
+  const subject = hintSubject(job);
   const headline = latestFeedback
-    ? "Intent guidance applied"
+    ? `Guidance on ${subject}`
     : latestSynthesis
-      ? "Synthesis requested"
+      ? `Synthesis for ${subject}`
       : latestPressure || latestRecordDecision
-        ? "Proposal action recorded"
+        ? `Action on ${subject}`
         : isActive
-          ? "Live reduction"
+          ? `Reducing ${subject}`
           : snapshot.status === "complete"
-            ? "Reduction complete"
-            : "Reduction ready";
+            ? `Reduced ${subject}`
+            : `Ready: ${subject}`;
   const fullDetail = messages.join(" · ") || `${queuedJobs.length} ${queuedJobs.length === 1 ? "lens is" : "lenses are"} queued`;
   const compactDetail = messages.length > 1
     ? `${messages.length} updates`
@@ -482,6 +483,12 @@ function renderHints() {
     </div>
   `;
   bindHintButtons();
+}
+
+function hintSubject(job) {
+  const section = sectionForJob(job) || (snapshot.document_sections || []).find(item => item.id === selectedSectionId);
+  const title = section?.title || (snapshot.document_sections || [])[0]?.title || displayPath(snapshot.source?.path || els.sourcePath?.value || "spec");
+  return conciseLabel(title, 34);
 }
 
 function latestEvent(type) {
@@ -1145,7 +1152,7 @@ function renderStudio(job, section) {
   els.studioIntro.textContent = studioIntroText(job, result, currentSection);
   els.studioRunState.innerHTML = renderStudioState(job, result, targets);
   els.studioNarrative.innerHTML = renderStudioNarrative(job, result, currentSection, targets, decisions);
-  els.studioBuildShape.innerHTML = renderBuildShapeDiagram(job, result, targets);
+  els.studioBuildShape.innerHTML = renderBuildShapeDiagram(job, result, targets, decisions);
   els.studioProjectionMatrix.innerHTML = renderProjectionImpactMatrix(job, result, targets, decisions);
   els.studioDecisionQueue.innerHTML = renderDecisionQueue(decisions);
   els.studioEvidenceList.innerHTML = renderStudioEvidenceList(decisions);
@@ -1221,33 +1228,70 @@ function proseParagraphs(text) {
   return paragraphs.filter(Boolean);
 }
 
-function renderBuildShapeDiagram(job, result, targets) {
-  const recordCount = (result?.proposed_records || []).length;
-  const findingCount = (result?.findings || []).length;
-  const sourceLabel = displayPath(snapshot.source?.path || els.sourcePath.value || "source spec");
-  const runLabel = job?.lens_role ? conciseLabel(job.lens_role.replaceAll("_", " "), 32) : "Reducer run";
+function renderBuildShapeDiagram(job, result, targets, decisions = []) {
+  const shape = modelBuildShape(job, result, targets, decisions);
   return `
-    <div class="build-shape-diagram" role="img" aria-label="Main row shows the spec-derived reduction path. Bottom row shows run custody controls, not source contents.">
+    <div class="build-shape-diagram" role="img" aria-label="${escapeAttr(shape.ariaLabel)}">
       <div class="shape-diagram-note">
-        <span>Spec-derived interpretation path</span>
-        <span>proposal state, not accepted Basis state</span>
+        <span>${escapeHtml(shape.source)}</span>
+        <span>${escapeHtml(shape.boundary)}</span>
       </div>
       <div class="shape-mainline">
-        ${renderShapeNode("Source Spec", sourceLabel, "source")}
-        ${renderShapeEdge("anchors")}
-        ${renderShapeNode("Reducer Run", runLabel, "run")}
-        ${renderShapeEdge("proposes")}
-        ${renderShapeNode("Proposed Records", `${recordCount} records · ${findingCount} findings`, "records")}
-        ${renderShapeEdge("projects to")}
-        ${renderShapeNode("Projection Packets", targets.join(", ") || "targets pending", "targets")}
+        ${renderShapeNode(shape.nodes[0].title, shape.nodes[0].body, shape.nodes[0].kind)}
+        ${renderShapeEdge(shape.edges[0])}
+        ${renderShapeNode(shape.nodes[1].title, shape.nodes[1].body, shape.nodes[1].kind)}
+        ${renderShapeEdge(shape.edges[1])}
+        ${renderShapeNode(shape.nodes[2].title, shape.nodes[2].body, shape.nodes[2].kind)}
+        ${renderShapeEdge(shape.edges[2])}
+        ${renderShapeNode(shape.nodes[3].title, shape.nodes[3].body, shape.nodes[3].kind)}
       </div>
       <div class="shape-support">
-        ${renderShapeNode("Evidence Store", "sentence anchors and source refs", "support")}
-        ${renderShapeNode("Human Guidance", "notes, refinements, blocker records", "support")}
-        ${renderShapeNode("Acceptance Gate", "durable state requires separate record", "gate")}
+        ${shape.support.map(node => renderShapeNode(node.title, node.body, node.kind)).join("")}
       </div>
     </div>
   `;
+}
+
+function modelBuildShape(job, result, targets, decisions) {
+  const sourceRef = sourceRefForJob(job);
+  const sourceLabel = sourceRefLabel(sourceRef) === "source"
+    ? displayPath(snapshot.source?.path || els.sourcePath.value || "source spec")
+    : sourceRefLabel(sourceRef);
+  const primaryDecision = decisions[0];
+  const primaryRecord = (result?.proposed_records || [])[0];
+  const summary = firstSentence(result?.summary || "");
+  const claimTitle = primaryDecision?.title || (result ? "Model interpretation" : "Waiting for model output");
+  const claimBody = summary || "The model has not produced the current lens interpretation yet.";
+  const proposalTitle = primaryRecord?.title || primaryDecision?.title || "Proposal state pending";
+  const proposalBody = primaryRecord?.body || primaryDecision?.impact || `${(result?.proposed_records || []).length} records · ${(result?.findings || []).length} findings`;
+  const targetBody = primaryDecision?.targets?.length
+    ? primaryDecision.targets.join(", ")
+    : targets.join(", ") || "targets pending";
+
+  return {
+    ariaLabel: result
+      ? "Generated from the current lens summary, findings, proposed records, and target projections."
+      : "Waiting for generated lens output before drawing a model-derived build shape.",
+    source: result ? "generated from model output" : "waiting for model output",
+    boundary: "proposal state, not accepted Basis state",
+    nodes: [
+      { title: "Evidence Span", body: sourceLabel, kind: "source" },
+      { title: "Interpretation Claim", body: conciseLabel(claimTitle || claimBody, 58), kind: result ? "run" : "support" },
+      { title: "Proposed State", body: conciseLabel(proposalTitle || proposalBody, 58), kind: "records" },
+      { title: "Projection Impact", body: conciseLabel(targetBody, 58), kind: "targets" }
+    ],
+    edges: ["supports", primaryDecision?.kind || "reduces to", primaryRecord ? "pressures" : "would affect"],
+    support: [
+      { title: "Model Summary", body: conciseLabel(claimBody, 72), kind: "support" },
+      { title: "Open Pressure", body: primaryDecision ? `${primaryDecision.kind}: ${primaryDecision.impact}` : "No completed decision pressure yet", kind: primaryDecision?.kind || "support" },
+      { title: "Acceptance Gate", body: "durable state still requires a separate acceptance record", kind: "gate" }
+    ]
+  };
+}
+
+function firstSentence(text) {
+  const compact = String(text || "").replace(/\s+/g, " ").trim();
+  return (compact.match(/[^.!?]+(?:[.!?]+|$)/) || [""])[0].trim();
 }
 
 function renderShapeNode(title, body, kind) {
@@ -1270,6 +1314,7 @@ function renderProjectionImpactMatrix(job, result, targets, decisions) {
   }
 
   return `
+    ${renderProjectionImpactDetail(rows)}
     <table class="projection-matrix">
       <thead>
         <tr>
@@ -1288,14 +1333,17 @@ function renderProjectionImpactMatrix(job, result, targets, decisions) {
         `).join("")}
       </tbody>
     </table>
-    ${renderProjectionImpactDetail(rows)}
   `;
 }
 
 function renderProjectionKindButton(row) {
+  const selected = activeProjectionImpact?.row_id === row.id && !activeProjectionImpact?.target;
   return `
     <button type="button"
       class="kind-chip kind-chip-button"
+      data-projection-impact
+      aria-pressed="${selected ? "true" : "false"}"
+      data-selected="${selected ? "true" : "false"}"
       ${projectionImpactAttrs(row, "")}>${escapeHtml(row.kind)}</button>
   `;
 }
@@ -1303,11 +1351,15 @@ function renderProjectionKindButton(row) {
 function renderProjectionCell(row, target) {
   const pressured = row.targets.length === 0 || row.targets.includes(target);
   const label = pressured ? impactLabelForKind(row.kind) : "not pressured";
+  const selected = activeProjectionImpact?.row_id === row.id && activeProjectionImpact.target === target;
   return `
     <td data-pressure="${pressured ? "true" : "false"}">
       <button type="button"
         class="projection-cell"
+        data-projection-impact
+        aria-pressed="${selected ? "true" : "false"}"
         ${projectionImpactAttrs(row, target)}
+        data-selected="${selected ? "true" : "false"}"
         data-pressure="${pressured ? "true" : "false"}">${escapeHtml(label)}</button>
     </td>
   `;
@@ -1316,7 +1368,6 @@ function renderProjectionCell(row, target) {
 function projectionImpactAttrs(row, target) {
   const ref = row.source_ref || {};
   return `
-    data-projection-impact
     data-row-id="${escapeAttr(row.id)}"
     data-kind="${escapeAttr(row.kind)}"
     data-title="${escapeAttr(row.title)}"
@@ -2731,6 +2782,9 @@ function previewProjectionImpact(button) {
   renderDocument();
   renderRail();
   scrollToSourceReference(activeSourceReference);
+  requestAnimationFrame(() => {
+    document.querySelector(".projection-impact-detail")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  });
 }
 
 function referenceFromButton(button, kind = "source_reference") {
