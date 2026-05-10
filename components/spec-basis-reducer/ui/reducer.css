@@ -90,10 +90,6 @@ h1 {
   flex: 1 1 250px;
 }
 
-.controls input#targets {
-  flex: 1 1 190px;
-}
-
 .controls select {
   max-width: 260px;
 }
@@ -103,13 +99,12 @@ h1 {
   flex: 0 0 auto;
 }
 
-.controls .targets-control {
-  flex: 1 1 280px;
+.controls .reasoning-control {
+  flex: 0 0 auto;
 }
 
-.targets-control input {
-  width: 100%;
-  min-width: 188px;
+.reasoning-control select {
+  min-width: 86px;
 }
 
 input,

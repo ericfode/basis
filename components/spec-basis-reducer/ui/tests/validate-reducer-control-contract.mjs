@@ -67,6 +67,14 @@ assertIncludes(app, "data-selected", "Projection clicks must expose a visible se
 assertIncludes(app, "renderActionStatus", "Action buttons must render immediate status feedback.");
 assertIncludes(app, "setActionStatus(subjectId, \"pending\"", "Long-running actions must show pending feedback.");
 assertIncludes(app, "modelBuildShape(job, result, targets, decisions)", "Build-shape diagram must be generated from current lens output.");
+assertIncludes(html, 'id="reasoningEffort"', "Reducer header must expose reasoning effort, not editable projection targets.");
+assertIncludes(html, '<option value="low" selected>low</option>', "Reducer reasoning effort must default to low.");
+assertIncludes(app, "const DEFAULT_TARGETS", "Projection targets must stay as internal reducer defaults.");
+assertIncludes(app, "model_effort: selectedReasoningEffort()", "Started reducer runs must send the selected reasoning effort.");
+
+if (html.includes('id="targets"') || html.includes("Projection targets")) {
+  fail("Projection targets regressed into a user-facing header control.");
+}
 
 if (html.includes("What This Wants To Become")) {
   fail("Hero title regressed to the unclear wording.");

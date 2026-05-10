@@ -6,7 +6,7 @@ const els = {
   startForm: document.querySelector("#startForm"),
   corpusSample: document.querySelector("#corpusSample"),
   sourcePath: document.querySelector("#sourcePath"),
-  targets: document.querySelector("#targets"),
+  reasoningEffort: document.querySelector("#reasoningEffort"),
   maxConcurrency: document.querySelector("#maxConcurrency"),
   toggleInspector: document.querySelector("#toggleInspector"),
   documentStatus: document.querySelector("#documentStatus"),
@@ -63,6 +63,8 @@ let suppressSectionObserverUntil = 0;
 
 const API_ORIGIN = window.location.protocol === "file:" ? "http://127.0.0.1:8767" : "";
 const REDUCER_MODE = "reducer";
+const DEFAULT_TARGETS = ["code", "schema", "proof", "runbook"];
+const DEFAULT_REASONING_EFFORT = "low";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -125,7 +127,11 @@ async function postJson(path, payload) {
 }
 
 function selectedTargets() {
-  return els.targets.value.split(",").map(item => item.trim()).filter(Boolean);
+  return DEFAULT_TARGETS;
+}
+
+function selectedReasoningEffort() {
+  return els.reasoningEffort?.value || DEFAULT_REASONING_EFFORT;
 }
 
 function runStartPayload() {
@@ -133,6 +139,7 @@ function runStartPayload() {
     mode: REDUCER_MODE,
     source_path: els.sourcePath.value.trim(),
     targets: selectedTargets(),
+    model_effort: selectedReasoningEffort(),
     max_concurrency: Number(els.maxConcurrency.value || 4),
     excluded_section_ids: [...excludedSectionIds]
   };
@@ -179,6 +186,7 @@ function resetProjectionForSourceChange(message) {
     updated_at: null,
     source: { path: sourcePath, hash: null, line_count: 0 },
     target_projections: selectedTargets(),
+    reasoning_effort: selectedReasoningEffort(),
     counts: emptyRunCounts(),
     sections: [],
     document_sections: [],
@@ -202,6 +210,7 @@ function autoBuildKey() {
   return JSON.stringify({
     source_path: payload.source_path,
     targets: payload.targets,
+    model_effort: payload.model_effort,
     max_concurrency: payload.max_concurrency,
     excluded_section_ids: [...payload.excluded_section_ids].sort()
   });
@@ -1166,17 +1175,19 @@ function studioIntroText(job, result, section) {
   if (job?.status === "running") return "The reducer is generating interpretation prose, diagrams, and source-backed proposal pressure.";
   if (job?.status === "queued") return "The selected lens is queued; the source preview remains available for orientation.";
   if (snapshot?.run_id) return "The run is loaded. Select a completed lens to read generated understanding and projection impacts.";
-  return "Preview the source, choose targets, then start a reducer run to generate build understanding.";
+  return "Preview the source, choose reasoning level, then start a reducer run to generate build understanding.";
 }
 
 function renderStudioState(job, result, targets) {
   const status = job?.status || snapshot?.status || "preview";
   const resultState = result ? "understanding ready" : snapshot?.run_id ? "waiting for result" : "source preview";
+  const reasoning = snapshot?.reasoning_effort || selectedReasoningEffort();
   return `
     <span class="state-badge">${escapeHtml(status)}</span>
     ${autoBuildInFlight ? `<span class="state-badge active">auto starting</span>` : ""}
     <span class="state-badge stable">proposal only</span>
     <span class="state-badge stable">accepted Basis state unchanged</span>
+    <span class="state-badge stable">reasoning ${escapeHtml(reasoning)}</span>
     <span class="state-badge">${escapeHtml(resultState)}</span>
     ${targets.slice(0, 4).map(target => `<span class="target-chip">${escapeHtml(target)}</span>`).join("")}
   `;
@@ -1622,8 +1633,7 @@ function fallbackDecisionRows(job, result, targets) {
 function targetProjectionList(job) {
   const packetTargets = arrayField(contextPacketForJob(job)?.target_projections);
   const snapshotTargets = arrayField(snapshot?.target_projections);
-  const inputTargets = arrayField(els.targets?.value || "");
-  return [...new Set([...packetTargets, ...snapshotTargets, ...inputTargets])].filter(Boolean);
+  return [...new Set([...packetTargets, ...snapshotTargets, ...DEFAULT_TARGETS])].filter(Boolean);
 }
 
 function fallbackJobs() {

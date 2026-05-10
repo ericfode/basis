@@ -30,6 +30,7 @@ defmodule Basis.Source do
       updated_at: nil,
       source: Map.take(source, [:path, :hash, :line_count]),
       target_projections: [],
+      reasoning_effort: "low",
       implementation_target: nil,
       section_limit: length(source.sections),
       max_concurrency: 2,

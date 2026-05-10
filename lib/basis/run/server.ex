@@ -25,6 +25,7 @@ defmodule Basis.Run.Server do
             provider: nil,
             source: nil,
             targets: [],
+            reasoning_effort: "low",
             implementation_target: nil,
             sections: [],
             section_limit: 4,
@@ -80,7 +81,8 @@ defmodule Basis.Run.Server do
         "Started isolated Codex thread pool for this source.",
         %{
           source_path: Map.get(state.source || %{}, :path),
-          target_projections: state.targets
+          target_projections: state.targets,
+          model_effort: state.reasoning_effort
         }
       )
 
@@ -105,6 +107,12 @@ defmodule Basis.Run.Server do
   defp start_reducer_state(opts) do
     source_path = Map.get(opts, "source_path", "components/spec-basis-reducer/spec.md")
     targets = normalize_targets(Map.get(opts, "targets", ["code", "schema", "proof", "runbook"]))
+
+    reasoning_effort =
+      normalize_model_effort(
+        Map.get(opts, "model_effort", Map.get(opts, "reasoning_effort", "low"))
+      )
+
     section_limit = opts |> Map.get("section_limit", 4) |> clamp_integer(1, 24)
     max_concurrency = opts |> Map.get("max_concurrency", 2) |> clamp_integer(1, 8)
     source = Basis.Source.read!(source_path)
@@ -117,7 +125,8 @@ defmodule Basis.Run.Server do
         run_id: run_id,
         job_number: 1,
         source: source,
-        targets: targets
+        targets: targets,
+        model_effort: reasoning_effort
       })
 
     %__MODULE__{
@@ -127,6 +136,7 @@ defmodule Basis.Run.Server do
       provider: provider_name(provider),
       source: Map.take(source, [:path, :hash, :line_count]),
       targets: targets,
+      reasoning_effort: reasoning_effort,
       sections: Enum.map(sections, &Map.delete(&1, :text)),
       section_limit: section_limit,
       max_concurrency: max_concurrency,
@@ -140,6 +150,7 @@ defmodule Basis.Run.Server do
       source_path: source.path,
       source_hash: source.hash,
       target_projections: targets,
+      model_effort: reasoning_effort,
       provider: provider_name(provider)
     })
     |> append_event("source_loaded", "system", "Loaded source and source topology.", %{
@@ -702,7 +713,8 @@ defmodule Basis.Run.Server do
               source: source,
               section: section,
               lens: lens,
-              targets: state.targets
+              targets: state.targets,
+              model_effort: state.reasoning_effort
             })
 
           {job, next + 1}
@@ -763,7 +775,8 @@ defmodule Basis.Run.Server do
             source: source,
             targets: state.targets,
             results: completed_results,
-            forced?: forced?
+            forced?: forced?,
+            model_effort: state.reasoning_effort
           })
 
         state =
@@ -1049,7 +1062,7 @@ defmodule Basis.Run.Server do
         source_excerpt: String.slice(attrs.source.text, 0, 24_000),
         prior_result_refs: [],
         excluded_context: ["section-specific conclusions", "sibling section interpretations"],
-        budget: %{max_source_chars: 24_000}
+        budget: %{max_source_chars: 24_000, model_effort: attrs.model_effort}
       })
 
     base_job(id, "root_read", "root_orientation_lens", "Root Orientation", nil, nil, packet)
@@ -1076,7 +1089,10 @@ defmodule Basis.Run.Server do
         source_excerpt: attrs.section.text,
         prior_result_refs: ["result-job-0001"],
         excluded_context: ["sibling section conclusions unless supplied by synthesis"],
-        budget: %{max_source_chars: String.length(attrs.section.text)}
+        budget: %{
+          max_source_chars: String.length(attrs.section.text),
+          model_effort: attrs.model_effort
+        }
       })
 
     base_job(
@@ -1112,7 +1128,11 @@ defmodule Basis.Run.Server do
           "unstated acceptance decisions",
           "raw sibling context not named in lens results"
         ],
-        budget: %{completed_result_count: length(attrs.results), forced: attrs.forced?}
+        budget: %{
+          completed_result_count: length(attrs.results),
+          forced: attrs.forced?,
+          model_effort: attrs.model_effort
+        }
       })
 
     base_job(id, "synthesis_lens", "synthesis_lens", "Synthesis", nil, nil, packet)
@@ -1677,6 +1697,7 @@ defmodule Basis.Run.Server do
       updated_at: state.updated_at,
       source: state.source,
       target_projections: state.targets,
+      reasoning_effort: state.reasoning_effort,
       implementation_target: state.implementation_target,
       section_limit: state.section_limit,
       max_concurrency: state.max_concurrency,
@@ -2364,6 +2385,17 @@ defmodule Basis.Run.Server do
   end
 
   defp normalize_targets(targets), do: normalize_targets([targets])
+
+  defp normalize_model_effort(value) do
+    value
+    |> to_string()
+    |> String.trim()
+    |> String.downcase()
+    |> case do
+      effort when effort in ["low", "medium", "high", "xhigh"] -> effort
+      _other -> "low"
+    end
+  end
 
   defp clamp_integer(value, min, max) when is_integer(value), do: value |> max(min) |> min(max)
 
