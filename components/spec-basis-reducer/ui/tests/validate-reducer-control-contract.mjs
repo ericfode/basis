@@ -69,6 +69,14 @@ assertIncludes(app, "data-selected", "Projection clicks must expose a visible se
 assertIncludes(app, "renderActionStatus", "Action buttons must render immediate status feedback.");
 assertIncludes(app, "setActionStatus(subjectId, \"pending\"", "Long-running actions must show pending feedback.");
 assertIncludes(app, "modelBuildShape(job, result, targets, decisions)", "Build-shape diagram must be generated from current lens output.");
+assertIncludes(app, "function renderDerivedPanelEmpty", "Derived panels must render empty until model output exists.");
+assertIncludes(app, "Waiting for model-derived build shape.", "Build-shape panel must stay empty on newly loaded specs before reducer output.");
+assertIncludes(app, "Waiting for source-derived interpretation.", "Narrative panel must stay empty on newly loaded specs before reducer output.");
+assertIncludes(app, "function threadJobsForInspector", "Thread inspector must include global synthesis jobs as well as visible-section jobs.");
+assertIncludes(app, "function renderJobImpactSummary", "Thread cards must expose result impacts and source anchors.");
+assertIncludes(app, "Spec impact", "Thread cards must label what each thread changed or proposed against the spec.");
+assertIncludes(html, 'id="topbarActivity"', "Run activity/details control must live in the top bar.");
+assertIncludes(css, ".topbar-activity", "Top bar activity panel must be styled outside the document body.");
 assertIncludes(html, 'id="reasoningEffort"', "Reducer header must expose reasoning effort, not editable projection targets.");
 assertIncludes(html, '<option value="low" selected>low</option>', "Reducer reasoning effort must default to low.");
 assertIncludes(html, 'id="maxConcurrency" type="number" min="1" max="10" value="10"', "Reducer concurrency must default to 10 in the header.");
@@ -82,8 +90,8 @@ assertIncludes(app, 'renderSemanticActionButtons(detailRow, noteBody, "projectio
 assertIncludes(app, 'renderSemanticActionButtons(row, `Review pressure: ${row.title}. ${row.impact}`, "decision")', "Decision cards must use model-suggested semantic actions.");
 assertIncludes(app, "function reviewerActionLabel", "Reviewer action labels must normalize generic model actions into readable UI actions.");
 assertIncludes(app, 'return "Ask split plan";', "Coupled synthesis actions must present an explicit split option.");
-assertIncludes(app, "function openHintDetails", "Floating hint details must open a concrete job detail target.");
-assertIncludes(app, "button.addEventListener(\"click\", openHintDetails)", "Floating hint details button must be bound to the detail opener.");
+assertIncludes(app, "function openHintDetails", "Top bar activity details must open a concrete job detail target.");
+assertIncludes(app, "button.addEventListener(\"click\", openHintDetails)", "Top bar activity details button must be bound to the detail opener.");
 assertIncludes(app, '${job.id === selectedJobId ? "open" : ""}', "Selected thread card must render open for visible details.");
 assertIncludes(app, "function streamEventLabel", "Thread stream counts must be labelled as projected recent events.");
 assertIncludes(app, "recent ${count === 1 ? \"event\" : \"events\"} shown", "Thread stream labels must not read as total Codex event counts.");
@@ -115,6 +123,10 @@ if (html.includes('id="targets"') || html.includes("Projection targets")) {
 
 if (html.includes("What This Wants To Become")) {
   fail("Hero title regressed to the unclear wording.");
+}
+
+if (app.includes("Actions below update proposal")) {
+  fail("Narrative regressed into tool-use instructions instead of spec interpretation.");
 }
 
 console.log(`Validated ${buttonTags.length} reducer buttons and ${handledControls.length + handledIds.length} control bindings.`);

@@ -373,6 +373,13 @@ defmodule Basis.Run.Server do
         enqueue_synthesis(state, true)
       end
 
+    state =
+      if queued? and state.status == "complete" do
+        %{state | status: "running", updated_at: Basis.Run.Clock.now()}
+      else
+        state
+      end
+
     subject_kind = Map.get(action, "subject_kind", "run")
     subject_id = Map.get(action, "subject_id", state.run_id)
     body = action |> Map.get("body", "") |> to_string() |> String.slice(0, 1_000)

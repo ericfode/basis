@@ -54,6 +54,46 @@ defmodule Basis.Run.ServerTest do
     assert snapshot.max_concurrency == 10
   end
 
+  test "forced synthesis request on completed reducer run schedules new work" do
+    Basis.Run.Server.start_run(%{
+      "source_path" => "components/spec-basis-reducer/spec.md",
+      "targets" => ["code"],
+      "section_limit" => 1,
+      "max_concurrency" => 4
+    })
+
+    snapshot =
+      wait_until(fn ->
+        snapshot = Basis.Run.Server.snapshot()
+        snapshot.status == "complete"
+      end)
+
+    completed_before = snapshot.counts.completed
+
+    snapshot =
+      Basis.Run.Server.action(%{
+        "type" => "request_synthesis",
+        "subject_kind" => "decision",
+        "subject_id" => "test-decision",
+        "body" => "Reconcile this pressure after the reducer run has completed."
+      })
+
+    assert snapshot.status == "running"
+
+    assert Enum.any?(
+             snapshot.jobs,
+             &(&1.kind == "synthesis_lens" and &1.status in ["queued", "running"])
+           )
+
+    snapshot =
+      wait_until(fn ->
+        snapshot = Basis.Run.Server.snapshot()
+        snapshot.status == "complete" and snapshot.counts.completed > completed_before
+      end)
+
+    assert Enum.any?(snapshot.events, &(&1.type == "synthesis_requested"))
+  end
+
   test "runs imaginer decision mining and engineer reality search with steering" do
     snapshot =
       Basis.Run.Server.start_run(%{

@@ -9,6 +9,7 @@ const els = {
   reasoningEffort: document.querySelector("#reasoningEffort"),
   maxConcurrency: document.querySelector("#maxConcurrency"),
   toggleInspector: document.querySelector("#toggleInspector"),
+  topbarActivity: document.querySelector("#topbarActivity"),
   documentStatus: document.querySelector("#documentStatus"),
   studioEvidenceList: document.querySelector("#studioEvidenceList"),
   hintLayer: document.querySelector("#hintLayer"),
@@ -433,8 +434,9 @@ function statusSummary(sectionCount, counts) {
 }
 
 function renderHints() {
-  if (!els.hintLayer || !snapshot?.run_id) {
-    if (els.hintLayer) els.hintLayer.innerHTML = "";
+  if (els.hintLayer) els.hintLayer.innerHTML = "";
+  if (!els.topbarActivity || !snapshot?.run_id) {
+    if (els.topbarActivity) els.topbarActivity.innerHTML = "";
     return;
   }
 
@@ -459,7 +461,7 @@ function renderHints() {
   if (latestRecordDecision) messages.push(`Record marked ${humanDecisionLabel(latestRecordDecision.payload?.decision || "recorded").toLowerCase()}`);
 
   if (!messages.length && !queuedJobs.length) {
-    els.hintLayer.innerHTML = "";
+    els.topbarActivity.innerHTML = "";
     return;
   }
 
@@ -480,14 +482,14 @@ function renderHints() {
   const compactDetail = messages.length > 1
     ? `${messages.length} updates`
     : fullDetail.replace("Intent feedback recorded for ", "").replace("visible projection is ready", "projection ready");
-  els.hintLayer.innerHTML = `
-    <div class="floating-hint" title="${escapeAttr(`${headline}: ${fullDetail}`)}">
+  els.topbarActivity.innerHTML = `
+    <div class="topbar-hint" title="${escapeAttr(`${headline}: ${fullDetail}`)}">
       <div class="activity-gif" data-active="${isActive ? "true" : "false"}" aria-hidden="true"><span></span></div>
-      <div class="floating-hint-body">
+      <div class="topbar-hint-body">
         <strong>${escapeHtml(headline)}</strong>
         <span>${escapeHtml(compactDetail)}</span>
       </div>
-      <div class="floating-hint-actions">
+      <div class="topbar-hint-actions">
         ${runningJobs.length ? `<button type="button" data-focus-job="${escapeHtml(runningJobs[0].id)}">Focus</button>` : ""}
         <button type="button" data-open-inspector aria-label="Open details">Details</button>
       </div>
@@ -529,7 +531,14 @@ function actionStatus(subjectId) {
 
 function actionStatusFromEvent(event) {
   if (event.type === "synthesis_requested") {
-    return { state: "recorded", message: "Synthesis request recorded.", timestamp: event.timestamp };
+    const queued = String(event.message || "").includes("Queued");
+    return {
+      state: queued ? "pending" : "recorded",
+      message: queued
+        ? "Synthesis lens queued. Open the synthesis thread to inspect the result when it completes."
+        : "Synthesis already pending. The request was attached to the existing synthesis work.",
+      timestamp: event.timestamp
+    };
   }
   if (event.type === "human_note") {
     return { state: "recorded", message: "Blocker note recorded.", timestamp: event.timestamp };
@@ -601,10 +610,11 @@ function projectionEventKey(event) {
 }
 
 function bindHintButtons() {
-  els.hintLayer.querySelectorAll("[data-open-inspector]").forEach(button => {
+  const root = els.topbarActivity || els.hintLayer;
+  root?.querySelectorAll("[data-open-inspector]").forEach(button => {
     button.addEventListener("click", openHintDetails);
   });
-  els.hintLayer.querySelectorAll("[data-focus-job]").forEach(button => {
+  root?.querySelectorAll("[data-focus-job]").forEach(button => {
     button.addEventListener("click", () => {
       selectedJobId = button.dataset.focusJob;
       setInspectorOpen(true);
@@ -1299,8 +1309,7 @@ function selectedJob() {
 
 function renderRail() {
   const section = (snapshot.document_sections || []).find(item => item.id === selectedSectionId);
-  const sectionJobs = jobsForSection(selectedSectionId);
-  const jobs = sectionJobs.length ? sectionJobs : fallbackJobs();
+  const jobs = threadJobsForInspector(selectedSectionId);
   const job = selectedJob();
   if (job) selectedJobId = job.id;
 
@@ -1368,26 +1377,33 @@ function renderStudioState(job, result, targets) {
 function renderStudioNarrative(job, result, section, targets, decisions) {
   const title = section?.title || job?.title || "selected source";
   if (!result) {
-    return `
-      ${renderNarrativeBlock("State", "The source is loaded as evidence, but this lens has not produced build understanding yet.")}
-      ${renderNarrativeBlock("Next read", "Start or focus a reducer run to turn the prose into an interpretation: what component is implied, which target projections are pressured, and which choices remain open.")}
-      ${renderNarrativeBlock("Boundary", "The UI will keep source evidence and proposal actions visible without treating them as accepted Basis state.")}
-    `;
+    return renderDerivedPanelEmpty(
+      "Waiting for source-derived interpretation.",
+      "This panel stays empty until a reducer lens reads the loaded spec and returns summary, findings, or proposed records."
+    );
   }
 
   const summaryParagraphs = proseParagraphs(result.summary || "").slice(0, 2);
   const primaryDecision = decisions[0];
-  const recordCount = (result.proposed_records || []).length;
-  const findingCount = (result.findings || []).length;
   const pressure = primaryDecision
-    ? `The strongest current pressure is ${primaryDecision.kind}: ${primaryDecision.title}. It affects ${primaryDecision.targets.join(", ")} and should be resolved before those projections pretend the policy is known.`
-    : `This lens produced ${findingCount} findings and ${recordCount} proposed records; no high-pressure decision is visible for the selected target set.`;
+    ? renderDecisionInterpretation(primaryDecision, job)
+    : "";
 
   return `
-    ${renderNarrativeBlock("Reading frame", `<strong>${escapeHtml(title)}</strong> is being read as a buildable system shape, not as a document inventory.`, true)}
+    ${renderNarrativeBlock("Reading frame", `<strong>${escapeHtml(title)}</strong> is being read for the system shape implied by the spec.`, true)}
     ${summaryParagraphs.map((paragraph, index) => renderNarrativeBlock(index === 0 ? "Interpretation" : "Implication", renderSourceLinkedText(paragraph, job), true)).join("")}
-    ${renderNarrativeBlock("Current pressure", escapeHtml(pressure), true)}
-    ${renderNarrativeBlock("Acceptance boundary", `The active targets are ${escapeHtml(targets.join(", ") || "not named")}. Actions below update proposal or guidance state only; a separate acceptance record is still required for durable Basis state.`, true)}
+    ${pressure ? renderNarrativeBlock("Unresolved spec pressure", pressure, true) : ""}
+    ${renderNarrativeBlock("Affected projections", escapeHtml(targets.join(", ") || "No target projections named by this run."), true)}
+  `;
+}
+
+function renderDecisionInterpretation(row, job) {
+  const evidence = row.evidence || row.impact || "";
+  const targetText = row.targets.length ? ` Affects ${row.targets.join(", ")}.` : "";
+  return `
+    <strong>${escapeHtml(row.title)}</strong>
+    <span class="kind-chip" data-kind="${escapeAttr(row.kind)}">${escapeHtml(row.kind)}</span>
+    <span>${renderSourceLinkedText(evidence, job)}${escapeHtml(targetText)}</span>
   `;
 }
 
@@ -1411,7 +1427,23 @@ function proseParagraphs(text) {
   return paragraphs.filter(Boolean);
 }
 
+function renderDerivedPanelEmpty(title, body) {
+  return `
+    <div class="derived-empty">
+      <strong>${escapeHtml(title)}</strong>
+      <p>${escapeHtml(body)}</p>
+    </div>
+  `;
+}
+
 function renderBuildShapeDiagram(job, result, targets, decisions = []) {
+  if (!hasModelDerivedBuildShape(result)) {
+    return renderDerivedPanelEmpty(
+      "Waiting for model-derived build shape.",
+      "A newly loaded spec leaves this blank until a reducer lens derives concepts, proposal state, and projection impacts from the source text."
+    );
+  }
+
   const shape = modelBuildShape(job, result, targets, decisions);
   return `
     <div class="build-shape-diagram" role="img" aria-label="${escapeAttr(shape.ariaLabel)}">
@@ -1452,10 +1484,8 @@ function modelBuildShape(job, result, targets, decisions) {
     : targets.join(", ") || "targets pending";
 
   return {
-    ariaLabel: result
-      ? "Generated from the current lens summary, findings, proposed records, and target projections."
-      : "Waiting for generated lens output before drawing a model-derived build shape.",
-    source: result ? "generated from model output" : "waiting for model output",
+    ariaLabel: "Derived from the loaded spec through the current lens summary, findings, proposed records, and target projections.",
+    source: "derived from source-backed lens output",
     boundary: "proposal state, not accepted Basis state",
     nodes: [
       { title: "Evidence Span", body: sourceLabel, kind: "source" },
@@ -1470,6 +1500,17 @@ function modelBuildShape(job, result, targets, decisions) {
       { title: "Acceptance Gate", body: "durable state still requires a separate acceptance record", kind: "gate" }
     ]
   };
+}
+
+function hasModelDerivedBuildShape(result) {
+  return Boolean(
+    result &&
+      (
+        String(result.summary || "").trim() ||
+        (result.findings || []).length ||
+        (result.proposed_records || []).length
+      )
+  );
 }
 
 function firstSentence(text) {
@@ -1779,6 +1820,27 @@ function fallbackJobs() {
   return jobs.filter(job => job.kind === "root_read" || job.status === "running" || job.status === "failed").slice(0, 4);
 }
 
+function threadJobsForInspector(sectionId) {
+  const sectionJobs = jobsForSection(sectionId);
+  const globalJobs = globalInspectionJobs();
+  const jobs = sectionJobs.length ? [...sectionJobs, ...globalJobs] : [...fallbackJobs(), ...globalJobs];
+  const seen = new Set();
+  return jobs.filter(job => {
+    if (!job?.id || seen.has(job.id)) return false;
+    seen.add(job.id);
+    return true;
+  });
+}
+
+function globalInspectionJobs() {
+  return (snapshot.jobs || []).filter(job =>
+    job.kind === "synthesis_lens" ||
+    job.lens_role === "synthesis_lens" ||
+    job.status === "running" ||
+    job.status === "queued"
+  );
+}
+
 function renderJobCard(job) {
   const streamCount = (snapshot.streams?.[job.id] || []).length;
   const streamLabel = streamEventLabel(streamCount);
@@ -1799,6 +1861,7 @@ function renderJobCard(job) {
       <div class="thread-card-body">
         <div class="thread-meta">${escapeHtml(job.provider || snapshot.provider)} | ${escapeHtml(job.codex_thread_id || "thread pending")} | ${escapeHtml(turnLabel)}</div>
         <div class="thread-meta">cwd ${escapeHtml(cwdLabel)}</div>
+        ${renderJobImpactSummary(job)}
         <div class="thread-actions">
           <button type="button" data-focus-job="${escapeHtml(job.id)}">Focus</button>
           <button type="button" data-stop-job="${escapeHtml(job.id)}">Stop</button>
@@ -1808,6 +1871,55 @@ function renderJobCard(job) {
       </div>
     </details>
   `;
+}
+
+function renderJobImpactSummary(job) {
+  const result = resultForJob(job);
+  if (!result) {
+    const state = job.status === "queued"
+      ? "Queued. No spec impact has been produced yet."
+      : job.status === "running"
+        ? "Running. Spec impacts will appear here when the lens completes."
+        : "No completed result for this thread yet.";
+    return `<div class="thread-impact"><strong>Spec impact</strong><p>${escapeHtml(state)}</p></div>`;
+  }
+
+  const rows = decisionRowsForResult(job, result);
+  const refs = uniqueSourceRefs(rows.map(row => row.source_ref).filter(Boolean)).slice(0, 4);
+  const recordCount = (result.proposed_records || []).length;
+  const findingCount = (result.findings || []).length;
+  return `
+    <div class="thread-impact">
+      <strong>Spec impact</strong>
+      <p>${escapeHtml(findingCount)} findings · ${escapeHtml(recordCount)} proposed records · ${escapeHtml(refs.length)} source anchors</p>
+      <div class="thread-impact-actions">
+        <button type="button" data-focus-job="${escapeHtml(job.id)}">View result</button>
+        ${refs.map(ref => `
+          <button type="button"
+            data-source-ref
+            data-section-id="${escapeAttr(ref.section_id || "")}"
+            data-source-path="${escapeAttr(ref.source_path || "")}"
+            data-start-line="${escapeAttr(ref.start_line || "")}"
+            data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}"
+            data-choice-title="${escapeAttr(result.summary || job.title || job.id)}"
+            data-choice-body="${escapeAttr(result.summary || "")}">
+            ${escapeHtml(sourceRefLabel(ref))}
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function uniqueSourceRefs(refs) {
+  const seen = new Set();
+  return refs.filter(ref => {
+    if (!ref?.start_line) return false;
+    const key = `${ref.section_id || ""}:${ref.start_line}:${ref.end_line || ref.start_line}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function streamEventLabel(count) {
@@ -2858,16 +2970,29 @@ async function requestSynthesisFromButton(button) {
   const subjectId = actionSubjectId(button);
   setActionStatus(subjectId, "pending", "Requesting synthesis for this item...");
   try {
-    await postJson("/api/actions", {
+    const next = await postJson("/api/actions", {
       type: "request_synthesis",
       subject_kind: button.dataset.subjectKind || "run",
       subject_id: subjectId,
       body: button.dataset.synthesisBody || "Synthesize next reducer action for this item."
     });
-    setActionStatus(subjectId, "recorded", "Synthesis request recorded.");
+    const synthesisJob = latestSynthesisJob(next);
+    setActionStatus(
+      subjectId,
+      synthesisJob?.status === "completed" ? "recorded" : "pending",
+      synthesisJob
+        ? `Synthesis ${synthesisJob.status}: ${synthesisJob.id}. Open the synthesis thread to inspect spec impact.`
+        : "Synthesis request attached to existing synthesis work."
+    );
   } catch (error) {
     setActionStatus(subjectId, "failed", `Synthesis request failed: ${error.message || error}`);
   }
+}
+
+function latestSynthesisJob(run = snapshot) {
+  return [...(run?.jobs || [])].reverse().find(job =>
+    job.kind === "synthesis_lens" || job.lens_role === "synthesis_lens"
+  ) || null;
 }
 
 async function recordNoteFromButton(button) {
