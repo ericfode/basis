@@ -57,6 +57,7 @@ let localFeedbackEvents = [];
 let localActionStatuses = new Map();
 let activeSourceReference = null;
 let activeChoicePreview = null;
+let activeProjectionImpact = null;
 let suppressSectionObserverUntil = 0;
 
 const API_ORIGIN = window.location.protocol === "file:" ? "http://127.0.0.1:8767" : "";
@@ -563,6 +564,8 @@ function feedbackAnchorsForSection(section) {
 function feedbackImpactText(event) {
   const line = event.payload?.line_number || "the selected line";
   const mode = event.payload?.mode || "additive";
+  const effect = event.payload?.preview_effect;
+  if (effect) return `${effect} Recorded as ${mode} guidance for line ${line}.`;
   return `Recorded ${mode} guidance for line ${line}; an intent refinement lens is now queued or running.`;
 }
 
@@ -809,6 +812,7 @@ function bindDocumentInteractions() {
 function renderFeedbackComposer() {
   if (!els.feedbackComposer || !selectedFeedbackLine) return;
   const line = selectedFeedbackLine;
+  const initialPreview = feedbackPreviewModel(line, "");
   els.feedbackComposer.hidden = false;
   els.feedbackComposer.innerHTML = `
     <form class="feedback-card" id="lineFeedbackForm">
@@ -819,8 +823,11 @@ function renderFeedbackComposer() {
       <div class="feedback-source">${escapeHtml(line.source_text || "Blank source line")}</div>
       <textarea id="lineFeedbackBody" placeholder="Example: the reducer should own an interface for intelligence to guide the reduction search and refine intent."></textarea>
       <div class="impact-preview">
-        <strong>Preview effect</strong>
-        <p id="feedbackImpact">This will record source-anchored intent guidance and queue an intent refinement lens for ${escapeHtml(line.section_id || "the current section")}.</p>
+        <div class="impact-preview-head">
+          <strong>Preview effect</strong>
+          <button type="button" data-update-feedback-preview>Update preview</button>
+        </div>
+        <div id="feedbackImpact">${renderFeedbackPreview(initialPreview)}</div>
       </div>
       <div class="feedback-actions">
         <button type="button" data-cancel-feedback>Cancel</button>
@@ -829,12 +836,28 @@ function renderFeedbackComposer() {
     </form>
   `;
 
+  const textarea = els.feedbackComposer.querySelector("#lineFeedbackBody");
+  const updatePreview = () => {
+    const model = feedbackPreviewModel(line, textarea.value.trim());
+    const preview = els.feedbackComposer.querySelector("#feedbackImpact");
+    if (preview) preview.innerHTML = renderFeedbackPreview(model);
+    const button = els.feedbackComposer.querySelector("[data-update-feedback-preview]");
+    if (button) delete button.dataset.dirty;
+  };
+  els.feedbackComposer.querySelector("[data-update-feedback-preview]").addEventListener("click", updatePreview);
+  els.feedbackComposer.addEventListener("click", event => {
+    if (!event.target?.matches?.("[data-update-feedback-preview]")) return;
+    event.preventDefault();
+    updatePreview();
+  });
+  textarea.addEventListener("input", updatePreview);
   els.feedbackComposer.querySelector("[data-cancel-feedback]").addEventListener("click", closeFeedbackComposer);
   els.feedbackComposer.querySelector("#lineFeedbackForm").addEventListener("submit", async event => {
     event.preventDefault();
-    const body = els.feedbackComposer.querySelector("#lineFeedbackBody").value.trim();
+    const body = textarea.value.trim();
     if (!body) return;
-    recordLocalFeedback(line, body);
+    const preview = feedbackPreviewModel(line, body);
+    recordLocalFeedback(line, body, preview);
     renderFeedbackApplied(line, body, "submitting");
 
     try {
@@ -844,7 +867,10 @@ function renderFeedbackComposer() {
         mode: "additive",
         section_id: line.section_id,
         line_number: line.line_number,
-        source_text: line.source_text
+        source_text: line.source_text,
+        preview_effect: preview.summary,
+        target_projection: preview.targets,
+        feedback_kind: preview.kind
       });
       renderFeedbackApplied(line, body, "applied");
     } catch (error) {
@@ -853,7 +879,53 @@ function renderFeedbackComposer() {
   });
 }
 
-function recordLocalFeedback(line, body) {
+function feedbackPreviewModel(line, body) {
+  const text = `${body || ""} ${line?.source_text || ""}`.toLowerCase();
+  const targets = targetProjectionList(selectedJob()).length
+    ? targetProjectionList(selectedJob()).slice(0, 5)
+    : targetProjectionList().slice(0, 5);
+  const mentionedTargets = targets.filter(target => text.includes(target.toLowerCase()));
+  const kind = text.includes("delete") || text.includes("remove") || text.includes("redundan") || text.includes("duplicate")
+    ? "redundant"
+    : text.includes("split") || text.includes("coupl") || text.includes("separate")
+      ? "coupled"
+      : text.includes("missing") || text.includes("define") || text.includes("invent") || text.includes("schema")
+        ? "missing"
+        : text.includes("policy") || text.includes("choose") || text.includes("conflict")
+          ? "conflict"
+          : "guidance";
+  const affectedTargets = mentionedTargets.length ? mentionedTargets : targets;
+  const summary = body
+    ? `Record guidance for line ${line.line_number}, classify it as ${kind} pressure, and re-score ${affectedTargets.join(", ") || "the active targets"}.`
+    : `Draft guidance for line ${line.line_number}, then update this preview to see target pressure before applying it.`;
+  return {
+    kind,
+    targets: affectedTargets,
+    summary,
+    actions: feedbackPreviewActions(kind)
+  };
+}
+
+function feedbackPreviewActions(kind) {
+  if (kind === "redundant") return ["mark duplicate pressure", "check schema/runbook impact"];
+  if (kind === "coupled") return ["ask synthesis to split", "review projection precision"];
+  if (kind === "missing") return ["record blocker", "check invented behavior"];
+  if (kind === "conflict") return ["choose policy", "ask synthesis to reconcile"];
+  return ["queue intent lens", "refresh projection impact"];
+}
+
+function renderFeedbackPreview(model) {
+  return `
+    <p>${escapeHtml(model.summary)}</p>
+    <div class="impact-preview-grid">
+      <span><strong>Kind</strong>${escapeHtml(model.kind)}</span>
+      <span><strong>Targets</strong>${escapeHtml(model.targets.join(", ") || "active targets")}</span>
+      <span><strong>Next</strong>${escapeHtml(model.actions.join(" · "))}</span>
+    </div>
+  `;
+}
+
+function recordLocalFeedback(line, body, preview = feedbackPreviewModel(line, body)) {
   localFeedbackEvents = [
     ...localFeedbackEvents,
     {
@@ -865,7 +937,10 @@ function recordLocalFeedback(line, body) {
         mode: "additive",
         section_id: line.section_id,
         line_number: line.line_number,
-        source_text: line.source_text || ""
+        source_text: line.source_text || "",
+        preview_effect: preview.summary,
+        target_projection: preview.targets,
+        feedback_kind: preview.kind
       },
       timestamp: new Date().toISOString()
     }
@@ -901,6 +976,7 @@ function saveLocalFeedbackEvents(runId, events) {
 function renderFeedbackApplied(line, body, state, error = null) {
   if (!els.feedbackComposer) return;
   els.feedbackComposer.hidden = false;
+  const preview = feedbackPreviewModel(line, body);
 
   const title = state === "failed" ? "Guidance was not recorded" : state === "submitting" ? "Applying guidance" : "Guidance applied";
   const detail = state === "failed"
@@ -917,7 +993,7 @@ function renderFeedbackApplied(line, body, state, error = null) {
       </div>
       <div class="impact-preview">
         <strong>Impact</strong>
-        <p>${escapeHtml(body)}</p>
+        ${renderFeedbackPreview(preview)}
       </div>
       <div class="feedback-actions">
         <button type="button" data-cancel-feedback>${state === "failed" ? "Close" : "Done"}</button>
@@ -990,8 +1066,12 @@ function renderRail() {
 function renderStudio(job, section) {
   const result = resultForJob(job);
   const targets = targetProjectionList(job);
-  const decisions = decisionRowsForResult(job, result);
   const currentSection = section || sectionForJob(job) || (snapshot.document_sections || [])[0];
+  const resultDecisions = decisionRowsForResult(job, result);
+  const decisions = [
+    ...feedbackRowsForSection(currentSection, targets),
+    ...resultDecisions
+  ];
 
   els.studioIntro.textContent = studioIntroText(job, result, currentSection);
   els.studioRunState.innerHTML = renderStudioState(job, result, targets);
@@ -1030,9 +1110,9 @@ function renderStudioNarrative(job, result, section, targets, decisions) {
   const title = section?.title || job?.title || "selected source";
   if (!result) {
     return `
-      <p>The source is loaded as evidence, but this lens has not produced build understanding yet.</p>
-      <p>Start or focus a reducer run to turn the prose into an interpretation: what component is implied, which target projections are pressured, and which choices remain open.</p>
-      <p>The UI will keep source evidence and proposal actions visible without treating them as accepted Basis state.</p>
+      ${renderNarrativeBlock("State", "The source is loaded as evidence, but this lens has not produced build understanding yet.")}
+      ${renderNarrativeBlock("Next read", "Start or focus a reducer run to turn the prose into an interpretation: what component is implied, which target projections are pressured, and which choices remain open.")}
+      ${renderNarrativeBlock("Boundary", "The UI will keep source evidence and proposal actions visible without treating them as accepted Basis state.")}
     `;
   }
 
@@ -1045,10 +1125,19 @@ function renderStudioNarrative(job, result, section, targets, decisions) {
     : `This lens produced ${findingCount} findings and ${recordCount} proposed records; no high-pressure decision is visible for the selected target set.`;
 
   return `
-    <p><strong>${escapeHtml(title)}</strong> is being read as a buildable system shape, not as a document inventory.</p>
-    ${summaryParagraphs.map(paragraph => `<p>${renderSourceLinkedText(paragraph, job)}</p>`).join("")}
-    <p>${escapeHtml(pressure)}</p>
-    <p>The active targets are ${escapeHtml(targets.join(", ") || "not named")}. Actions below update proposal or guidance state only; a separate acceptance record is still required for durable Basis state.</p>
+    ${renderNarrativeBlock("Reading frame", `<strong>${escapeHtml(title)}</strong> is being read as a buildable system shape, not as a document inventory.`, true)}
+    ${summaryParagraphs.map((paragraph, index) => renderNarrativeBlock(index === 0 ? "Interpretation" : "Implication", renderSourceLinkedText(paragraph, job), true)).join("")}
+    ${renderNarrativeBlock("Current pressure", escapeHtml(pressure), true)}
+    ${renderNarrativeBlock("Acceptance boundary", `The active targets are ${escapeHtml(targets.join(", ") || "not named")}. Actions below update proposal or guidance state only; a separate acceptance record is still required for durable Basis state.`, true)}
+  `;
+}
+
+function renderNarrativeBlock(label, body, bodyIsHtml = false) {
+  return `
+    <section class="narrative-block">
+      <span>${escapeHtml(label)}</span>
+      <p>${bodyIsHtml ? body : escapeHtml(body)}</p>
+    </section>
   `;
 }
 
@@ -1120,19 +1209,110 @@ function renderProjectionImpactMatrix(job, result, targets, decisions) {
         ${rows.map(row => `
           <tr>
             <th>${escapeHtml(row.title)}</th>
-            <td><span class="kind-chip" data-kind="${escapeAttr(row.kind)}">${escapeHtml(row.kind)}</span></td>
+            <td>${renderProjectionKindButton(row)}</td>
             ${targets.slice(0, 5).map(target => renderProjectionCell(row, target)).join("")}
           </tr>
         `).join("")}
       </tbody>
     </table>
+    ${renderProjectionImpactDetail(rows)}
+  `;
+}
+
+function renderProjectionKindButton(row) {
+  return `
+    <button type="button"
+      class="kind-chip kind-chip-button"
+      ${projectionImpactAttrs(row, "")}>${escapeHtml(row.kind)}</button>
   `;
 }
 
 function renderProjectionCell(row, target) {
   const pressured = row.targets.length === 0 || row.targets.includes(target);
   const label = pressured ? impactLabelForKind(row.kind) : "not pressured";
-  return `<td data-pressure="${pressured ? "true" : "false"}">${escapeHtml(label)}</td>`;
+  return `
+    <td data-pressure="${pressured ? "true" : "false"}">
+      <button type="button"
+        class="projection-cell"
+        ${projectionImpactAttrs(row, target)}
+        data-pressure="${pressured ? "true" : "false"}">${escapeHtml(label)}</button>
+    </td>
+  `;
+}
+
+function projectionImpactAttrs(row, target) {
+  const ref = row.source_ref || {};
+  return `
+    data-projection-impact
+    data-row-id="${escapeAttr(row.id)}"
+    data-kind="${escapeAttr(row.kind)}"
+    data-title="${escapeAttr(row.title)}"
+    data-target="${escapeAttr(target)}"
+    data-impact="${escapeAttr(row.impact || "")}"
+    data-evidence="${escapeAttr(row.evidence || "")}"
+    data-section-id="${escapeAttr(ref.section_id || "")}"
+    data-source-path="${escapeAttr(ref.source_path || "")}"
+    data-start-line="${escapeAttr(ref.start_line || "")}"
+    data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}"
+  `;
+}
+
+function renderProjectionImpactDetail(rows) {
+  const active = activeProjectionImpact;
+  if (!active || !rows.some(row => row.id === active.row_id)) {
+    return `<p class="projection-help">Click any cell to inspect the pressure, source evidence, and available reviewer actions.</p>`;
+  }
+
+  const ref = active;
+  const noteBody = `Projection pressure: ${active.title}. ${active.impact}`;
+  const targetLabel = active.target ? `${active.target} projection` : "all affected projections";
+  return `
+    <article class="projection-impact-detail" data-kind="${escapeAttr(active.kind)}">
+      <div>
+        <span class="studio-eyebrow">Selected impact</span>
+        <strong>${escapeHtml(active.title)}</strong>
+        <p>${escapeHtml(targetLabel)} · ${escapeHtml(active.kind)}</p>
+      </div>
+      <p>${escapeHtml(active.impact || "Review this pressure before treating the projection as known.")}</p>
+      <div class="decision-actions">
+        <button type="button"
+          data-semantic-ref
+          data-section-id="${escapeAttr(ref.section_id || "")}"
+          data-source-path="${escapeAttr(ref.source_path || "")}"
+          data-start-line="${escapeAttr(ref.start_line || "")}"
+          data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}"
+          data-choice-title="${escapeAttr(active.title)}"
+          data-choice-body="${escapeAttr(active.evidence || active.impact)}">Show evidence</button>
+        <button type="button"
+          data-request-synthesis
+          data-subject-kind="projection_impact"
+          data-subject-id="${escapeAttr(active.row_id)}"
+          data-action-key="${escapeAttr(active.row_id)}"
+          data-synthesis-body="${escapeAttr(`Reconcile projection impact for ${active.title}: ${active.impact}`)}">Ask synthesis</button>
+        <button type="button"
+          data-record-note
+          data-subject-kind="projection_impact"
+          data-subject-id="${escapeAttr(active.row_id)}"
+          data-action-key="${escapeAttr(active.row_id)}"
+          data-note-body="${escapeAttr(noteBody)}">Record blocker</button>
+        ${active.kind === "redundant" ? `
+          <button type="button"
+            data-pressure-decision="merge_pressure"
+            data-subject-kind="projection_impact"
+            data-subject-id="${escapeAttr(active.row_id)}"
+            data-action-key="${escapeAttr(active.row_id)}"
+            data-decision-body="${escapeAttr(noteBody)}">Mark duplicate</button>
+          <button type="button"
+            data-pressure-decision="reject_pressure"
+            data-subject-kind="projection_impact"
+            data-subject-id="${escapeAttr(active.row_id)}"
+            data-action-key="${escapeAttr(active.row_id)}"
+            data-decision-body="${escapeAttr(noteBody)}">Delete pressure</button>
+        ` : ""}
+      </div>
+      ${renderActionStatus(active.row_id)}
+    </article>
+  `;
 }
 
 function impactLabelForKind(kind) {
@@ -1141,6 +1321,7 @@ function impactLabelForKind(kind) {
   if (kind === "conflict") return "policy needed";
   if (kind === "redundant") return "duplicate";
   if (kind === "loss") return "loss risk";
+  if (kind === "guidance") return "recheck";
   return "readable";
 }
 
@@ -1179,6 +1360,20 @@ function renderDecisionQueue(decisions) {
             data-subject-id="${escapeAttr(row.id)}"
             data-action-key="${escapeAttr(row.id)}"
             data-note-body="${escapeAttr(`Make buildable: ${row.title}. ${row.impact}`)}">Make buildable</button>
+          ${row.kind === "redundant" ? `
+            <button type="button"
+              data-pressure-decision="merge_pressure"
+              data-subject-kind="decision"
+              data-subject-id="${escapeAttr(row.id)}"
+              data-action-key="${escapeAttr(row.id)}"
+              data-decision-body="${escapeAttr(`Merge duplicate pressure: ${row.title}. ${row.impact}`)}">Mark duplicate</button>
+            <button type="button"
+              data-pressure-decision="reject_pressure"
+              data-subject-kind="decision"
+              data-subject-id="${escapeAttr(row.id)}"
+              data-action-key="${escapeAttr(row.id)}"
+              data-decision-body="${escapeAttr(`Delete duplicate pressure: ${row.title}. ${row.impact}`)}">Delete pressure</button>
+          ` : ""}
         </div>
         ${renderActionStatus(row.id)}
       </article>
@@ -1211,6 +1406,43 @@ function renderStudioEvidenceList(decisions) {
       <strong>${escapeHtml(conciseLabel(title, 42))}</strong>
     </button>
   `).join("");
+}
+
+function feedbackRowsForSection(section, fallbackTargets = []) {
+  if (!section?.id) return [];
+  return projectionEvents()
+    .filter(event => event.type === "human_line_feedback")
+    .filter(event => event.payload?.section_id === section.id)
+    .slice(-3)
+    .reverse()
+    .map(event => {
+      const line = Number(event.payload?.line_number);
+      const targets = arrayField(event.payload?.target_projection).length
+        ? arrayField(event.payload?.target_projection).slice(0, 5)
+        : fallbackTargets.slice(0, 5);
+      const body = event.message || event.payload?.preview_effect || "";
+      const kind = event.payload?.feedback_kind || feedbackPreviewModel({
+        line_number: line,
+        source_text: event.payload?.source_text || ""
+      }, body).kind;
+      return {
+        id: `${event.id}:feedback-decision`,
+        kind,
+        title: `Intent guidance line ${line || "?"}`,
+        evidence: body,
+        targets,
+        source_ref: {
+          section_id: section.id,
+          source_path: snapshot.source?.path || "",
+          start_line: Number.isFinite(line) ? line : section.start_line,
+          end_line: Number.isFinite(line) ? line : section.start_line,
+          title: "Intent guidance",
+          body
+        },
+        record: null,
+        impact: event.payload?.preview_effect || `Reviewer guidance should be folded into ${targets.join(", ") || "the active projections"}.`
+      };
+    });
 }
 
 function decisionRowsForResult(job, result) {
@@ -2295,6 +2527,9 @@ function bindRailButtons() {
   document.querySelectorAll("[data-pressure-decision]").forEach(button => {
     button.addEventListener("click", () => pressureDecisionFromButton(button));
   });
+  document.querySelectorAll("[data-projection-impact]").forEach(button => {
+    button.addEventListener("click", () => previewProjectionImpact(button));
+  });
   document.querySelectorAll("[data-scroll-anchor]").forEach(button => {
     button.addEventListener("click", () => {
       const sectionId = button.dataset.scrollAnchor || selectedSectionId;
@@ -2396,6 +2631,35 @@ function actionSubjectId(button) {
   return button.dataset.actionKey || button.dataset.subjectId || selectedJobId || selectedSectionId || "run";
 }
 
+function previewProjectionImpact(button) {
+  activeProjectionImpact = {
+    row_id: button.dataset.rowId,
+    kind: button.dataset.kind || "pressure",
+    title: button.dataset.title || "Projection impact",
+    target: button.dataset.target || "",
+    impact: button.dataset.impact || "",
+    evidence: button.dataset.evidence || "",
+    section_id: button.dataset.sectionId || selectedSectionId || "",
+    source_path: button.dataset.sourcePath || "",
+    start_line: button.dataset.startLine || "",
+    end_line: button.dataset.endLine || button.dataset.startLine || ""
+  };
+
+  activeSourceReference = {
+    kind: "projection_impact",
+    section_id: activeProjectionImpact.section_id,
+    source_path: activeProjectionImpact.source_path,
+    start_line: Number(activeProjectionImpact.start_line) || null,
+    end_line: Number(activeProjectionImpact.end_line || activeProjectionImpact.start_line) || null,
+    title: activeProjectionImpact.title,
+    body: activeProjectionImpact.evidence || activeProjectionImpact.impact
+  };
+
+  renderDocument();
+  renderRail();
+  scrollToSourceReference(activeSourceReference);
+}
+
 function referenceFromButton(button, kind = "source_reference") {
   const start = Number(button.dataset.startLine);
   const end = Number(button.dataset.endLine || button.dataset.startLine);
@@ -2482,6 +2746,7 @@ els.startForm.addEventListener("submit", event => {
   event.preventDefault();
   selectedSectionId = null;
   selectedJobId = null;
+  activeProjectionImpact = null;
   clearTimeout(autoBuildTimer);
   autoBuildMessage = "";
   lastAutoBuildKey = autoBuildKey();
@@ -2500,6 +2765,7 @@ function queueNewSourceLoad() {
   selectedJobId = null;
   activeSourceReference = null;
   activeChoicePreview = null;
+  activeProjectionImpact = null;
   autoBuildMessage = "";
   lastAutoBuildKey = "";
   clearTimeout(autoBuildTimer);

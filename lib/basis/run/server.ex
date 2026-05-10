@@ -378,7 +378,11 @@ defmodule Basis.Run.Server do
           mode: Map.get(action, "mode", "additive"),
           section_id: Map.get(action, "section_id"),
           line_number: action |> Map.get("line_number") |> to_integer_or_nil(),
-          source_text: Map.get(action, "source_text", "")
+          source_text: Map.get(action, "source_text", ""),
+          preview_effect:
+            action |> Map.get("preview_effect", "") |> to_string() |> String.slice(0, 1_000),
+          feedback_kind: Map.get(action, "feedback_kind", "guidance"),
+          target_projection: normalize_targets(Map.get(action, "target_projection", []))
         }
       )
 
