@@ -29,7 +29,7 @@ defmodule Basis.Run.Server do
             implementation_target: nil,
             sections: [],
             section_limit: 4,
-            max_concurrency: 2,
+            max_concurrency: 10,
             branch_count: 3,
             max_depth: 4,
             focused_branch: nil,
@@ -114,7 +114,7 @@ defmodule Basis.Run.Server do
       )
 
     section_limit = opts |> Map.get("section_limit", 4) |> clamp_integer(1, 24)
-    max_concurrency = opts |> Map.get("max_concurrency", 2) |> clamp_integer(1, 8)
+    max_concurrency = opts |> Map.get("max_concurrency", 10) |> clamp_integer(1, 10)
     source = Basis.Source.read!(source_path)
     sections = Enum.take(source.sections, section_limit)
     run_id = "run-#{System.system_time(:millisecond)}"

@@ -35,6 +35,25 @@ defmodule Basis.Run.ServerTest do
     assert Enum.any?(snapshot.events, &(&1.type == "human_note"))
   end
 
+  test "reducer run concurrency defaults to ten and clamps at ten" do
+    snapshot =
+      Basis.Run.Server.start_run(%{
+        "source_path" => "components/spec-basis-reducer/spec.md",
+        "section_limit" => 1
+      })
+
+    assert snapshot.max_concurrency == 10
+
+    snapshot =
+      Basis.Run.Server.start_run(%{
+        "source_path" => "components/spec-basis-reducer/spec.md",
+        "section_limit" => 1,
+        "max_concurrency" => 99
+      })
+
+    assert snapshot.max_concurrency == 10
+  end
+
   test "runs imaginer decision mining and engineer reality search with steering" do
     snapshot =
       Basis.Run.Server.start_run(%{

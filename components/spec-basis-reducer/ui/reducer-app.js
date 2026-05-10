@@ -66,6 +66,7 @@ const API_ORIGIN = window.location.protocol === "file:" ? "http://127.0.0.1:8767
 const REDUCER_MODE = "reducer";
 const DEFAULT_TARGETS = ["code", "schema", "proof", "runbook"];
 const DEFAULT_REASONING_EFFORT = "low";
+const DEFAULT_CONCURRENCY = 10;
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -141,7 +142,7 @@ function runStartPayload() {
     source_path: els.sourcePath.value.trim(),
     targets: selectedTargets(),
     model_effort: selectedReasoningEffort(),
-    max_concurrency: Number(els.maxConcurrency.value || 4),
+    max_concurrency: Number(els.maxConcurrency.value || DEFAULT_CONCURRENCY),
     excluded_section_ids: [...excludedSectionIds]
   };
 }
@@ -970,7 +971,7 @@ function renderFeedbackComposer() {
     }
     const preview = els.feedbackComposer.querySelector("#feedbackImpact");
     if (preview) {
-      preview.querySelector("[data-preview-state]")?.replaceChildren(document.createTextNode("Preview is stale. Update it to compute project impact from the current guidance."));
+      preview.querySelector("[data-preview-state]")?.replaceChildren(document.createTextNode("Preview is stale. Update it to compute document changes from the current guidance."));
     }
   });
   els.feedbackComposer.querySelector("[data-cancel-feedback]").addEventListener("click", closeFeedbackComposer);
@@ -990,7 +991,7 @@ function renderFeedbackComposer() {
         section_id: line.section_id,
         line_number: line.line_number,
         source_text: line.source_text,
-        preview_effect: preview.summary,
+        preview_effect: feedbackPreviewEffectText(preview),
         target_projection: preview.targets,
         feedback_kind: preview.kind
       });
@@ -1017,16 +1018,102 @@ function feedbackPreviewModel(line, body) {
           ? "conflict"
           : "guidance";
   const affectedTargets = mentionedTargets.length ? mentionedTargets : targets;
+  const documentChange = feedbackDocumentChangePlan(line, body, kind, affectedTargets);
   const summary = body
-    ? `Record guidance for line ${line.line_number}, classify it as ${kind} pressure, and re-score ${affectedTargets.join(", ") || "the active targets"}.`
-    : `Draft guidance for line ${line.line_number}, then update this preview to see target pressure before applying it.`;
+    ? `Previewed document-level changes for line ${line.line_number} from the current guidance.`
+    : `Draft guidance for line ${line.line_number}, then update this preview to see document-level changes before applying it.`;
   return {
     kind,
     targets: affectedTargets,
     summary,
+    documentChange,
     impact: feedbackProjectImpact(kind, affectedTargets),
     actions: feedbackPreviewActions(kind)
   };
+}
+
+function feedbackDocumentChangePlan(line, body, kind, targets) {
+  const sourceQuote = conciseLabel(line?.source_text || "Blank source line.", 220);
+  const guidanceQuote = body ? conciseLabel(body, 220) : "No guidance text yet.";
+  const modelContext = feedbackModelContextForLine(line);
+  const modelReading = modelContext
+    ? feedbackModelReadingText(modelContext)
+    : "No completed reducer lens has pinned this exact line yet; the preview will anchor the next lens to the quoted source sentence.";
+
+  return {
+    sourceQuote,
+    guidanceQuote,
+    modelReading,
+    change: feedbackDocumentChangeText(kind, body, modelContext, targets),
+    sourceRef: feedbackSourceRefForLine(line)
+  };
+}
+
+function feedbackModelContextForLine(line) {
+  const lineNumber = Number(line?.line_number);
+  const section = sectionForLine(lineNumber);
+  const sectionId = line?.section_id || section?.id || selectedSectionId;
+  const jobs = jobsForSection(sectionId).length ? jobsForSection(sectionId) : [selectedJob()].filter(Boolean);
+  const rows = jobs.flatMap(job => {
+    return decisionRowsForResult(job, resultForJob(job)).map(row => ({
+      ...row,
+      lens_title: job.title || job.lens_role || job.id || ""
+    }));
+  });
+
+  const direct = rows.find(row => sourceRefContainsLine(row.source_ref, lineNumber, sectionId));
+  if (direct) return direct;
+  return rows.find(row => row.source_ref?.section_id === sectionId) || rows[0] || null;
+}
+
+function sourceRefContainsLine(ref, lineNumber, sectionId) {
+  if (!ref || !Number.isFinite(lineNumber)) return false;
+  if (sectionId && ref.section_id && ref.section_id !== sectionId) return false;
+  const start = Number(ref.start_line);
+  const end = Number(ref.end_line || ref.start_line);
+  return Number.isFinite(start) && lineNumber >= start && lineNumber <= end;
+}
+
+function feedbackSourceRefForLine(line) {
+  return {
+    kind: "source_reference",
+    section_id: line?.section_id || sectionForLine(line?.line_number)?.id || "",
+    source_path: snapshot?.source?.path || "",
+    start_line: Number(line?.line_number) || null,
+    end_line: Number(line?.line_number) || null,
+    title: "Feedback source line",
+    body: line?.source_text || ""
+  };
+}
+
+function feedbackModelReadingText(row) {
+  const title = `${row.lens_title ? `${row.lens_title}: ` : ""}${row.title || "Model reading"}`;
+  const evidence = row.evidence ? ` - ${conciseLabel(row.evidence, 190)}` : "";
+  const ref = row.source_ref?.start_line ? ` (${sourceRefLabel(row.source_ref)})` : "";
+  return `${title}${ref}${evidence}`;
+}
+
+function feedbackDocumentChangeText(kind, body, modelContext, targets) {
+  const targetText = targets.join(", ") || "the active projections";
+  const reading = modelContext?.title ? `"${modelContext.title}"` : "the current reducer reading";
+
+  if (!body) {
+    return "No document change is planned yet. Enter guidance and update the preview.";
+  }
+
+  if (kind === "redundant") {
+    return `Would ask the next reducer lens to mark this quoted sentence as duplicate pressure and check whether it should be merged with or removed from ${reading}.`;
+  }
+  if (kind === "coupled") {
+    return `Would ask the next reducer lens to split this quoted sentence into separate obligations before ${targetText} treats it as one record.`;
+  }
+  if (kind === "missing") {
+    return `Would add a missing-record or blocker candidate anchored to this quote so ${targetText} cannot invent the behavior silently.`;
+  }
+  if (kind === "conflict") {
+    return `Would add a policy-choice candidate anchored to this quote before ${targetText} treats the choice as settled.`;
+  }
+  return `Would re-read this quote with the supplied guidance and update the section interpretation, proposal row, and projection pressure for ${targetText}.`;
 }
 
 function feedbackProjectImpact(kind, targets) {
@@ -1051,13 +1138,48 @@ function renderFeedbackPreview(model, state = "updated") {
   return `
     <p class="preview-state" data-preview-state>${escapeHtml(stateText)}</p>
     <p>${escapeHtml(model.summary)}</p>
+    ${renderFeedbackDocumentChange(model.documentChange)}
     <div class="impact-preview-grid">
       <span><strong>Kind</strong>${escapeHtml(model.kind)}</span>
       <span><strong>Targets</strong>${escapeHtml(model.targets.join(", ") || "active targets")}</span>
-      <span><strong>Project impact</strong>${escapeHtml(model.impact)}</span>
+      <span><strong>Projection pressure</strong>${escapeHtml(model.impact)}</span>
       <span><strong>Next</strong>${escapeHtml(model.actions.join(" · "))}</span>
     </div>
   `;
+}
+
+function renderFeedbackDocumentChange(change) {
+  if (!change) return "";
+  return `
+    <div class="feedback-doc-change">
+      <div>
+        <strong>Source quote ${escapeHtml(sourceRefLabel(change.sourceRef))}</strong>
+        <blockquote>${escapeHtml(change.sourceQuote)}</blockquote>
+      </div>
+      <div>
+        <strong>Model reading</strong>
+        <p>${escapeHtml(change.modelReading)}</p>
+      </div>
+      <div>
+        <strong>Guidance says</strong>
+        <blockquote>${escapeHtml(change.guidanceQuote)}</blockquote>
+      </div>
+      <div>
+        <strong>Would change</strong>
+        <p>${escapeHtml(change.change)}</p>
+      </div>
+    </div>
+  `;
+}
+
+function feedbackPreviewEffectText(preview) {
+  if (!preview?.documentChange) return preview?.summary || "";
+  return [
+    preview.summary,
+    `Source quote: ${preview.documentChange.sourceQuote}`,
+    `Guidance says: ${preview.documentChange.guidanceQuote}`,
+    `Would change: ${preview.documentChange.change}`
+  ].join(" ");
 }
 
 function recordLocalFeedback(line, body, preview = feedbackPreviewModel(line, body)) {
@@ -1073,7 +1195,7 @@ function recordLocalFeedback(line, body, preview = feedbackPreviewModel(line, bo
         section_id: line.section_id,
         line_number: line.line_number,
         source_text: line.source_text || "",
-        preview_effect: preview.summary,
+        preview_effect: feedbackPreviewEffectText(preview),
         target_projection: preview.targets,
         feedback_kind: preview.kind
       },

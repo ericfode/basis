@@ -33,7 +33,7 @@ defmodule Basis.Source do
       reasoning_effort: "low",
       implementation_target: nil,
       section_limit: length(source.sections),
-      max_concurrency: 2,
+      max_concurrency: 10,
       branch_count: 3,
       max_depth: 4,
       focused_branch: nil,
