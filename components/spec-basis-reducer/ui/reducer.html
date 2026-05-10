@@ -28,7 +28,10 @@
             <select id="corpusSample" aria-label="Good spec sample"><option value="0">Basis.Reduce reducer spec</option></select>
           </label>
           <input id="sourcePath" value="components/spec-basis-reducer/spec.md" aria-label="Source path">
-          <input id="targets" value="code,schema,proof,runbook" aria-label="Targets">
+          <label class="control-field targets-control" title="Projection targets: comma-separated outputs the reducer should pressure, for example code, schema, proof, and runbook.">
+            <span class="field-label">Targets</span>
+            <input id="targets" value="code,schema,proof,runbook" aria-label="Projection targets" placeholder="code,schema,proof,runbook">
+          </label>
           <label class="control-field compact-control" title="Concurrency">
             <span class="field-icon" aria-hidden="true">⇉</span>
             <span class="sr-only">Concurrency</span>

@@ -62,18 +62,36 @@ defmodule Basis.Run.Server do
     {:reply, projection(state), %{state | subscribers: MapSet.put(state.subscribers, pid)}}
   end
 
-  def handle_call({:start_run, opts}, _from, _old_state) do
+  def handle_call({:start_run, opts}, _from, old_state) do
+    stop_existing_jobs(old_state)
+
     state =
       case Map.get(opts, "mode", "reducer") do
         "imaginer" -> start_imaginer_state(opts)
         _ -> start_reducer_state(opts)
       end
+      |> carry_runtime_channels(old_state)
+
+    state =
+      append_event(
+        state,
+        "thread_pool_started",
+        "system",
+        "Started isolated Codex thread pool for this source.",
+        %{
+          source_path: Map.get(state.source || %{}, :path),
+          target_projections: state.targets
+        }
+      )
 
     {:reply, projection(state), schedule_jobs(state)}
   rescue
     exception ->
       state =
-        %__MODULE__{provider: provider_name(provider_module())}
+        %__MODULE__{
+          provider: provider_name(provider_module()),
+          subscribers: old_state.subscribers
+        }
         |> append_event("run_start_failed", "system", Exception.message(exception), %{})
 
       {:reply, projection(state), state}
@@ -1511,6 +1529,14 @@ defmodule Basis.Run.Server do
     do: %{job | status: "stopped", completed_at: Basis.Run.Clock.now()}
 
   defp stop_job(job), do: job
+
+  defp stop_existing_jobs(%__MODULE__{jobs: jobs}) do
+    Enum.each(jobs, &stop_job/1)
+  end
+
+  defp carry_runtime_channels(state, old_state) do
+    %{state | subscribers: old_state.subscribers}
+  end
 
   defp normalize_result(result, job, result_id) do
     %{

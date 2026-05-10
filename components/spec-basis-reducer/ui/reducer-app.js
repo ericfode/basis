@@ -48,6 +48,7 @@ let refreshInFlight = false;
 let refreshPending = false;
 let selectedFeedbackLine = null;
 let previewTimer = null;
+let previewRequestSeq = 0;
 let autoBuildTimer = null;
 let autoBuildInFlight = false;
 let autoBuildMessage = "";
@@ -96,11 +97,15 @@ async function getRun() {
 
 async function loadPreview(options = {}) {
   if (snapshot?.run_id && !options.force) return;
+  const requestId = ++previewRequestSeq;
+  const requestedPath = els.sourcePath.value.trim();
   const params = new URLSearchParams({
-    source_path: els.sourcePath.value.trim()
+    source_path: requestedPath
   });
   const response = await fetch(apiUrl(`/api/preview?${params.toString()}`), { cache: "no-store" });
   const preview = await response.json();
+  if (requestId !== previewRequestSeq || requestedPath !== els.sourcePath.value.trim()) return;
+  if (snapshot?.run_id && snapshot.source?.path === requestedPath) return;
   if (!snapshot?.run_id || options.force) {
     applySnapshot(preview, { force: true, allowPreview: true });
     scheduleAutomaticBuild(preview, options);
@@ -131,6 +136,64 @@ function runStartPayload() {
     max_concurrency: Number(els.maxConcurrency.value || 4),
     excluded_section_ids: [...excludedSectionIds]
   };
+}
+
+function emptyRunCounts() {
+  return {
+    events: 0,
+    sections: 0,
+    jobs: 0,
+    queued: 0,
+    running: 0,
+    completed: 0,
+    failed: 0,
+    stopped: 0,
+    codex_threads: 0,
+    active_codex_turns: 0,
+    records: 0,
+    questions: 0
+  };
+}
+
+function clearRunViewState() {
+  selectedSectionId = null;
+  selectedJobId = null;
+  activeSourceReference = null;
+  activeChoicePreview = null;
+  activeProjectionImpact = null;
+  selectedFeedbackLine = null;
+  localFeedbackEvents = [];
+  localActionStatuses.clear();
+}
+
+function resetProjectionForSourceChange(message) {
+  clearRunViewState();
+  const sourcePath = els.sourcePath.value.trim();
+  if (!snapshot) return;
+  snapshot = {
+    ...snapshot,
+    run_id: null,
+    status: "preview",
+    provider: "Preview",
+    started_at: null,
+    updated_at: null,
+    source: { path: sourcePath, hash: null, line_count: 0 },
+    target_projections: selectedTargets(),
+    counts: emptyRunCounts(),
+    sections: [],
+    document_sections: [],
+    jobs: [],
+    context_packets: [],
+    streams: {},
+    results: [],
+    proposed_records: [],
+    questions: [],
+    imaginer: null,
+    interventions: [],
+    events: []
+  };
+  autoBuildMessage = message;
+  render();
 }
 
 function autoBuildKey() {
@@ -204,8 +267,11 @@ function applySnapshot(next, options = {}) {
   if (!options.force && !shouldApplySnapshot(next)) return;
   if (next?.run_id && next.run_id !== snapshot?.run_id) {
     localFeedbackEvents = loadLocalFeedbackEvents(next.run_id);
+    localActionStatuses.clear();
+    activeProjectionImpact = null;
   } else if (!next?.run_id) {
     localFeedbackEvents = [];
+    localActionStatuses.clear();
   }
   snapshot = next;
   render();
@@ -398,17 +464,20 @@ function renderHints() {
           : snapshot.status === "complete"
             ? "Reduction complete"
             : "Reduction ready";
-  const detail = messages.join(" · ") || `${queuedJobs.length} ${queuedJobs.length === 1 ? "lens is" : "lenses are"} queued`;
+  const fullDetail = messages.join(" · ") || `${queuedJobs.length} ${queuedJobs.length === 1 ? "lens is" : "lenses are"} queued`;
+  const compactDetail = messages.length > 1
+    ? `${messages.length} updates`
+    : fullDetail.replace("Intent feedback recorded for ", "").replace("visible projection is ready", "projection ready");
   els.hintLayer.innerHTML = `
-    <div class="floating-hint">
+    <div class="floating-hint" title="${escapeAttr(`${headline}: ${fullDetail}`)}">
       <div class="activity-gif" data-active="${isActive ? "true" : "false"}" aria-hidden="true"><span></span></div>
       <div class="floating-hint-body">
         <strong>${escapeHtml(headline)}</strong>
-        <span>${escapeHtml(detail)}</span>
+        <span>${escapeHtml(compactDetail)}</span>
       </div>
       <div class="floating-hint-actions">
         ${runningJobs.length ? `<button type="button" data-focus-job="${escapeHtml(runningJobs[0].id)}">Focus</button>` : ""}
-        <button type="button" data-open-inspector>Details</button>
+        <button type="button" data-open-inspector aria-label="Open details">Details</button>
       </div>
     </div>
   `;
@@ -1158,7 +1227,11 @@ function renderBuildShapeDiagram(job, result, targets) {
   const sourceLabel = displayPath(snapshot.source?.path || els.sourcePath.value || "source spec");
   const runLabel = job?.lens_role ? conciseLabel(job.lens_role.replaceAll("_", " "), 32) : "Reducer run";
   return `
-    <div class="build-shape-diagram" role="img" aria-label="Source spec anchors reducer run, proposed records, and target projection packets.">
+    <div class="build-shape-diagram" role="img" aria-label="Main row shows the spec-derived reduction path. Bottom row shows run custody controls, not source contents.">
+      <div class="shape-diagram-note">
+        <span>Spec-derived interpretation path</span>
+        <span>proposal state, not accepted Basis state</span>
+      </div>
       <div class="shape-mainline">
         ${renderShapeNode("Source Spec", sourceLabel, "source")}
         ${renderShapeEdge("anchors")}
@@ -2744,9 +2817,8 @@ function scrollToSourceReference(anchor) {
 
 els.startForm.addEventListener("submit", event => {
   event.preventDefault();
-  selectedSectionId = null;
-  selectedJobId = null;
-  activeProjectionImpact = null;
+  previewRequestSeq += 1;
+  clearRunViewState();
   clearTimeout(autoBuildTimer);
   autoBuildMessage = "";
   lastAutoBuildKey = autoBuildKey();
@@ -2761,12 +2833,7 @@ els.corpusSample?.addEventListener("change", () => {
 });
 
 function queueNewSourceLoad() {
-  selectedSectionId = null;
-  selectedJobId = null;
-  activeSourceReference = null;
-  activeChoicePreview = null;
-  activeProjectionImpact = null;
-  autoBuildMessage = "";
+  resetProjectionForSourceChange("Source changed. Creating a fresh reducer thread pool for this spec.");
   lastAutoBuildKey = "";
   clearTimeout(autoBuildTimer);
   queuePreview({ force: true });
