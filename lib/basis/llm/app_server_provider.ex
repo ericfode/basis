@@ -634,6 +634,10 @@ defmodule Basis.LLM.AppServerProvider do
       nodes. Use the final JSON for prose and the diagram for structure.
     - Prefer diagrams that show source sentence -> proposed record -> target
       projection impact or blocker -> human decision.
+    - For each final JSON finding, include `suggested_actions`: one to three
+      reviewer moves with a short `label`, an `action_type`, and a `rationale`.
+      Valid action_type values are inspect_source, record_blocker, ask_synthesis,
+      keep_pressure, defer_pressure, reject_pressure, and merge_pressure.
     - If the only available graph would be document metadata, do not emit a
       `basis_show_mermaid` projection.
     - The final answer contract still applies; visible diagrams are projections,

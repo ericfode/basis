@@ -54,6 +54,7 @@ let autoBuildMessage = "";
 let lastAutoBuildKey = "";
 let excludedSectionIds = new Set();
 let localFeedbackEvents = [];
+let localActionStatuses = new Map();
 let activeSourceReference = null;
 let activeChoicePreview = null;
 let suppressSectionObserverUntil = 0;
@@ -363,6 +364,9 @@ function renderHints() {
   const runningJobs = (snapshot.jobs || []).filter(item => item.status === "running");
   const queuedJobs = (snapshot.jobs || []).filter(item => item.status === "queued");
   const latestFeedback = latestEvent("human_line_feedback");
+  const latestSynthesis = latestEvent("synthesis_requested");
+  const latestPressure = latestEvent("human_pressure_decision");
+  const latestRecordDecision = latestEvent("human_record_decision");
   const latestOutputCount = job ? visibleToolsWithFallback(job).length : 0;
 
   const messages = [];
@@ -372,6 +376,9 @@ function renderHints() {
   if (latestFeedback) {
     messages.push(`Intent feedback recorded for line ${latestFeedback.payload?.line_number || "unknown"}`);
   }
+  if (latestSynthesis) messages.push("Synthesis request recorded");
+  if (latestPressure) messages.push(`Pressure marked ${humanDecisionLabel(latestPressure.payload?.decision || "recorded").toLowerCase()}`);
+  if (latestRecordDecision) messages.push(`Record marked ${humanDecisionLabel(latestRecordDecision.payload?.decision || "recorded").toLowerCase()}`);
 
   if (!messages.length && !queuedJobs.length) {
     els.hintLayer.innerHTML = "";
@@ -381,11 +388,15 @@ function renderHints() {
   const isActive = runningJobs.length > 0;
   const headline = latestFeedback
     ? "Intent guidance applied"
-    : isActive
-      ? "Live reduction"
-      : snapshot.status === "complete"
-        ? "Reduction complete"
-        : "Reduction ready";
+    : latestSynthesis
+      ? "Synthesis requested"
+      : latestPressure || latestRecordDecision
+        ? "Proposal action recorded"
+        : isActive
+          ? "Live reduction"
+          : snapshot.status === "complete"
+            ? "Reduction complete"
+            : "Reduction ready";
   const detail = messages.join(" · ") || `${queuedJobs.length} ${queuedJobs.length === 1 ? "lens is" : "lenses are"} queued`;
   els.hintLayer.innerHTML = `
     <div class="floating-hint">
@@ -405,6 +416,75 @@ function renderHints() {
 
 function latestEvent(type) {
   return [...projectionEvents()].reverse().find(event => event.type === type) || null;
+}
+
+function latestSubjectEvent(types, subjectId) {
+  if (!subjectId) return null;
+  const wanted = Array.isArray(types) ? types : [types];
+  return [...projectionEvents()].reverse().find(event =>
+    wanted.includes(event.type) &&
+    String(event.payload?.subject_id || event.payload?.record_id || "") === String(subjectId)
+  ) || null;
+}
+
+function actionStatus(subjectId) {
+  if (!subjectId) return null;
+  const local = localActionStatuses.get(String(subjectId));
+  const event = latestSubjectEvent(
+    ["synthesis_requested", "human_note", "human_record_decision", "human_pressure_decision"],
+    subjectId
+  );
+  if (local && (!event || timestampValue(local.timestamp) >= timestampValue(event.timestamp))) return local;
+  if (!event) return null;
+  return actionStatusFromEvent(event);
+}
+
+function actionStatusFromEvent(event) {
+  if (event.type === "synthesis_requested") {
+    return { state: "recorded", message: "Synthesis request recorded.", timestamp: event.timestamp };
+  }
+  if (event.type === "human_note") {
+    return { state: "recorded", message: "Blocker note recorded.", timestamp: event.timestamp };
+  }
+  if (event.type === "human_record_decision") {
+    return {
+      state: "recorded",
+      message: `Record marked ${humanDecisionLabel(event.payload?.decision).toLowerCase()}.`,
+      timestamp: event.timestamp
+    };
+  }
+  if (event.type === "human_pressure_decision") {
+    return {
+      state: "recorded",
+      message: `Pressure marked ${humanDecisionLabel(event.payload?.decision).toLowerCase()}.`,
+      timestamp: event.timestamp
+    };
+  }
+  return null;
+}
+
+function setActionStatus(subjectId, state, message) {
+  if (!subjectId) return;
+  localActionStatuses.set(String(subjectId), {
+    state,
+    message,
+    timestamp: new Date().toISOString()
+  });
+  render();
+}
+
+function renderActionStatus(subjectId) {
+  const status = actionStatus(subjectId);
+  if (!status) return "";
+  return `<div class="action-feedback" data-state="${escapeAttr(status.state)}">${escapeHtml(status.message)}</div>`;
+}
+
+function humanDecisionLabel(decision) {
+  if (decision === "accept_record" || decision === "keep_pressure") return "Kept";
+  if (decision === "defer_record" || decision === "defer_pressure") return "Deferred";
+  if (decision === "reject_record" || decision === "reject_pressure") return "Rejected";
+  if (decision === "merge_pressure") return "Merged";
+  return "Recorded";
 }
 
 function projectionEvents() {
@@ -1087,13 +1167,20 @@ function renderDecisionQueue(decisions) {
             data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}"
             data-choice-title="${escapeAttr(row.title)}"
             data-choice-body="${escapeAttr(row.evidence || row.impact)}">Show evidence</button>
-          <button type="button" data-request-synthesis>Explore option</button>
+          <button type="button"
+            data-request-synthesis
+            data-subject-kind="decision"
+            data-subject-id="${escapeAttr(row.id)}"
+            data-action-key="${escapeAttr(row.id)}"
+            data-synthesis-body="${escapeAttr(`Explore option: ${row.title}. ${row.impact}`)}">Explore option</button>
           <button type="button"
             data-record-note
             data-subject-kind="finding"
             data-subject-id="${escapeAttr(row.id)}"
+            data-action-key="${escapeAttr(row.id)}"
             data-note-body="${escapeAttr(`Make buildable: ${row.title}. ${row.impact}`)}">Make buildable</button>
         </div>
+        ${renderActionStatus(row.id)}
       </article>
     `;
   }).join("");
@@ -1136,7 +1223,7 @@ function decisionRowsForResult(job, result) {
     const rowTargets = targets.length ? targets.slice(0, 4) : fallbackTargets.slice(0, 3);
     const kind = semanticKind(finding);
     const title = conciseLabel(finding.title || finding.kind || `finding ${index + 1}`, 64);
-    const record = recordForFinding(finding, records, rowTargets);
+    const record = recordForFinding(finding, records, rowTargets, index);
     const impact = decisionImpact(kind, rowTargets, record);
     return {
       id: `${result.id || result.job_id || job?.id || "result"}:decision:${index + 1}`,
@@ -1462,9 +1549,9 @@ function buildSemanticStateGraph(job, result) {
     const targets = arrayField(finding.target_projection || finding.target_projections).length
       ? arrayField(finding.target_projection || finding.target_projections)
       : fallbackTargets;
-    const record = recordForFinding(finding, records, targets);
+    const record = recordForFinding(finding, records, targets, index);
     const actionable = isActionableFinding(finding, body);
-    return {
+    const row = {
       id: `semantic-row-${job.id}-${index + 1}`,
       kind: semanticKind(finding),
       relation: semanticRelation(finding),
@@ -1475,7 +1562,12 @@ function buildSemanticStateGraph(job, result) {
       targets: targets.length ? targets.slice(0, 4) : ["review"],
       record,
       actionable,
-      action: semanticAction(finding, body, record)
+      action: semanticAction(finding, body, record),
+      suggested_actions: suggestedActionsForFinding(finding)
+    };
+    return {
+      ...row,
+      actions: semanticActionsForRow(row)
     };
   });
 
@@ -1487,22 +1579,40 @@ function buildSemanticStateGraph(job, result) {
   };
 }
 
-function recordForFinding(finding, records, targets) {
+function recordForFinding(finding, records, targets, index = -1) {
   if (!records.length) return null;
   const findingText = `${finding.kind || ""} ${finding.title || ""} ${finding.evidence || ""}`.toLowerCase();
-  const targetSet = new Set(targets.map(target => String(target).toLowerCase()));
-  return records.find(record => {
+  const kind = semanticKind(finding);
+  const direct = records.find(record => {
     const title = String(record.title || "").toLowerCase();
-    const kind = String(record.kind || "").toLowerCase();
-    const recordTargets = arrayField(record.target_projection || record.target_projections).map(target => String(target).toLowerCase());
+    const recordKind = String(record.kind || "").toLowerCase();
     const titleTokens = title.split(/\W+/).filter(token => token.length > 4);
+    const hasSpecificTitle = title && !isGenericRecordTitle(title);
     return (
-      (title && findingText.includes(title)) ||
-      (kind && findingText.includes(kind)) ||
-      titleTokens.some(token => findingText.includes(token)) ||
-      recordTargets.some(target => targetSet.has(target))
+      (hasSpecificTitle && findingText.includes(title)) ||
+      (recordKind && recordKind === kind && titleTokens.some(token => findingText.includes(token))) ||
+      (hasSpecificTitle && titleTokens.length >= 2 && titleTokens.some(token => findingText.includes(token)))
     );
-  }) || null;
+  });
+  if (direct) return direct;
+
+  const indexed = records[index];
+  if (indexed && String(indexed.kind || "").toLowerCase() === kind && !isGenericRecordTitle(indexed.title)) {
+    return indexed;
+  }
+
+  return null;
+}
+
+function isGenericRecordTitle(title) {
+  const value = String(title || "").toLowerCase().trim();
+  return !value || [
+    "proposed basis state output",
+    "candidate basis proposal",
+    "proposal state",
+    "proposed record",
+    "candidate record"
+  ].includes(value);
 }
 
 function arrayField(value) {
@@ -1541,6 +1651,85 @@ function semanticAction(finding, body, record) {
   if (text.includes("no accepted") || text.includes("acceptance")) return "record decision";
   if (isActionableFinding(finding, body)) return "ask synthesis";
   return "inspect";
+}
+
+function suggestedActionsForFinding(finding) {
+  const actions = Array.isArray(finding.suggested_actions) ? finding.suggested_actions : [];
+  return actions
+    .map(action => ({
+      label: conciseLabel(action.label || action.title || action.action_type || "", 32),
+      action_type: String(action.action_type || action.type || "").trim(),
+      rationale: action.rationale || action.why || "",
+      source: "model"
+    }))
+    .filter(action => action.label && action.action_type);
+}
+
+function semanticActionsForRow(row) {
+  const modelActions = row.suggested_actions
+    .map(action => normalizeSemanticAction(action, row))
+    .filter(Boolean)
+    .slice(0, 3);
+  if (modelActions.length) return modelActions;
+  return fallbackSemanticActions(row);
+}
+
+function normalizeSemanticAction(action, row) {
+  const type = action.action_type.replaceAll("-", "_").toLowerCase();
+  if (["inspect", "inspect_source", "show_evidence"].includes(type)) {
+    return { ...action, type: "inspect_source" };
+  }
+  if (["ask_synthesis", "synthesize", "reconcile", "split", "make_buildable"].includes(type)) {
+    return { ...action, type: "ask_synthesis" };
+  }
+  if (["record_blocker", "note", "blocker_note"].includes(type)) {
+    return { ...action, type: "record_blocker" };
+  }
+  if (["reject_pressure", "delete", "remove", "discard"].includes(type)) {
+    return { ...action, type: "reject_pressure" };
+  }
+  if (["defer", "defer_pressure"].includes(type)) {
+    return { ...action, type: "defer_pressure" };
+  }
+  if (["keep", "keep_pressure"].includes(type)) {
+    return { ...action, type: "keep_pressure" };
+  }
+  if (row.kind === "redundant" && type.includes("merge")) {
+    return { ...action, type: "merge_pressure" };
+  }
+  return null;
+}
+
+function fallbackSemanticActions(row) {
+  if (row.kind === "redundant") {
+    return [
+      { type: "merge_pressure", label: "Mark duplicate", source: "ui_fallback" },
+      { type: "reject_pressure", label: "Delete pressure", source: "ui_fallback" },
+      { type: "inspect_source", label: "Inspect source", source: "ui_fallback" }
+    ];
+  }
+  if (row.kind === "coupled") {
+    return [
+      { type: "ask_synthesis", label: "Ask split plan", source: "ui_fallback" },
+      { type: "record_blocker", label: "Record blocker", source: "ui_fallback" },
+      { type: "inspect_source", label: "Inspect source", source: "ui_fallback" }
+    ];
+  }
+  if (row.kind === "missing" || row.kind === "conflict") {
+    return [
+      { type: "record_blocker", label: "Record blocker", source: "ui_fallback" },
+      { type: "ask_synthesis", label: "Ask synthesis", source: "ui_fallback" },
+      { type: "inspect_source", label: "Inspect source", source: "ui_fallback" }
+    ];
+  }
+  if (row.record?.id) {
+    return [
+      { type: "keep_pressure", label: "Keep pressure", source: "ui_fallback" },
+      { type: "defer_pressure", label: "Defer", source: "ui_fallback" },
+      { type: "inspect_source", label: "Inspect source", source: "ui_fallback" }
+    ];
+  }
+  return [{ type: "inspect_source", label: "Inspect source", source: "ui_fallback" }];
 }
 
 function conciseLabel(value, maxLength = 44) {
@@ -1583,8 +1772,11 @@ function renderSemanticMapRow(row) {
   const record = row.record;
   const subjectId = row.id;
   const noteBody = `Review blocker: ${row.title}. ${row.evidence || ""}`;
+  const decision = latestSubjectEvent("human_pressure_decision", subjectId);
+  const recordTitle = semanticRecordTitle(row);
+  const recordStatus = record?.id ? actionStatus(record.id) : null;
   return `
-    <article class="semantic-map-row" data-kind="${escapeAttr(row.kind)}" data-actionable="${row.actionable ? "true" : "false"}">
+    <article class="semantic-map-row" data-kind="${escapeAttr(row.kind)}" data-actionable="${row.actionable ? "true" : "false"}" data-decision="${escapeAttr(decision?.payload?.decision || "")}">
       <button type="button"
         class="semantic-source-chip"
         data-semantic-ref
@@ -1601,38 +1793,95 @@ function renderSemanticMapRow(row) {
       </div>
       <div class="semantic-record-node" data-empty="${record ? "false" : "true"}">
         ${record ? `
-          <strong>${escapeHtml(conciseLabel(record.title || record.kind || "proposed record", 42))}</strong>
-          <span>${escapeHtml(record.kind || "proposal")} · proposal only</span>
+          <strong>${escapeHtml(recordTitle)}</strong>
+          <span>${escapeHtml(record.kind || row.kind || "proposal")} · proposal only</span>
+          ${recordBodyForRow(row) ? `<p>${escapeHtml(recordBodyForRow(row))}</p>` : ""}
+          ${recordStatus ? `<div class="record-status" data-state="${escapeAttr(recordStatus.state)}">${escapeHtml(recordStatus.message)}</div>` : ""}
           ${record.id ? `
             <div class="semantic-record-actions">
-              <button type="button" data-record-decision="accept_record" data-record-id="${escapeAttr(record.id)}">Keep in working packet</button>
+              <button type="button" data-record-decision="accept_record" data-record-id="${escapeAttr(record.id)}">Keep pressure</button>
               <button type="button" data-record-decision="defer_record" data-record-id="${escapeAttr(record.id)}">Defer</button>
-              <button type="button" data-record-decision="reject_record" data-record-id="${escapeAttr(record.id)}">Reject pressure</button>
+              <button type="button" data-record-decision="reject_record" data-record-id="${escapeAttr(record.id)}">${row.kind === "redundant" ? "Delete duplicate" : "Reject pressure"}</button>
             </div>
           ` : ""}
         ` : `
-          <strong>No proposal record</strong>
-          <span>gap remains explicit</span>
+          <strong>${escapeHtml(recordTitle)}</strong>
+          <span>No separate proposal record matched this claim.</span>
         `}
       </div>
       <div class="semantic-action-node">
         <div class="semantic-targets">
           ${row.targets.map(target => `<span>${escapeHtml(target)}</span>`).join("")}
         </div>
-        <strong>${escapeHtml(row.action)}</strong>
-        <div class="semantic-action-buttons">
-          ${row.actionable ? `
-            <button type="button"
-              data-record-note
-              data-subject-kind="finding"
-              data-subject-id="${escapeAttr(subjectId)}"
-              data-note-body="${escapeAttr(noteBody)}">Record blocker</button>
-            <button type="button" data-request-synthesis>Ask synthesis</button>
-          ` : `<button type="button" data-semantic-ref data-section-id="${escapeAttr(ref.section_id || "")}" data-start-line="${escapeAttr(ref.start_line || "")}" data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}">Inspect source</button>`}
-        </div>
+        <strong>${escapeHtml(actionTitleForRow(row))}</strong>
+        <span class="action-source">${row.actions.some(action => action.source === "model") ? "model-suggested" : "derived fallback"}</span>
+        <div class="semantic-action-buttons">${renderSemanticActionButtons(row, noteBody)}</div>
+        ${renderActionStatus(subjectId)}
       </div>
     </article>
   `;
+}
+
+function semanticRecordTitle(row) {
+  if (!row.record) return row.kind === "redundant" ? "Duplicate pressure only" : "No working-packet record yet";
+  const title = row.record.title || "";
+  if (!isGenericRecordTitle(title)) return conciseLabel(title, 44);
+  return `${kindTitle(row.kind)}: ${conciseLabel(row.title, 34)}`;
+}
+
+function recordBodyForRow(row) {
+  const record = row.record || {};
+  const body = record.body || record.evidence || record.known_loss || "";
+  if (body) return conciseLabel(body, 96);
+  if (isGenericRecordTitle(record.title)) return `Matched to this claim by kind; review before keeping.`;
+  return "";
+}
+
+function kindTitle(kind) {
+  return {
+    coupled: "Split proposal",
+    missing: "Missing-record proposal",
+    conflict: "Policy proposal",
+    redundant: "Merge proposal",
+    derived: "Derived-record proposal",
+    loss: "Loss-risk proposal",
+    pivot: "Pivot proposal"
+  }[kind] || "Proposal";
+}
+
+function actionTitleForRow(row) {
+  if (row.kind === "redundant") return "remove or merge duplicate pressure";
+  if (row.kind === "coupled") return "split before projecting";
+  if (row.kind === "missing") return "record missing dimension";
+  if (row.kind === "conflict") return "choose policy before build";
+  if (row.record?.id) return "review working-packet proposal";
+  return row.action;
+}
+
+function renderSemanticActionButtons(row, noteBody) {
+  const ref = row.source_ref || {};
+  return row.actions.map(action => renderSemanticActionButton(row, action, ref, noteBody)).join("");
+}
+
+function renderSemanticActionButton(row, action, ref, noteBody) {
+  const common = `
+    data-subject-kind="semantic_row"
+    data-subject-id="${escapeAttr(row.id)}"
+    data-action-key="${escapeAttr(row.id)}"
+  `;
+  if (action.type === "inspect_source") {
+    return `<button type="button" data-semantic-ref ${common} data-section-id="${escapeAttr(ref.section_id || "")}" data-start-line="${escapeAttr(ref.start_line || "")}" data-end-line="${escapeAttr(ref.end_line || ref.start_line || "")}">${escapeHtml(action.label)}</button>`;
+  }
+  if (action.type === "record_blocker") {
+    return `<button type="button" data-record-note ${common} data-note-body="${escapeAttr(noteBody)}">${escapeHtml(action.label)}</button>`;
+  }
+  if (action.type === "ask_synthesis") {
+    return `<button type="button" data-request-synthesis ${common} data-synthesis-body="${escapeAttr(`Synthesize next action for ${row.kind}: ${row.title}. Evidence: ${row.evidence || ""}`)}">${escapeHtml(action.label)}</button>`;
+  }
+  if (["reject_pressure", "defer_pressure", "keep_pressure", "merge_pressure"].includes(action.type)) {
+    return `<button type="button" data-pressure-decision="${escapeAttr(action.type)}" ${common} data-decision-body="${escapeAttr(`${action.label}: ${row.kind} ${row.title}. ${row.evidence || ""}`)}">${escapeHtml(action.label)}</button>`;
+  }
+  return "";
 }
 
 function sourceRefLabel(ref) {
@@ -1946,9 +2195,16 @@ function renderFinding(job, result, finding, index) {
             data-record-note
             data-subject-kind="finding"
             data-subject-id="${escapeAttr(subjectId)}"
+            data-action-key="${escapeAttr(subjectId)}"
             data-note-body="${escapeAttr(`Review blocker: ${title}. ${body}`)}">Record blocker note</button>
-          <button type="button" data-request-synthesis>Ask synthesis to reconcile</button>
+          <button type="button"
+            data-request-synthesis
+            data-subject-kind="finding"
+            data-subject-id="${escapeAttr(subjectId)}"
+            data-action-key="${escapeAttr(subjectId)}"
+            data-synthesis-body="${escapeAttr(`Reconcile finding: ${title}. ${body}`)}">Ask synthesis to reconcile</button>
         </div>
+        ${renderActionStatus(subjectId)}
       ` : ""}
     </article>
   `;
@@ -2028,21 +2284,16 @@ function bindRailButtons() {
     button.addEventListener("click", () => postJson("/api/actions", { type: "rerun_lens", job_id: button.dataset.rerunJob }));
   });
   document.querySelectorAll("[data-request-synthesis]").forEach(button => {
-    button.addEventListener("click", () => postJson("/api/actions", { type: "request_synthesis" }));
+    button.addEventListener("click", () => requestSynthesisFromButton(button));
   });
   document.querySelectorAll("[data-record-note]").forEach(button => {
-    button.addEventListener("click", () => postJson("/api/actions", {
-      type: "note",
-      body: button.dataset.noteBody || "Review blocker.",
-      subject_kind: button.dataset.subjectKind || "finding",
-      subject_id: button.dataset.subjectId || selectedSectionId
-    }));
+    button.addEventListener("click", () => recordNoteFromButton(button));
   });
   document.querySelectorAll("[data-record-decision]").forEach(button => {
-    button.addEventListener("click", () => postJson("/api/actions", {
-      type: button.dataset.recordDecision,
-      record_id: button.dataset.recordId
-    }));
+    button.addEventListener("click", () => recordDecisionFromButton(button));
+  });
+  document.querySelectorAll("[data-pressure-decision]").forEach(button => {
+    button.addEventListener("click", () => pressureDecisionFromButton(button));
   });
   document.querySelectorAll("[data-scroll-anchor]").forEach(button => {
     button.addEventListener("click", () => {
@@ -2074,6 +2325,75 @@ function bindRailButtons() {
   document.querySelectorAll("[data-apply-choice]").forEach(button => {
     button.addEventListener("click", () => applyChoice(button));
   });
+}
+
+async function requestSynthesisFromButton(button) {
+  const subjectId = actionSubjectId(button);
+  setActionStatus(subjectId, "pending", "Requesting synthesis for this item...");
+  try {
+    await postJson("/api/actions", {
+      type: "request_synthesis",
+      subject_kind: button.dataset.subjectKind || "run",
+      subject_id: subjectId,
+      body: button.dataset.synthesisBody || "Synthesize next reducer action for this item."
+    });
+    setActionStatus(subjectId, "recorded", "Synthesis request recorded.");
+  } catch (error) {
+    setActionStatus(subjectId, "failed", `Synthesis request failed: ${error.message || error}`);
+  }
+}
+
+async function recordNoteFromButton(button) {
+  const subjectId = actionSubjectId(button);
+  setActionStatus(subjectId, "pending", "Recording blocker note...");
+  try {
+    await postJson("/api/actions", {
+      type: "note",
+      body: button.dataset.noteBody || "Review blocker.",
+      subject_kind: button.dataset.subjectKind || "finding",
+      subject_id: subjectId
+    });
+    setActionStatus(subjectId, "recorded", "Blocker note recorded.");
+  } catch (error) {
+    setActionStatus(subjectId, "failed", `Blocker note failed: ${error.message || error}`);
+  }
+}
+
+async function recordDecisionFromButton(button) {
+  const recordId = button.dataset.recordId;
+  const decision = button.dataset.recordDecision;
+  setActionStatus(recordId, "pending", `${humanDecisionLabel(decision)} record...`);
+  try {
+    await postJson("/api/actions", {
+      type: decision,
+      record_id: recordId
+    });
+    setActionStatus(recordId, "recorded", `Record marked ${humanDecisionLabel(decision).toLowerCase()}.`);
+  } catch (error) {
+    setActionStatus(recordId, "failed", `Record action failed: ${error.message || error}`);
+  }
+}
+
+async function pressureDecisionFromButton(button) {
+  const subjectId = actionSubjectId(button);
+  const decision = button.dataset.pressureDecision;
+  setActionStatus(subjectId, "pending", `${humanDecisionLabel(decision)} pressure...`);
+  try {
+    await postJson("/api/actions", {
+      type: "pressure_decision",
+      decision,
+      subject_kind: button.dataset.subjectKind || "semantic_row",
+      subject_id: subjectId,
+      body: button.dataset.decisionBody || ""
+    });
+    setActionStatus(subjectId, "recorded", `Pressure marked ${humanDecisionLabel(decision).toLowerCase()}.`);
+  } catch (error) {
+    setActionStatus(subjectId, "failed", `Pressure action failed: ${error.message || error}`);
+  }
+}
+
+function actionSubjectId(button) {
+  return button.dataset.actionKey || button.dataset.subjectId || selectedJobId || selectedSectionId || "run";
 }
 
 function referenceFromButton(button, kind = "source_reference") {

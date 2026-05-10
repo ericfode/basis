@@ -1204,6 +1204,17 @@ a {
   color: #b8c8d8;
 }
 
+.semantic-action-node .action-source {
+  width: max-content;
+  padding: 2px 6px;
+  border: 1px solid #345f58;
+  border-radius: 999px;
+  color: #9fdccd;
+  background: #0b1816;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
 .semantic-kind {
   width: max-content;
   padding: 2px 6px;
@@ -1228,6 +1239,20 @@ a {
 .semantic-map-row[data-kind="redundant"] .semantic-claim-node {
   border-color: #7f8da2;
   background: #202834;
+}
+
+.semantic-map-row[data-decision="reject_pressure"] {
+  opacity: 0.58;
+}
+
+.semantic-map-row[data-decision="reject_pressure"] .semantic-claim-node strong,
+.semantic-map-row[data-decision="reject_pressure"] .semantic-record-node strong {
+  text-decoration: line-through;
+}
+
+.semantic-map-row[data-decision="merge_pressure"] .semantic-claim-node {
+  border-color: #91a3ba;
+  background: #172131;
 }
 
 .semantic-record-node {
@@ -1264,6 +1289,28 @@ a {
   color: #edfdf9;
   background: #12352f;
   font: 11px/1.2 ui-sans-serif, system-ui, sans-serif;
+}
+
+.action-feedback,
+.record-status {
+  padding: 5px 7px;
+  border: 1px solid #3f6e64;
+  border-radius: 6px;
+  color: #c9f4eb;
+  background: #0b1816;
+  font: 11px/1.25 ui-sans-serif, system-ui, sans-serif;
+}
+
+.action-feedback[data-state="pending"],
+.record-status[data-state="pending"] {
+  border-color: #d6b45d;
+  color: #ffe9a8;
+}
+
+.action-feedback[data-state="failed"],
+.record-status[data-state="failed"] {
+  border-color: #e07a72;
+  color: #ffd1cc;
 }
 
 .mermaid-source summary {
@@ -1875,7 +1922,8 @@ textarea {
 }
 
 .understanding-pane .semantic-kind,
-.understanding-pane .semantic-targets span {
+.understanding-pane .semantic-targets span,
+.understanding-pane .semantic-action-node .action-source {
   border-color: #d8e1e8;
   color: #526173;
   background: #f8fafc;
@@ -1896,11 +1944,37 @@ textarea {
   background: #fff1f0;
 }
 
+.understanding-pane .semantic-map-row[data-decision="merge_pressure"] .semantic-claim-node {
+  border-color: #b9c6d5;
+  background: #f4f7fb;
+}
+
 .understanding-pane .semantic-action-buttons button,
 .understanding-pane .semantic-record-actions button {
   border-color: #b9d9d3;
   color: #075e55;
   background: #f0fbf8;
+}
+
+.understanding-pane .action-feedback,
+.understanding-pane .record-status {
+  border-color: #b9d9d3;
+  color: #075e55;
+  background: #f0fbf8;
+}
+
+.understanding-pane .action-feedback[data-state="pending"],
+.understanding-pane .record-status[data-state="pending"] {
+  border-color: #e7c978;
+  color: #6f5412;
+  background: #fff8e6;
+}
+
+.understanding-pane .action-feedback[data-state="failed"],
+.understanding-pane .record-status[data-state="failed"] {
+  border-color: #f3aaa4;
+  color: #8f1f1a;
+  background: #fff1f0;
 }
 
 .generated-turn-details {

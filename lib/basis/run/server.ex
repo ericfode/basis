@@ -336,13 +336,17 @@ defmodule Basis.Run.Server do
     end
   end
 
-  defp apply_action(state, %{"type" => "request_synthesis"}) do
+  defp apply_action(state, %{"type" => "request_synthesis"} = action) do
     {state, queued?} =
       if state.mode == "imaginer" do
         enqueue_imaginer_synthesis(state, true)
       else
         enqueue_synthesis(state, true)
       end
+
+    subject_kind = Map.get(action, "subject_kind", "run")
+    subject_id = Map.get(action, "subject_id", state.run_id)
+    body = action |> Map.get("body", "") |> to_string() |> String.slice(0, 1_000)
 
     state =
       append_event(
@@ -353,7 +357,11 @@ defmodule Basis.Run.Server do
           do: "Queued synthesis lens.",
           else: "Synthesis lens was already queued or running."
         ),
-        %{}
+        %{
+          subject_kind: subject_kind,
+          subject_id: subject_id,
+          body: body
+        }
       )
 
     {state, state}
@@ -505,6 +513,26 @@ defmodule Basis.Run.Server do
       append_event(state, "human_record_decision", "human", "#{decision} #{record_id}.", %{
         decision: decision,
         record_id: record_id
+      })
+
+    {state, state}
+  end
+
+  defp apply_action(state, %{"type" => "pressure_decision", "decision" => decision} = action)
+       when decision in [
+              "keep_pressure",
+              "defer_pressure",
+              "reject_pressure",
+              "merge_pressure"
+            ] do
+    subject_id = Map.get(action, "subject_id", "pressure")
+
+    state =
+      append_event(state, "human_pressure_decision", "human", "#{decision} #{subject_id}.", %{
+        decision: decision,
+        subject_kind: Map.get(action, "subject_kind", "semantic_row"),
+        subject_id: subject_id,
+        body: action |> Map.get("body", "") |> to_string() |> String.slice(0, 1_000)
       })
 
     {state, state}
@@ -1677,7 +1705,9 @@ defmodule Basis.Run.Server do
       "run_failed",
       "human_line_feedback",
       "human_note",
-      "human_record_decision"
+      "human_record_decision",
+      "human_pressure_decision",
+      "synthesis_requested"
     ]
   end
 
@@ -1741,7 +1771,13 @@ defmodule Basis.Run.Server do
   defp interventions(events) do
     Enum.filter(
       events,
-      &(&1.type in ["human_line_feedback", "human_note", "human_record_decision"])
+      &(&1.type in [
+          "human_line_feedback",
+          "human_note",
+          "human_record_decision",
+          "human_pressure_decision",
+          "synthesis_requested"
+        ])
     )
   end
 

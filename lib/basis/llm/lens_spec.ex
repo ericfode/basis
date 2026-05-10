@@ -99,6 +99,8 @@ defmodule Basis.LLM.LensSpec do
     - Every finding must name evidence or explicit absence of evidence.
     - Every proposed semantic record must include a falsifiable rejection,
       demotion, split, merge, or replacement test.
+    - Every finding should suggest one to three next actions that a reviewer can
+      take on that finding. Suggested actions are proposal guidance only.
     - Reducer output is proposal state, not accepted Basis state.
 
     Return JSON only:
@@ -112,7 +114,14 @@ defmodule Basis.LLM.LensSpec do
           "evidence": "source-backed evidence or explicit absence",
           "target_projection": ["code"],
           "falsifiable_test": "how to reject, demote, split, merge, or replace it",
-          "severity": "low|medium|high"
+          "severity": "low|medium|high",
+          "suggested_actions": [
+            {
+              "label": "short button label",
+              "action_type": "inspect_source|record_blocker|ask_synthesis|keep_pressure|defer_pressure|reject_pressure|merge_pressure",
+              "rationale": "why this action is the next useful reviewer move"
+            }
+          ]
         }
       ],
       "proposed_records": [
