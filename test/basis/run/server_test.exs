@@ -22,6 +22,12 @@ defmodule Basis.Run.ServerTest do
     assert map_size(snapshot.streams) >= 1
     assert Enum.all?(snapshot.results, &(&1.provider == "scripted_test_provider"))
 
+    assert Enum.any?(
+             snapshot.results,
+             &(&1.lens_role == "root_orientation_lens" and
+                 get_in(&1.build_shape, ["title"]) == "Scripted root build shape")
+           )
+
     [job | _] = snapshot.jobs
 
     snapshot =

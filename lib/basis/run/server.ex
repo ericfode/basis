@@ -1588,6 +1588,7 @@ defmodule Basis.Run.Server do
       completed_at: Map.get(result, :completed_at),
       summary: Map.get(result, :summary, ""),
       findings: Map.get(result, :findings, []),
+      build_shape: Map.get(result, :build_shape),
       proposed_records: stamp_records(Map.get(result, :proposed_records, []), job, result_id),
       questions: stamp_questions(Map.get(result, :questions, []), job, result_id),
       confidence: Map.get(result, :confidence),

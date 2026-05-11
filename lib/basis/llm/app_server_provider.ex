@@ -55,6 +55,7 @@ defmodule Basis.LLM.AppServerProvider do
          codex_turn_id: turn_id,
          summary: Map.get(decoded, "summary", fallback_summary(raw_text)),
          findings: list_field(decoded, "findings"),
+         build_shape: map_field(decoded, "build_shape"),
          proposed_records: list_field(decoded, "proposed_records"),
          questions: list_field(decoded, "questions"),
          confidence: Map.get(decoded, "confidence", nil)
@@ -522,6 +523,13 @@ defmodule Basis.LLM.AppServerProvider do
     case Map.get(map, key) do
       items when is_list(items) -> items
       _ -> []
+    end
+  end
+
+  defp map_field(map, key) do
+    case Map.get(map, key) do
+      item when is_map(item) -> item
+      _ -> nil
     end
   end
 

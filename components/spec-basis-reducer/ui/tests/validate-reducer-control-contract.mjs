@@ -68,9 +68,12 @@ assertIncludes(app, "function previewProjectionImpact", "Projection matrix cells
 assertIncludes(app, "data-selected", "Projection clicks must expose a visible selected state.");
 assertIncludes(app, "renderActionStatus", "Action buttons must render immediate status feedback.");
 assertIncludes(app, "setActionStatus(subjectId, \"pending\"", "Long-running actions must show pending feedback.");
-assertIncludes(app, "modelBuildShape(job, result, targets, decisions)", "Build-shape diagram must be generated from current lens output.");
+assertIncludes(app, "function buildShapeProjection", "Build-shape diagram must be sourced from explicit thread output.");
+assertIncludes(app, "rootOrientationJob()", "Build-shape diagram must prefer the root orientation thread created on spec load.");
+assertIncludes(app, "result.build_shape", "Build-shape diagram must render an explicit build_shape result packet.");
 assertIncludes(app, "function renderDerivedPanelEmpty", "Derived panels must render empty until model output exists.");
-assertIncludes(app, "Waiting for model-derived build shape.", "Build-shape panel must stay empty on newly loaded specs before reducer output.");
+assertIncludes(app, "Waiting for root-generated build shape.", "Build-shape panel must stay empty until the root thread generates the diagram.");
+assertIncludes(app, "did not emit a build_shape packet", "Completed old runs without a generated diagram must not get a fabricated fallback.");
 assertIncludes(app, "Waiting for source-derived interpretation.", "Narrative panel must stay empty on newly loaded specs before reducer output.");
 assertIncludes(app, "function threadJobsForInspector", "Thread inspector must include global synthesis jobs as well as visible-section jobs.");
 assertIncludes(app, "function renderJobImpactSummary", "Thread cards must expose result impacts and source anchors.");
@@ -134,6 +137,10 @@ if (html.includes("What This Wants To Become")) {
 
 if (html.includes("Understand This Spec") || app.includes("studioIntroText") || app.includes("accepted Basis state unchanged")) {
   fail("Hero copy regressed to static explainer text or useless state chips.");
+}
+
+if (app.includes("Derived from the loaded spec through the current lens summary")) {
+  fail("Build-shape panel regressed to a generic local diagram instead of thread-generated build_shape.");
 }
 
 if (app.includes("Actions below update proposal")) {

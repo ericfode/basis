@@ -2042,15 +2042,15 @@ textarea {
 }
 
 .shape-mainline {
-  display: grid;
-  grid-template-columns: minmax(88px, 1fr) 42px minmax(88px, 1fr) 42px minmax(88px, 1fr) 42px minmax(88px, 1fr);
+  display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .shape-node {
   display: grid;
   gap: 6px;
+  flex: 1 1 0;
   min-height: 92px;
   padding: 10px;
   border: 1px solid #cfdae5;
@@ -2075,6 +2075,12 @@ textarea {
   background: #f0fbf8;
 }
 
+.shape-node[data-kind="claim"],
+.shape-node[data-kind="targets"] {
+  border-color: #c5d5e8;
+  background: #f8fbff;
+}
+
 .shape-node[data-kind="records"],
 .kind-chip[data-kind="missing"],
 .kind-chip[data-kind="coupled"],
@@ -2093,6 +2099,8 @@ textarea {
 
 .shape-edge {
   position: relative;
+  flex: 0 0 42px;
+  align-self: center;
   height: 34px;
   border-top: 2px solid #9eb0c3;
 }
@@ -2568,6 +2576,7 @@ body[data-inspector-open="false"] .decision-pane {
   }
 
   .shape-mainline {
+    display: grid;
     grid-template-columns: 1fr;
   }
 

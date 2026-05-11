@@ -45,6 +45,7 @@ defmodule Basis.LLM.AppServerProviderTest do
                  end)
 
         assert result.summary == "adapter survived warning"
+        assert result.build_shape["title"] == "Fake build shape"
         assert [%{"title" => "warning tolerated"}] = result.proposed_records
 
         thread_cwd = File.read!(capture_path)
@@ -67,7 +68,7 @@ defmodule Basis.LLM.AppServerProviderTest do
     end
 
     assistant_json =
-      ~s({"summary":"adapter survived warning","findings":[],"proposed_records":[{"title":"warning tolerated"}],"questions":[],"confidence":0.8})
+      ~s({"summary":"adapter survived warning","findings":[],"build_shape":{"title":"Fake build shape","source":"fake root thread","boundary":"proposal state","nodes":[{"id":"source","title":"Source","body":"source","kind":"source"},{"id":"claim","title":"Claim","body":"claim","kind":"claim"}],"edges":[{"from":"source","to":"claim","label":"supports"}],"support":[]},"proposed_records":[{"title":"warning tolerated"}],"questions":[],"confidence":0.8})
 
     loop = fn loop ->
       case IO.read(:stdio, :line) do

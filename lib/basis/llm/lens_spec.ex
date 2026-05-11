@@ -70,10 +70,37 @@ defmodule Basis.LLM.LensSpec do
     {
       "summary": "short orientation",
       "findings": [{"kind": "orientation", "title": "...", "evidence": "...", "falsifiable_test": "..."}],
+      "build_shape": {
+        "title": "short name for the system shape implied by the spec",
+        "source": "root orientation thread over the loaded source",
+        "boundary": "proposal state, not accepted Basis state",
+        "nodes": [
+          {"id": "source", "title": "source concept", "body": "short noun phrase", "kind": "source"},
+          {"id": "claim", "title": "candidate claim", "body": "short noun phrase", "kind": "claim"},
+          {"id": "state", "title": "proposal state", "body": "short noun phrase", "kind": "records"},
+          {"id": "impact", "title": "projection impact", "body": "short noun phrase", "kind": "targets"}
+        ],
+        "edges": [
+          {"from": "source", "to": "claim", "label": "supports"},
+          {"from": "claim", "to": "state", "label": "proposes"},
+          {"from": "state", "to": "impact", "label": "pressures"}
+        ],
+        "support": [
+          {"title": "open pressure", "body": "short blocker or review pressure", "kind": "support"},
+          {"title": "acceptance gate", "body": "what would make this durable", "kind": "gate"}
+        ]
+      },
       "proposed_records": [],
       "questions": [],
       "confidence": 0.0
     }
+
+    The build_shape is a generated projection for the Understanding Studio
+    diagram panel. It MUST be specific to the loaded spec. Do not use generic
+    nodes such as "document", "section", "lens", "job", or "source lines" as
+    the main content. Use 3-6 ordered nodes and short edge verbs that describe
+    the semantic path from source concept to proposed Basis state to projection
+    pressure.
 
     Source path: #{source.path}
     Source hash: #{source.hash}

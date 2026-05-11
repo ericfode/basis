@@ -1346,6 +1346,7 @@ function renderStudio(job, section) {
   els.studioProjectionMatrix.innerHTML = renderProjectionImpactMatrix(job, result, targets, decisions);
   els.studioDecisionQueue.innerHTML = renderDecisionQueue(decisions);
   els.studioEvidenceList.innerHTML = renderStudioEvidenceList(decisions);
+  hydrateMermaid();
 }
 
 function studioTitleText(job, section) {
@@ -1417,14 +1418,30 @@ function renderDerivedPanelEmpty(title, body) {
 }
 
 function renderBuildShapeDiagram(job, result, targets, decisions = []) {
-  if (!hasModelDerivedBuildShape(result)) {
+  const projection = buildShapeProjection(job, result);
+  if (!projection) {
     return renderDerivedPanelEmpty(
-      "Waiting for model-derived build shape.",
-      "A newly loaded spec leaves this blank until a reducer lens derives concepts, proposal state, and projection impacts from the source text."
+      buildShapePendingTitle(),
+      buildShapePendingBody()
     );
   }
 
-  const shape = modelBuildShape(job, result, targets, decisions);
+  if (projection.tool) {
+    return renderMermaidBlock(
+      projection.tool.body || projection.tool.diagram || projection.tool.source || "",
+      projection.tool.title || "Thread-generated build shape",
+      projection.tool
+    );
+  }
+
+  const shape = normalizeThreadBuildShape(projection.shape, projection.result, projection.job);
+  if (shape.nodes.length < 2) {
+    return renderDerivedPanelEmpty(
+      "Build-shape projection was incomplete.",
+      "The thread returned a build_shape packet, but it did not include enough ordered nodes to render a useful diagram."
+    );
+  }
+
   return `
     <div class="build-shape-diagram" role="img" aria-label="${escapeAttr(shape.ariaLabel)}">
       <div class="shape-diagram-note">
@@ -1432,65 +1449,166 @@ function renderBuildShapeDiagram(job, result, targets, decisions = []) {
         <span>${escapeHtml(shape.boundary)}</span>
       </div>
       <div class="shape-mainline">
-        ${renderShapeNode(shape.nodes[0].title, shape.nodes[0].body, shape.nodes[0].kind)}
-        ${renderShapeEdge(shape.edges[0])}
-        ${renderShapeNode(shape.nodes[1].title, shape.nodes[1].body, shape.nodes[1].kind)}
-        ${renderShapeEdge(shape.edges[1])}
-        ${renderShapeNode(shape.nodes[2].title, shape.nodes[2].body, shape.nodes[2].kind)}
-        ${renderShapeEdge(shape.edges[2])}
-        ${renderShapeNode(shape.nodes[3].title, shape.nodes[3].body, shape.nodes[3].kind)}
+        ${shape.nodes.map((node, index) => `
+          ${renderShapeNode(node.title, node.body, node.kind)}
+          ${index < shape.nodes.length - 1 ? renderShapeEdge(shape.edges[index]) : ""}
+        `).join("")}
       </div>
-      <div class="shape-support">
+      ${shape.support.length ? `<div class="shape-support">
         ${shape.support.map(node => renderShapeNode(node.title, node.body, node.kind)).join("")}
-      </div>
+      </div>` : ""}
     </div>
   `;
 }
 
-function modelBuildShape(job, result, targets, decisions) {
-  const sourceRef = sourceRefForJob(job);
-  const sourceLabel = sourceRefLabel(sourceRef) === "source"
-    ? displayPath(snapshot.source?.path || els.sourcePath.value || "source spec")
-    : sourceRefLabel(sourceRef);
-  const primaryDecision = decisions[0];
-  const primaryRecord = (result?.proposed_records || [])[0];
-  const summary = firstSentence(result?.summary || "");
-  const claimTitle = primaryDecision?.title || (result ? "Model interpretation" : "Waiting for model output");
-  const claimBody = summary || "The model has not produced the current lens interpretation yet.";
-  const proposalTitle = primaryRecord?.title || primaryDecision?.title || "Proposal state pending";
-  const proposalBody = primaryRecord?.body || primaryDecision?.impact || `${(result?.proposed_records || []).length} records · ${(result?.findings || []).length} findings`;
-  const targetBody = primaryDecision?.targets?.length
-    ? primaryDecision.targets.join(", ")
-    : targets.join(", ") || "targets pending";
+function buildShapeProjection(job, result) {
+  const resultCandidate = buildShapeResultCandidates(job, result).find(candidate => hasThreadBuildShape(candidate.result));
+  if (resultCandidate) {
+    return {
+      job: resultCandidate.job,
+      result: resultCandidate.result,
+      shape: resultCandidate.result.build_shape
+    };
+  }
+
+  const toolCandidate = buildShapeToolCandidates(job).find(candidate => candidate.tool);
+  return toolCandidate ? { tool: toolCandidate.tool, job: toolCandidate.job } : null;
+}
+
+function buildShapeResultCandidates(job, result) {
+  const candidates = [];
+  if (job && result) candidates.push({ job, result });
+
+  const rootJob = rootOrientationJob();
+  const rootResult = resultForJob(rootJob);
+  if (rootJob && rootResult) candidates.push({ job: rootJob, result: rootResult });
+
+  for (const candidateResult of snapshot.results || []) {
+    candidates.push({ job: jobForResult(candidateResult), result: candidateResult });
+  }
+
+  const seen = new Set();
+  return candidates.filter(candidate => {
+    const id = candidate.result?.id || candidate.result?.job_id;
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
+function buildShapeToolCandidates(job) {
+  const candidates = [];
+  if (job) candidates.push(job);
+  const rootJob = rootOrientationJob();
+  if (rootJob) candidates.push(rootJob);
+
+  const seen = new Set();
+  return candidates
+    .filter(candidateJob => {
+      if (!candidateJob?.id || seen.has(candidateJob.id)) return false;
+      seen.add(candidateJob.id);
+      return true;
+    })
+    .map(candidateJob => ({
+      job: candidateJob,
+      tool: visibleToolsForJob(candidateJob).find(tool => isMermaidTool(tool.tool) && !isWeakMermaidTool(tool, candidateJob))
+    }));
+}
+
+function rootOrientationJob() {
+  return (snapshot.jobs || []).find(job => job.kind === "root_read" || job.lens_role === "root_orientation_lens") || null;
+}
+
+function jobForResult(result) {
+  return (snapshot.jobs || []).find(job => job.id === result?.job_id) || null;
+}
+
+function hasThreadBuildShape(result) {
+  const shape = result?.build_shape;
+  return Boolean(shape && typeof shape === "object" && Array.isArray(shape.nodes) && shape.nodes.length >= 2);
+}
+
+function normalizeThreadBuildShape(shape, result, job) {
+  const nodes = normalizeShapeNodes(shape.nodes);
+  const edges = normalizeShapeEdges(shape.edges, nodes);
+  const title = shapeText(shape.title, "Thread-generated build shape");
+  const producer = job ? `${job.title || job.lens_role || "Reducer lens"} ${job.id}` : result?.job_id || "reducer thread";
 
   return {
-    ariaLabel: "Derived from the loaded spec through the current lens summary, findings, proposed records, and target projections.",
-    source: "derived from source-backed lens output",
-    boundary: "proposal state, not accepted Basis state",
-    nodes: [
-      { title: "Evidence Span", body: sourceLabel, kind: "source" },
-      { title: "Interpretation Claim", body: conciseLabel(claimTitle || claimBody, 58), kind: result ? "run" : "support" },
-      { title: "Proposed State", body: conciseLabel(proposalTitle || proposalBody, 58), kind: "records" },
-      { title: "Projection Impact", body: conciseLabel(targetBody, 58), kind: "targets" }
-    ],
-    edges: ["supports", primaryDecision?.kind || "reduces to", primaryRecord ? "pressures" : "would affect"],
-    support: [
-      { title: "Model Summary", body: conciseLabel(claimBody, 72), kind: "support" },
-      { title: "Open Pressure", body: primaryDecision ? `${primaryDecision.kind}: ${primaryDecision.impact}` : "No completed decision pressure yet", kind: primaryDecision?.kind || "support" },
-      { title: "Acceptance Gate", body: "durable state still requires a separate acceptance record", kind: "gate" }
-    ]
+    ariaLabel: `${title}. Generated by ${producer}.`,
+    source: shapeText(shape.source, `generated by ${producer}`),
+    boundary: shapeText(shape.boundary, "proposal state, not accepted Basis state"),
+    nodes,
+    edges,
+    support: normalizeShapeNodes(shape.support || []).slice(0, 4)
   };
 }
 
-function hasModelDerivedBuildShape(result) {
-  return Boolean(
-    result &&
-      (
-        String(result.summary || "").trim() ||
-        (result.findings || []).length ||
-        (result.proposed_records || []).length
-      )
-  );
+function normalizeShapeNodes(nodes) {
+  return (Array.isArray(nodes) ? nodes : [])
+    .map(node => ({
+      id: shapeText(node?.id || node?.key || node?.title || node?.label, ""),
+      title: conciseLabel(shapeText(node?.title || node?.label, "Build shape node"), 44),
+      body: conciseLabel(shapeText(node?.body || node?.summary || node?.description, ""), 88),
+      kind: normalizeShapeKind(node?.kind || node?.type)
+    }))
+    .filter(node => node.title || node.body)
+    .slice(0, 6);
+}
+
+function normalizeShapeEdges(edges, nodes) {
+  const edgeList = Array.isArray(edges) ? edges : [];
+  return nodes.slice(0, -1).map((node, index) => {
+    const next = nodes[index + 1];
+    const direct = edgeList[index];
+    const matched = edgeList.find(edge =>
+      shapeEdgeEndpoint(edge?.from) === shapeNodeKey(node) &&
+      shapeEdgeEndpoint(edge?.to) === shapeNodeKey(next)
+    );
+    return conciseLabel(shapeText(direct?.label || matched?.label || direct || "relates"), 24);
+  });
+}
+
+function shapeNodeKey(node) {
+  return String(node?.id || node?.title || "").toLowerCase().replace(/\s+/g, "_");
+}
+
+function shapeEdgeEndpoint(value) {
+  return String(value || "").toLowerCase().replace(/\s+/g, "_");
+}
+
+function shapeText(value, fallback = "") {
+  if (Array.isArray(value)) return value.map(item => shapeText(item)).filter(Boolean).join(", ") || fallback;
+  if (value && typeof value === "object") return shapeText(value.title || value.label || value.body || value.summary, fallback);
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  return text || fallback;
+}
+
+function normalizeShapeKind(kind) {
+  const value = String(kind || "").toLowerCase().replace(/[^a-z0-9_]+/g, "_");
+  if (["source", "claim", "records", "targets", "support", "gate", "missing", "coupled", "conflict", "derived", "redundant"].includes(value)) return value;
+  if (value.includes("target") || value.includes("projection")) return "targets";
+  if (value.includes("record") || value.includes("state") || value.includes("proposal")) return "records";
+  if (value.includes("block") || value.includes("missing")) return "missing";
+  return "support";
+}
+
+function buildShapePendingTitle() {
+  const rootJob = rootOrientationJob();
+  if (rootJob?.status === "queued" || rootJob?.status === "running") return "Waiting for root-generated build shape.";
+  if (rootJob?.status === "completed") return "No thread-generated build shape yet.";
+  return "Waiting for source-derived build shape.";
+}
+
+function buildShapePendingBody() {
+  const rootJob = rootOrientationJob();
+  if (rootJob?.status === "queued" || rootJob?.status === "running") {
+    return `${rootJob.title || "Root Orientation"} ${rootJob.id} is ${rootJob.status}; this panel will fill when that thread emits a build_shape projection.`;
+  }
+  if (rootJob?.status === "completed") {
+    return "The completed root orientation thread did not emit a build_shape packet. Rerun this spec to let the updated root prompt generate the panel.";
+  }
+  return "A newly loaded spec leaves this blank until the root orientation thread derives a diagram from the source text.";
 }
 
 function firstSentence(text) {
