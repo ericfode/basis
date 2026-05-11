@@ -597,9 +597,9 @@ function renderActionStatus(subjectId) {
 }
 
 function humanDecisionLabel(decision) {
-  if (decision === "accept_record" || decision === "keep_pressure") return "Kept";
-  if (decision === "defer_record" || decision === "defer_pressure") return "Deferred";
-  if (decision === "reject_record" || decision === "reject_pressure") return "Rejected";
+  if (decision === "accept_record" || decision === "keep_pressure") return "Staged";
+  if (decision === "defer_record" || decision === "defer_pressure") return "Stashed";
+  if (decision === "reject_record" || decision === "reject_pressure") return "Dropped";
   if (decision === "merge_pressure") return "Merged";
   return "Recorded";
 }
@@ -608,26 +608,26 @@ function recordDecisionConfig(decision, record = {}) {
   const title = record.title || record.id || "this proposal";
   if (decision === "accept_record") {
     return {
-      label: "Keep in working packet",
-      pending: "Recording this proposal as kept in the working packet...",
-      persisted: "Review event persisted: kept in the working packet. Accepted Basis state is unchanged.",
-      effect: `Keeps "${title}" in the review packet for synthesis and projection checks. This does not accept Basis state or edit the source spec.`
+      label: "Stage proposal",
+      pending: "Staging this proposal in the reducer review packet...",
+      persisted: "Review event persisted: staged for synthesis and projection checks. No accepted Basis commit was created.",
+      effect: `Stages "${title}" in the reducer review packet, like adding a hunk to an index. This does not commit accepted Basis state or edit the source spec.`
     };
   }
   if (decision === "defer_record") {
     return {
-      label: "Defer review",
-      pending: "Recording this proposal as deferred...",
-      persisted: "Review event persisted: deferred. It remains unresolved in this run.",
-      effect: `Leaves "${title}" unresolved for a later reviewer or synthesis pass. This does not remove evidence or edit the source spec.`
+      label: "Stash for later",
+      pending: "Stashing this proposal for a later reducer pass...",
+      persisted: "Review event persisted: stashed for later review. It remains unresolved in this run.",
+      effect: `Stashes "${title}" outside the active review path for a later reviewer or synthesis pass. Evidence remains visible; the source spec is unchanged.`
     };
   }
   if (decision === "reject_record") {
     return {
-      label: record.kind === "redundant" ? "Reject duplicate" : "Reject as pressure",
-      pending: "Recording this proposal as rejected pressure...",
-      persisted: "Review event persisted: rejected as pressure. The record stays visible; source text and accepted Basis state are unchanged.",
-      effect: `Marks "${title}" as rejected proposal pressure for this run. It remains visible as review history and does not delete source text.`
+      label: record.kind === "redundant" ? "Drop duplicate" : "Drop from review",
+      pending: "Dropping this proposal from active reducer pressure...",
+      persisted: "Review event persisted: dropped from active pressure. The record stays visible; source text and accepted Basis state are unchanged.",
+      effect: `Drops "${title}" from active proposal pressure for this run. It remains visible as review history and does not delete source text.`
     };
   }
   return {
@@ -646,23 +646,23 @@ function pressureDecisionConfig(decision, row = {}) {
   const title = row.title || "this pressure";
   if (decision === "keep_pressure") {
     return {
-      label: "Keep pressure",
-      persisted: "Review event persisted: pressure kept for projection review.",
-      effect: `Keeps "${title}" active as a pressure the projections must answer. It does not accept Basis state.`
+      label: "Stage pressure",
+      persisted: "Review event persisted: pressure staged for projection review.",
+      effect: `Stages "${title}" as active pressure the projections must answer. It does not commit accepted Basis state.`
     };
   }
   if (decision === "defer_pressure") {
     return {
-      label: "Defer pressure",
-      persisted: "Review event persisted: pressure deferred for later review.",
-      effect: `Leaves "${title}" unresolved for a later reducer or reviewer pass.`
+      label: "Stash pressure",
+      persisted: "Review event persisted: pressure stashed for later review.",
+      effect: `Stashes "${title}" as unresolved pressure for a later reducer or reviewer pass.`
     };
   }
   if (decision === "reject_pressure") {
     return {
-      label: "Reject as pressure",
-      persisted: "Review event persisted: pressure rejected for this run. Evidence remains visible; source text is unchanged.",
-      effect: `Marks "${title}" as not useful pressure for the current projection. It remains in review history and does not delete source text.`
+      label: "Drop pressure",
+      persisted: "Review event persisted: pressure dropped for this run. Evidence remains visible; source text is unchanged.",
+      effect: `Drops "${title}" from active projection pressure. It remains in review history and does not delete source text.`
     };
   }
   if (decision === "merge_pressure") {
@@ -698,7 +698,7 @@ function renderRecordActionHelp(record) {
   return `
     <div class="record-action-help">
       <strong>Action effect</strong>
-      <span>These buttons append a persisted review event for this proposal. They do not edit source text and do not accept Basis state.</span>
+      <span>These buttons behave like review-index operations: stage, stash, drop, or merge proposal pressure. They append a review event; they do not edit source text or commit accepted Basis state.</span>
     </div>
   `;
 }
@@ -2623,8 +2623,8 @@ function normalizeSemanticAction(action, row) {
 function fallbackSemanticActions(row) {
   if (row.kind === "redundant") {
     return [
-      { type: "merge_pressure", label: "Mark duplicate", source: "ui_fallback" },
-      { type: "reject_pressure", label: "Delete pressure", source: "ui_fallback" },
+      { type: "merge_pressure", label: "Merge duplicate", source: "ui_fallback" },
+      { type: "reject_pressure", label: "Drop pressure", source: "ui_fallback" },
       { type: "inspect_source", label: "Inspect source", source: "ui_fallback" }
     ];
   }
@@ -2644,8 +2644,8 @@ function fallbackSemanticActions(row) {
   }
   if (row.record?.id) {
     return [
-      { type: "keep_pressure", label: "Keep pressure", source: "ui_fallback" },
-      { type: "defer_pressure", label: "Defer", source: "ui_fallback" },
+      { type: "keep_pressure", label: "Stage pressure", source: "ui_fallback" },
+      { type: "defer_pressure", label: "Stash pressure", source: "ui_fallback" },
       { type: "inspect_source", label: "Inspect source", source: "ui_fallback" }
     ];
   }
@@ -2818,9 +2818,9 @@ function renderSemanticActionButton(row, action, ref, noteBody, subjectKind) {
 
 function reviewerActionLabel(row, action) {
   const label = action.label || action.type || "Review";
-  if (action.type === "reject_pressure") return "Reject as pressure";
-  if (action.type === "defer_pressure") return "Defer pressure";
-  if (action.type === "keep_pressure") return "Keep pressure";
+  if (action.type === "reject_pressure") return "Drop pressure";
+  if (action.type === "defer_pressure") return "Stash pressure";
+  if (action.type === "keep_pressure") return "Stage pressure";
   if (action.type === "merge_pressure") return "Merge pressure";
   if (row.kind === "coupled" && action.type === "ask_synthesis" && /^ask synthesis$/i.test(label)) {
     return "Ask split plan";

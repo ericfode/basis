@@ -71,9 +71,12 @@ assertIncludes(app, "renderActionStatus", "Action buttons must render immediate 
 assertIncludes(app, "setActionStatus(subjectId, \"pending\"", "Long-running actions must show pending feedback.");
 assertIncludes(app, "function recordDecisionConfig", "Record review buttons must share explicit action semantics.");
 assertIncludes(app, "data-action-effect", "Reviewer action buttons must expose what the click will do before submission.");
-assertIncludes(app, "Review event persisted: rejected as pressure", "Rejected proposal records must show persisted review state.");
+assertIncludes(app, "Review event persisted: dropped from active pressure", "Dropped proposal records must show persisted review state.");
 assertIncludes(app, "source text and accepted Basis state are unchanged", "Record action copy must preserve the proposal/acceptance boundary.");
 assertIncludes(app, "renderRecordActionHelp", "Proposal record cards must explain that actions append review events.");
+assertIncludes(app, "Stage proposal", "Proposal review actions must use git-style stage vocabulary.");
+assertIncludes(app, "Stash for later", "Proposal review actions must use git-style stash vocabulary.");
+assertIncludes(app, "Drop from review", "Proposal review actions must use git-style drop vocabulary.");
 assertIncludes(css, ".record-action-help", "Proposal record action effect help must be visibly styled.");
 assertIncludes(app, "function buildShapeProjection", "Build-shape diagram must be sourced from explicit thread output.");
 assertIncludes(app, "rootOrientationJob()", "Build-shape diagram must prefer the root orientation thread created on spec load.");
