@@ -141,9 +141,10 @@ assertIncludes(app, "closest?.(\".line-marker\")", "Line feedback delegation mus
 assertIncludes(app, "Preview is stale. Update it to compute document changes", "Feedback textarea edits must visibly stale the preview.");
 assertIncludes(app, "renderFeedbackPreview(model, \"updated\")", "Update preview must render a computed impact state.");
 assertIncludes(app, "Projection pressure", "Feedback preview must show target pressure, not only recording mechanics.");
+assertIncludes(html, '</section>\n      <div id="feedbackComposer" class="feedback-composer" hidden></div>', "Feedback modal must live outside the three-column workspace stacking context.");
 assertIncludes(css, ".feedback-composer", "Feedback modal must have an explicit overlay container.");
 assertIncludes(css, ".feedback-doc-change", "Feedback modal must render document-change quotes distinctly.");
-assertIncludes(css, "z-index: 70", "Feedback modal overlay must sit above rails and floating hints.");
+assertIncludes(css, "z-index: 1000", "Feedback modal overlay must sit above projection tables, rails, and floating hints.");
 assertIncludes(css, "backdrop-filter: blur(3px)", "Feedback modal must visually separate the layer behind it.");
 assertIncludes(css, "scroll-margin-top: 240px", "Source line markers must not scroll under the sticky evidence header before clicks.");
 
