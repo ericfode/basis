@@ -68,6 +68,12 @@ assertIncludes(app, "function previewProjectionImpact", "Projection matrix cells
 assertIncludes(app, "data-selected", "Projection clicks must expose a visible selected state.");
 assertIncludes(app, "renderActionStatus", "Action buttons must render immediate status feedback.");
 assertIncludes(app, "setActionStatus(subjectId, \"pending\"", "Long-running actions must show pending feedback.");
+assertIncludes(app, "function recordDecisionConfig", "Record review buttons must share explicit action semantics.");
+assertIncludes(app, "data-action-effect", "Reviewer action buttons must expose what the click will do before submission.");
+assertIncludes(app, "Review event persisted: rejected as pressure", "Rejected proposal records must show persisted review state.");
+assertIncludes(app, "source text and accepted Basis state are unchanged", "Record action copy must preserve the proposal/acceptance boundary.");
+assertIncludes(app, "renderRecordActionHelp", "Proposal record cards must explain that actions append review events.");
+assertIncludes(css, ".record-action-help", "Proposal record action effect help must be visibly styled.");
 assertIncludes(app, "function buildShapeProjection", "Build-shape diagram must be sourced from explicit thread output.");
 assertIncludes(app, "rootOrientationJob()", "Build-shape diagram must prefer the root orientation thread created on spec load.");
 assertIncludes(app, "result.build_shape", "Build-shape diagram must render an explicit build_shape result packet.");

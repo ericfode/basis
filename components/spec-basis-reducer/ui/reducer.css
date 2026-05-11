@@ -1673,10 +1673,43 @@ dd {
   background: #fbfdff;
 }
 
+.proposal-record[data-review-state="recorded"] {
+  border-color: #8bd3c7;
+  background: #f2fffc;
+}
+
+.proposal-record[data-review-state="pending"] {
+  border-color: #e6c36a;
+  background: #fff9e8;
+}
+
+.proposal-record[data-review-state="failed"] {
+  border-color: #e07a72;
+  background: #fff5f4;
+}
+
 .proposal-record p {
   margin: 0;
   color: #334155;
   font: 13px/1.45 ui-sans-serif, system-ui, sans-serif;
+}
+
+.record-action-help {
+  display: grid;
+  gap: 3px;
+  padding: 7px 8px;
+  border: 1px solid #d7e8e5;
+  border-radius: 6px;
+  color: #31525d;
+  background: #f3fbfa;
+  font: 12px/1.35 ui-sans-serif, system-ui, sans-serif;
+}
+
+.record-action-help strong {
+  color: #006c63;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .source-ref {

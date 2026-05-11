@@ -546,14 +546,14 @@ function actionStatusFromEvent(event) {
   if (event.type === "human_record_decision") {
     return {
       state: "recorded",
-      message: `Record marked ${humanDecisionLabel(event.payload?.decision).toLowerCase()}.`,
+      message: recordDecisionPersistedMessage(event.payload?.decision),
       timestamp: event.timestamp
     };
   }
   if (event.type === "human_pressure_decision") {
     return {
       state: "recorded",
-      message: `Pressure marked ${humanDecisionLabel(event.payload?.decision).toLowerCase()}.`,
+      message: pressureDecisionPersistedMessage(event.payload?.decision),
       timestamp: event.timestamp
     };
   }
@@ -582,6 +582,105 @@ function humanDecisionLabel(decision) {
   if (decision === "reject_record" || decision === "reject_pressure") return "Rejected";
   if (decision === "merge_pressure") return "Merged";
   return "Recorded";
+}
+
+function recordDecisionConfig(decision, record = {}) {
+  const title = record.title || record.id || "this proposal";
+  if (decision === "accept_record") {
+    return {
+      label: "Keep in working packet",
+      pending: "Recording this proposal as kept in the working packet...",
+      persisted: "Review event persisted: kept in the working packet. Accepted Basis state is unchanged.",
+      effect: `Keeps "${title}" in the review packet for synthesis and projection checks. This does not accept Basis state or edit the source spec.`
+    };
+  }
+  if (decision === "defer_record") {
+    return {
+      label: "Defer review",
+      pending: "Recording this proposal as deferred...",
+      persisted: "Review event persisted: deferred. It remains unresolved in this run.",
+      effect: `Leaves "${title}" unresolved for a later reviewer or synthesis pass. This does not remove evidence or edit the source spec.`
+    };
+  }
+  if (decision === "reject_record") {
+    return {
+      label: record.kind === "redundant" ? "Reject duplicate" : "Reject as pressure",
+      pending: "Recording this proposal as rejected pressure...",
+      persisted: "Review event persisted: rejected as pressure. The record stays visible; source text and accepted Basis state are unchanged.",
+      effect: `Marks "${title}" as rejected proposal pressure for this run. It remains visible as review history and does not delete source text.`
+    };
+  }
+  return {
+    label: "Record decision",
+    pending: "Recording review decision...",
+    persisted: "Review event persisted.",
+    effect: "Records a reviewer decision for this proposal without changing accepted Basis state."
+  };
+}
+
+function recordDecisionPersistedMessage(decision) {
+  return recordDecisionConfig(decision).persisted;
+}
+
+function pressureDecisionConfig(decision, row = {}) {
+  const title = row.title || "this pressure";
+  if (decision === "keep_pressure") {
+    return {
+      label: "Keep pressure",
+      persisted: "Review event persisted: pressure kept for projection review.",
+      effect: `Keeps "${title}" active as a pressure the projections must answer. It does not accept Basis state.`
+    };
+  }
+  if (decision === "defer_pressure") {
+    return {
+      label: "Defer pressure",
+      persisted: "Review event persisted: pressure deferred for later review.",
+      effect: `Leaves "${title}" unresolved for a later reducer or reviewer pass.`
+    };
+  }
+  if (decision === "reject_pressure") {
+    return {
+      label: "Reject as pressure",
+      persisted: "Review event persisted: pressure rejected for this run. Evidence remains visible; source text is unchanged.",
+      effect: `Marks "${title}" as not useful pressure for the current projection. It remains in review history and does not delete source text.`
+    };
+  }
+  if (decision === "merge_pressure") {
+    return {
+      label: "Merge pressure",
+      persisted: "Review event persisted: pressure should be merged with related pressure.",
+      effect: `Marks "${title}" as duplicate or overlapping pressure that synthesis should merge.`
+    };
+  }
+  return {
+    label: "Record pressure decision",
+    persisted: "Review event persisted.",
+    effect: "Records a reviewer decision for this pressure without changing accepted Basis state."
+  };
+}
+
+function pressureDecisionPersistedMessage(decision) {
+  return pressureDecisionConfig(decision).persisted;
+}
+
+function renderRecordDecisionButton(record, decision) {
+  const id = record.id || "";
+  const config = recordDecisionConfig(decision, record);
+  return `<button type="button"
+    data-record-decision="${escapeAttr(decision)}"
+    data-record-id="${escapeAttr(id)}"
+    data-action-effect="${escapeAttr(config.effect)}"
+    aria-label="${escapeAttr(`${config.label}: ${config.effect}`)}"
+    title="${escapeAttr(config.effect)}">${escapeHtml(config.label)}</button>`;
+}
+
+function renderRecordActionHelp(record) {
+  return `
+    <div class="record-action-help">
+      <strong>Action effect</strong>
+      <span>These buttons append a persisted review event for this proposal. They do not edit source text and do not accept Basis state.</span>
+    </div>
+  `;
 }
 
 function projectionEvents() {
@@ -2520,9 +2619,9 @@ function renderSemanticMapRow(row) {
           ${recordStatus ? `<div class="record-status" data-state="${escapeAttr(recordStatus.state)}">${escapeHtml(recordStatus.message)}</div>` : ""}
           ${record.id ? `
             <div class="semantic-record-actions">
-              <button type="button" data-record-decision="accept_record" data-record-id="${escapeAttr(record.id)}">Keep pressure</button>
-              <button type="button" data-record-decision="defer_record" data-record-id="${escapeAttr(record.id)}">Defer</button>
-              <button type="button" data-record-decision="reject_record" data-record-id="${escapeAttr(record.id)}">${row.kind === "redundant" ? "Delete duplicate" : "Reject pressure"}</button>
+              ${renderRecordDecisionButton(record, "accept_record")}
+              ${renderRecordDecisionButton(record, "defer_record")}
+              ${renderRecordDecisionButton({ ...record, kind: row.kind || record.kind }, "reject_record")}
             </div>
           ` : ""}
         ` : `
@@ -2605,13 +2704,24 @@ function renderSemanticActionButton(row, action, ref, noteBody, subjectKind) {
     return `<button type="button" data-request-synthesis ${common} data-synthesis-body="${escapeAttr(synthesisBody)}">${escapeHtml(label)}</button>`;
   }
   if (["reject_pressure", "defer_pressure", "keep_pressure", "merge_pressure"].includes(action.type)) {
-    return `<button type="button" data-pressure-decision="${escapeAttr(action.type)}" ${common} data-decision-body="${escapeAttr(`${label}: ${row.kind} ${row.title}. ${row.evidence || ""}`)}">${escapeHtml(label)}</button>`;
+    const config = pressureDecisionConfig(action.type, row);
+    return `<button type="button"
+      data-pressure-decision="${escapeAttr(action.type)}"
+      ${common}
+      data-decision-body="${escapeAttr(`${label}: ${row.kind} ${row.title}. ${row.evidence || ""}`)}"
+      data-action-effect="${escapeAttr(config.effect)}"
+      aria-label="${escapeAttr(`${config.label}: ${config.effect}`)}"
+      title="${escapeAttr(config.effect)}">${escapeHtml(config.label)}</button>`;
   }
   return "";
 }
 
 function reviewerActionLabel(row, action) {
   const label = action.label || action.type || "Review";
+  if (action.type === "reject_pressure") return "Reject as pressure";
+  if (action.type === "defer_pressure") return "Defer pressure";
+  if (action.type === "keep_pressure") return "Keep pressure";
+  if (action.type === "merge_pressure") return "Merge pressure";
   if (row.kind === "coupled" && action.type === "ask_synthesis" && /^ask synthesis$/i.test(label)) {
     return "Ask split plan";
   }
@@ -2948,19 +3058,22 @@ function renderProposalRecord(record) {
   const id = record.id || "";
   const title = record.title || record.kind || id || "proposed record";
   const body = record.body || record.evidence || record.falsifiable_test || "";
+  const status = actionStatus(id);
   return `
-    <article class="proposal-record">
+    <article class="proposal-record" data-review-state="${escapeAttr(status?.state || "undecided")}">
       <div>
         <strong>${escapeHtml(title)}</strong>
         <span>${escapeHtml(record.kind || "proposal")} | ${escapeHtml(record.acceptance_boundary || "proposal state")}</span>
       </div>
       ${body ? `<p>${escapeHtml(body)}</p>` : ""}
       ${id ? `
+        ${renderRecordActionHelp(record)}
         <div class="record-actions">
-          <button type="button" data-record-decision="accept_record" data-record-id="${escapeAttr(id)}">Keep in working packet</button>
-          <button type="button" data-record-decision="defer_record" data-record-id="${escapeAttr(id)}">Defer</button>
-          <button type="button" data-record-decision="reject_record" data-record-id="${escapeAttr(id)}">Reject pressure</button>
+          ${renderRecordDecisionButton(record, "accept_record")}
+          ${renderRecordDecisionButton(record, "defer_record")}
+          ${renderRecordDecisionButton(record, "reject_record")}
         </div>
+        ${status ? `<div class="record-status" data-state="${escapeAttr(status.state)}">${escapeHtml(status.message)}</div>` : ""}
       ` : ""}
     </article>
   `;
@@ -3112,13 +3225,14 @@ async function recordNoteFromButton(button) {
 async function recordDecisionFromButton(button) {
   const recordId = button.dataset.recordId;
   const decision = button.dataset.recordDecision;
-  setActionStatus(recordId, "pending", `${humanDecisionLabel(decision)} record...`);
+  const config = recordDecisionConfig(decision);
+  setActionStatus(recordId, "pending", config.pending);
   try {
     await postJson("/api/actions", {
       type: decision,
       record_id: recordId
     });
-    setActionStatus(recordId, "recorded", `Record marked ${humanDecisionLabel(decision).toLowerCase()}.`);
+    setActionStatus(recordId, "recorded", config.persisted);
   } catch (error) {
     setActionStatus(recordId, "failed", `Record action failed: ${error.message || error}`);
   }
@@ -3127,7 +3241,8 @@ async function recordDecisionFromButton(button) {
 async function pressureDecisionFromButton(button) {
   const subjectId = actionSubjectId(button);
   const decision = button.dataset.pressureDecision;
-  setActionStatus(subjectId, "pending", `${humanDecisionLabel(decision)} pressure...`);
+  const config = pressureDecisionConfig(decision, { title: button.dataset.decisionBody || subjectId });
+  setActionStatus(subjectId, "pending", `${config.label}...`);
   try {
     await postJson("/api/actions", {
       type: "pressure_decision",
@@ -3136,7 +3251,7 @@ async function pressureDecisionFromButton(button) {
       subject_id: subjectId,
       body: button.dataset.decisionBody || ""
     });
-    setActionStatus(subjectId, "recorded", `Pressure marked ${humanDecisionLabel(decision).toLowerCase()}.`);
+    setActionStatus(subjectId, "recorded", config.persisted);
   } catch (error) {
     setActionStatus(subjectId, "failed", `Pressure action failed: ${error.message || error}`);
   }
