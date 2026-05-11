@@ -1339,8 +1339,8 @@ function renderStudio(job, section) {
     ...resultDecisions
   ];
 
-  els.studioIntro.textContent = studioIntroText(job, result, currentSection);
-  els.studioRunState.innerHTML = renderStudioState(job, result, targets);
+  els.studioIntro.textContent = studioTitleText(job, currentSection);
+  els.studioRunState.innerHTML = "";
   els.studioNarrative.innerHTML = renderStudioNarrative(job, result, currentSection, targets, decisions);
   els.studioBuildShape.innerHTML = renderBuildShapeDiagram(job, result, targets, decisions);
   els.studioProjectionMatrix.innerHTML = renderProjectionImpactMatrix(job, result, targets, decisions);
@@ -1348,30 +1348,10 @@ function renderStudio(job, section) {
   els.studioEvidenceList.innerHTML = renderStudioEvidenceList(decisions);
 }
 
-function studioIntroText(job, result, section) {
-  if (autoBuildMessage) return autoBuildMessage;
-  if (result?.summary) {
-    return `Focused on ${section?.title || job?.title || "the current reducer lens"}: generated interpretation is ready to read before choosing what to build.`;
-  }
-  if (job?.status === "running") return "The reducer is generating interpretation prose, diagrams, and source-backed proposal pressure.";
-  if (job?.status === "queued") return "The selected lens is queued; the source preview remains available for orientation.";
-  if (snapshot?.run_id) return "The run is loaded. Select a completed lens to read generated understanding and projection impacts.";
-  return "Preview the source, choose reasoning level, then start a reducer run to generate build understanding.";
-}
-
-function renderStudioState(job, result, targets) {
-  const status = job?.status || snapshot?.status || "preview";
-  const resultState = result ? "understanding ready" : snapshot?.run_id ? "waiting for result" : "source preview";
-  const reasoning = snapshot?.reasoning_effort || selectedReasoningEffort();
-  return `
-    <span class="state-badge">${escapeHtml(status)}</span>
-    ${autoBuildInFlight ? `<span class="state-badge active">auto starting</span>` : ""}
-    <span class="state-badge stable">proposal only</span>
-    <span class="state-badge stable">accepted Basis state unchanged</span>
-    <span class="state-badge stable">reasoning ${escapeHtml(reasoning)}</span>
-    <span class="state-badge">${escapeHtml(resultState)}</span>
-    ${targets.slice(0, 4).map(target => `<span class="target-chip">${escapeHtml(target)}</span>`).join("")}
-  `;
+function studioTitleText(job, section) {
+  return section?.title ||
+    job?.title ||
+    displayPath(snapshot?.source?.path || els.sourcePath?.value || "No spec loaded.");
 }
 
 function renderStudioNarrative(job, result, section, targets, decisions) {

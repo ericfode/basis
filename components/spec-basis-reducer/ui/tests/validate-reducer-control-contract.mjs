@@ -76,7 +76,14 @@ assertIncludes(app, "function threadJobsForInspector", "Thread inspector must in
 assertIncludes(app, "function renderJobImpactSummary", "Thread cards must expose result impacts and source anchors.");
 assertIncludes(app, "Spec impact", "Thread cards must label what each thread changed or proposed against the spec.");
 assertIncludes(html, 'id="topbarActivity"', "Run activity/details control must live in the top bar.");
+assertOrder(html, 'id="reasoningEffort"', 'id="topbarActivity"', "Run activity must sit after reasoning in the header controls.");
+assertOrder(html, 'id="topbarActivity"', 'id="maxConcurrency"', "Run activity must sit to the left of the concurrency selector.");
 assertIncludes(css, ".topbar-activity", "Top bar activity panel must be styled outside the document body.");
+assertIncludes(css, ".topbar-activity:empty", "Empty run activity must not reserve a second header row.");
+assertIncludes(css, ".studio-state:empty", "Empty hero state chips must be hidden.");
+assertIncludes(css, ".studio-source-title", "Hero lead text must be styled as the loaded spec title.");
+assertIncludes(app, "function studioTitleText", "Hero lead text must be derived from the loaded spec title.");
+assertIncludes(app, 'els.studioRunState.innerHTML = "";', "Useless hero state chips must not render.");
 assertIncludes(html, 'id="reasoningEffort"', "Reducer header must expose reasoning effort, not editable projection targets.");
 assertIncludes(html, '<option value="low" selected>low</option>', "Reducer reasoning effort must default to low.");
 assertIncludes(html, 'id="maxConcurrency" type="number" min="1" max="10" value="10"', "Reducer concurrency must default to 10 in the header.");
@@ -125,6 +132,10 @@ if (html.includes("What This Wants To Become")) {
   fail("Hero title regressed to the unclear wording.");
 }
 
+if (html.includes("Understand This Spec") || app.includes("studioIntroText") || app.includes("accepted Basis state unchanged")) {
+  fail("Hero copy regressed to static explainer text or useless state chips.");
+}
+
 if (app.includes("Actions below update proposal")) {
   fail("Narrative regressed into tool-use instructions instead of spec interpretation.");
 }
@@ -133,6 +144,12 @@ console.log(`Validated ${buttonTags.length} reducer buttons and ${handledControl
 
 function assertIncludes(source, needle, message) {
   if (!source.includes(needle)) fail(message);
+}
+
+function assertOrder(source, first, second, message) {
+  const firstIndex = source.indexOf(first);
+  const secondIndex = source.indexOf(second);
+  if (firstIndex === -1 || secondIndex === -1 || firstIndex >= secondIndex) fail(message);
 }
 
 function compact(value) {

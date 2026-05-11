@@ -9,7 +9,7 @@
         window.location.replace("http://127.0.0.1:8767/ui/reducer.html");
       }
     </script>
-    <link rel="stylesheet" href="./reducer.css?v=reducer-feedback-20260510i">
+    <link rel="stylesheet" href="./reducer.css?v=reducer-feedback-20260510j">
   </head>
   <body data-app-shell="reducer">
     <main class="shell">
@@ -36,6 +36,7 @@
               <option value="high">high</option>
             </select>
           </label>
+          <div id="topbarActivity" class="topbar-activity" aria-live="polite"></div>
           <label class="control-field compact-control" title="Concurrency">
             <span class="field-icon" aria-hidden="true">⇉</span>
             <span class="sr-only">Concurrency</span>
@@ -46,7 +47,6 @@
           <button id="resumeRun" class="icon-button" type="button" aria-label="Resume run" title="Resume run">↻</button>
           <button id="toggleInspector" class="icon-button" type="button" aria-label="Open inspector" title="Open inspector">◧</button>
         </form>
-        <div id="topbarActivity" class="topbar-activity" aria-live="polite"></div>
       </header>
 
       <section class="workspace understanding-workspace">
@@ -67,8 +67,7 @@
           <section class="understanding-hero">
             <div>
               <span class="studio-eyebrow">Understanding Studio</span>
-              <h2>Understand This Spec</h2>
-              <p id="studioIntro">Load or run the reducer to project prose into buildable understanding.</p>
+              <p id="studioIntro" class="studio-source-title">No spec loaded.</p>
             </div>
             <div id="studioRunState" class="studio-state"></div>
           </section>
