@@ -42,6 +42,7 @@ const els = {
 let snapshot = null;
 let selectedSectionId = null;
 let selectedJobId = null;
+let pinnedSectionId = null;
 let observer = null;
 let mermaidPromise = null;
 let mermaidRenderCounter = 0;
@@ -168,6 +169,7 @@ function emptyRunCounts() {
 function clearRunViewState() {
   selectedSectionId = null;
   selectedJobId = null;
+  pinnedSectionId = null;
   activeSourceReference = null;
   activeChoicePreview = null;
   activeProjectionImpact = null;
@@ -375,11 +377,15 @@ function renderDocument() {
     const queued = jobs.filter(job => job.status === "queued").length;
     const failed = jobs.filter(job => job.status === "failed").length;
     return `
-      <section id="${escapeHtml(section.id)}" class="doc-section" data-section-id="${escapeHtml(section.id)}" data-active="${section.id === selectedSectionId}" data-excluded="${excluded}">
+      <section id="${escapeHtml(section.id)}" class="doc-section" data-section-id="${escapeHtml(section.id)}" data-active="${section.id === selectedSectionId}" data-pinned="${section.id === pinnedSectionId}" data-excluded="${excluded}">
         <div class="section-gutter">
           <button class="section-include-toggle" type="button" data-toggle-section="${escapeHtml(section.id)}" aria-pressed="${excluded ? "false" : "true"}" title="${excluded ? "Include section in analysis" : "Exclude section from analysis"}">
             <span aria-hidden="true">${excluded ? "+" : "−"}</span>
             <span class="sr-only">${excluded ? "Include" : "Exclude"} ${escapeHtml(section.id)}</span>
+          </button>
+          <button class="section-pin-toggle" type="button" data-pin-section="${escapeHtml(section.id)}" aria-pressed="${section.id === pinnedSectionId ? "true" : "false"}" title="${section.id === pinnedSectionId ? "Unpin this section" : "Pin this section as the active reducer focus"}">
+            <span aria-hidden="true">${section.id === pinnedSectionId ? "Pinned" : "Pin"}</span>
+            <span class="sr-only">${section.id === pinnedSectionId ? "Unpin" : "Pin"} ${escapeHtml(section.id)}</span>
           </button>
           <strong>${escapeHtml(section.id)}</strong>
           <span>${escapeHtml(section.start_line)}-${escapeHtml(section.end_line)}</span>
@@ -399,14 +405,14 @@ function renderDocument() {
 
   installSectionObserver();
   bindDocumentInteractions();
-  bindSectionToggleButtons();
+  bindSectionGutterButtons();
 }
 
 function isSectionExcluded(section) {
   return excludedSectionIds.has(section.id) || section.analysis_included === false;
 }
 
-function bindSectionToggleButtons() {
+function bindSectionGutterButtons() {
   document.querySelectorAll("[data-toggle-section]").forEach(button => {
     button.addEventListener("click", () => {
       const sectionId = button.dataset.toggleSection;
@@ -417,6 +423,20 @@ function bindSectionToggleButtons() {
         excludedSectionIds.add(sectionId);
       }
       render();
+    });
+  });
+  document.querySelectorAll("[data-pin-section]").forEach(button => {
+    button.addEventListener("click", () => {
+      const sectionId = button.dataset.pinSection;
+      if (!sectionId) return;
+      pinnedSectionId = pinnedSectionId === sectionId ? null : sectionId;
+      if (pinnedSectionId) {
+        selectedSectionId = pinnedSectionId;
+        selectedJobId = defaultJobForSection(pinnedSectionId)?.id || selectedJobId;
+        suppressSectionObserverUntil = Date.now() + 800;
+      }
+      renderDocument();
+      renderRail();
     });
   });
 }
@@ -995,6 +1015,7 @@ function installSectionObserver() {
       .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
     if (!visible) return;
     if (Date.now() < suppressSectionObserverUntil) return;
+    if (pinnedSectionId) return;
     const id = visible.target.dataset.sectionId;
     if (id && id !== selectedSectionId) {
       selectedSectionId = id;
@@ -1570,6 +1591,15 @@ function buildShapeProjection(job, result) {
     };
   }
 
+  const derivedCandidate = buildShapeResultCandidates(job, result).find(candidate => canDeriveBuildShapeFromResult(candidate.result));
+  if (derivedCandidate) {
+    return {
+      job: derivedCandidate.job,
+      result: derivedCandidate.result,
+      shape: buildShapeFromThreadResult(derivedCandidate.result, derivedCandidate.job)
+    };
+  }
+
   const toolCandidate = buildShapeToolCandidates(job).find(candidate => candidate.tool);
   return toolCandidate ? { tool: toolCandidate.tool, job: toolCandidate.job } : null;
 }
@@ -1625,6 +1655,47 @@ function jobForResult(result) {
 function hasThreadBuildShape(result) {
   const shape = result?.build_shape;
   return Boolean(shape && typeof shape === "object" && Array.isArray(shape.nodes) && shape.nodes.length >= 2);
+}
+
+function canDeriveBuildShapeFromResult(result) {
+  return Boolean(result && (result.summary || (result.findings || []).length || (result.proposed_records || []).length));
+}
+
+function buildShapeFromThreadResult(result, job) {
+  const rows = decisionRowsForResult(job, result);
+  const primary = rows[0] || {};
+  const packet = contextPacketForJob(job);
+  const targets = targetProjectionList(job).slice(0, 4);
+  const sourceRange = packet?.source_range || (job?.section_id ? sectionForJob(job)?.start_line && `${sectionForJob(job).start_line}-${sectionForJob(job).end_line}` : "");
+  const sourceBody = sourceRange ? `lines ${sourceRange}` : displayPath(snapshot.source?.path || "loaded source");
+  const claim = conciseLabel(primary.title || firstSentence(result.summary) || result.title || job?.title || "Reducer interpretation", 88);
+  const proposal = conciseLabel(primary.record?.title || (result.proposed_records || [])[0]?.title || primary.impact || "proposal pressure remains under review", 88);
+  const impact = conciseLabel(
+    primary.impact || `${targets.join(", ") || "target projections"} must answer this proposal before acceptance.`,
+    96
+  );
+
+  return {
+    title: "Thread-derived build shape",
+    source: `derived from completed lens output${job?.id ? ` ${job.id}` : ""}`,
+    boundary: "proposal state, not accepted Basis state",
+    nodes: [
+      { id: "evidence", title: "Evidence Span", body: sourceBody, kind: "source" },
+      { id: "claim", title: "Interpretation Claim", body: claim, kind: "claim" },
+      { id: "proposal", title: "Proposed State", body: proposal, kind: primary.kind || "records" },
+      { id: "impact", title: "Projection Impact", body: impact, kind: "targets" }
+    ],
+    edges: [
+      { from: "evidence", to: "claim", label: "supports" },
+      { from: "claim", to: "proposal", label: "proposes" },
+      { from: "proposal", to: "impact", label: "pressures" }
+    ],
+    support: [
+      { title: "Model Summary", body: firstSentence(result.summary) || "Thread summary available.", kind: "support" },
+      { title: "Open Pressure", body: primary.title || "No dominant pressure selected.", kind: primary.kind || "support" },
+      { title: "Acceptance Gate", body: "A separate acceptance record is still required.", kind: "gate" }
+    ]
+  };
 }
 
 function normalizeThreadBuildShape(shape, result, job) {

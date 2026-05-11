@@ -346,6 +346,11 @@ button:hover,
   background: #fbfefd;
 }
 
+.doc-section[data-pinned="true"] {
+  box-shadow: inset 4px 0 0 #0f766e;
+  background: #f1fffc;
+}
+
 .doc-section[data-excluded="true"] {
   background: #f8fafc;
 }
@@ -384,6 +389,23 @@ button:hover,
   border-color: var(--accent);
   color: var(--accent);
   background: #effbf8;
+}
+
+.section-pin-toggle {
+  width: max-content;
+  margin: 0 0 8px;
+  padding: 3px 8px;
+  border-color: #c9d6e2;
+  border-radius: 999px;
+  color: #526173;
+  background: #fff;
+  font: 700 11px/1 ui-sans-serif, system-ui, sans-serif;
+}
+
+.section-pin-toggle[aria-pressed="true"] {
+  border-color: #0f766e;
+  color: #0f766e;
+  background: #e8fbf8;
 }
 
 .excluded-label {

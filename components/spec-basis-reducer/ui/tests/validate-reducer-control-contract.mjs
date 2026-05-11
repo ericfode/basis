@@ -14,6 +14,7 @@ const combined = `${html}\n${app}`;
 
 const handledControls = [
   "data-toggle-section",
+  "data-pin-section",
   "data-open-inspector",
   "data-focus-job",
   "data-stop-job",
@@ -77,10 +78,15 @@ assertIncludes(css, ".record-action-help", "Proposal record action effect help m
 assertIncludes(app, "function buildShapeProjection", "Build-shape diagram must be sourced from explicit thread output.");
 assertIncludes(app, "rootOrientationJob()", "Build-shape diagram must prefer the root orientation thread created on spec load.");
 assertIncludes(app, "result.build_shape", "Build-shape diagram must render an explicit build_shape result packet.");
+assertIncludes(app, "function buildShapeFromThreadResult", "Old completed threads without explicit build_shape must derive the diagram from their own result.");
+assertIncludes(app, "derived from completed lens output", "Derived build-shape fallback must cite thread output, not static document structure.");
 assertIncludes(app, "function renderDerivedPanelEmpty", "Derived panels must render empty until model output exists.");
 assertIncludes(app, "Waiting for root-generated build shape.", "Build-shape panel must stay empty until the root thread generates the diagram.");
-assertIncludes(app, "did not emit a build_shape packet", "Completed old runs without a generated diagram must not get a fabricated fallback.");
 assertIncludes(app, "Waiting for source-derived interpretation.", "Narrative panel must stay empty on newly loaded specs before reducer output.");
+assertIncludes(app, "let pinnedSectionId = null", "Source sections must have an explicit pinned focus state.");
+assertIncludes(app, "data-pin-section", "Section gutters must expose pin controls.");
+assertIncludes(app, "if (pinnedSectionId) return;", "Pinned sections must disable scroll-driven focus changes.");
+assertIncludes(css, ".section-pin-toggle", "Section pin controls must be visibly styled.");
 assertIncludes(app, "function threadJobsForInspector", "Thread inspector must include global synthesis jobs as well as visible-section jobs.");
 assertIncludes(app, "function renderJobImpactSummary", "Thread cards must expose result impacts and source anchors.");
 assertIncludes(app, "Spec impact", "Thread cards must label what each thread changed or proposed against the spec.");
