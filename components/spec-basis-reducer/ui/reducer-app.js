@@ -1871,19 +1871,48 @@ function renderDecisionQueue(decisions) {
     return `<p class="empty-state">No decisions yet. Run or focus a lens that has completed reducer output.</p>`;
   }
   return decisions.slice(0, 6).map(row => {
+    const prompt = decisionPrompt(row);
+    const choiceBody = decisionChoiceBody(row);
     return `
       <article class="decision-card" data-kind="${escapeAttr(row.kind)}">
         <div class="decision-card-head">
-          <span class="kind-chip" data-kind="${escapeAttr(row.kind)}">${escapeHtml(row.kind)}</span>
+          <span class="kind-chip" data-kind="${escapeAttr(row.kind)}">${escapeHtml(choiceLabelForKind(row.kind))}</span>
           <span>${escapeHtml(row.targets.join(", ") || "review")}</span>
         </div>
-        <strong>${escapeHtml(row.title)}</strong>
-        <p>${escapeHtml(row.impact)}</p>
+        <strong>${escapeHtml(prompt)}</strong>
+        <p><span class="decision-proposal-label">Proposal under review</span> ${escapeHtml(row.title)}</p>
+        <p>${escapeHtml(choiceBody)}</p>
         <div class="decision-actions">${renderSemanticActionButtons(row, `Review pressure: ${row.title}. ${row.impact}`, "decision")}</div>
         ${renderActionStatus(row.id)}
       </article>
     `;
   }).join("");
+}
+
+function choiceLabelForKind(kind) {
+  if (kind === "coupled") return "split choice";
+  if (kind === "missing") return "missing-record choice";
+  if (kind === "redundant") return "merge choice";
+  if (kind === "conflict") return "policy choice";
+  if (kind === "derived") return "derivation choice";
+  if (kind === "loss") return "loss choice";
+  return "review choice";
+}
+
+function decisionPrompt(row) {
+  if (row.kind === "coupled") return "Should this be split before projection?";
+  if (row.kind === "missing") return "Should the reducer add a missing record?";
+  if (row.kind === "redundant") return "Should this duplicate pressure be merged or rejected?";
+  if (row.kind === "conflict") return "Which policy should control this conflict?";
+  if (row.kind === "derived") return "Should this stay derived from another record?";
+  if (row.kind === "loss") return "Should this loss risk block the projection?";
+  return "Should this proposal stay in the working packet?";
+}
+
+function decisionChoiceBody(row) {
+  const meaning = impactMeaningForKind(row.kind);
+  const impact = row.impact || "This is proposal pressure, not accepted Basis state.";
+  return `${impact} ${meaning}`;
 }
 
 function renderStudioEvidenceList(decisions) {
@@ -2048,7 +2077,7 @@ function renderJobCard(job) {
   const turnLabel = job.codex_turn_id ? `turn ${job.codex_turn_id}` : "turn pending";
   return `
     <details class="thread-card" data-job-id="${escapeHtml(job.id)}" data-status="${escapeHtml(job.status)}" data-selected="${job.id === selectedJobId}" ${job.id === selectedJobId ? "open" : ""}>
-      <summary>
+      <summary data-focus-job="${escapeHtml(job.id)}" aria-label="${escapeAttr(`Inspect ${job.title || job.lens_role || job.id}`)}">
         <span>
           <strong>${escapeHtml(job.title || job.lens_role)}</strong>
           <span class="thread-meta" title="Projected recent stream tail, not total Codex thread size or turn budget.">${escapeHtml(job.id)} | ${escapeHtml(streamLabel)}</span>

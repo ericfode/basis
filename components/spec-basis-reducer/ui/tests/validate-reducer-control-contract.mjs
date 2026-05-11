@@ -106,9 +106,14 @@ assertIncludes(app, 'renderSemanticActionButtons(detailRow, noteBody, "projectio
 assertIncludes(app, 'renderSemanticActionButtons(row, `Review pressure: ${row.title}. ${row.impact}`, "decision")', "Decision cards must use model-suggested semantic actions.");
 assertIncludes(app, "function reviewerActionLabel", "Reviewer action labels must normalize generic model actions into readable UI actions.");
 assertIncludes(app, 'return "Ask split plan";', "Coupled synthesis actions must present an explicit split option.");
+assertIncludes(app, "function decisionPrompt", "Right sidebar decision cards must present reviewer choices, not factual claims.");
+assertIncludes(app, "Proposal under review", "Decision cards must label claims as proposals under review.");
+assertIncludes(app, "Should this proposal stay in the working packet?", "Decision cards must be phrased as choices.");
+assertIncludes(css, ".decision-proposal-label", "Decision proposal labels must be visibly styled.");
 assertIncludes(app, "function openHintDetails", "Top bar activity details must open a concrete job detail target.");
 assertIncludes(app, "button.addEventListener(\"click\", openHintDetails)", "Top bar activity details button must be bound to the detail opener.");
 assertIncludes(app, '${job.id === selectedJobId ? "open" : ""}', "Selected thread card must render open for visible details.");
+assertIncludes(app, '<summary data-focus-job=', "Every thread summary must focus its own job when clicked.");
 assertIncludes(app, "function streamEventLabel", "Thread stream counts must be labelled as projected recent events.");
 assertIncludes(app, "recent ${count === 1 ? \"event\" : \"events\"} shown", "Thread stream labels must not read as total Codex event counts.");
 assertIncludes(app, "not total Codex thread size or turn budget", "Thread cards must explain the projected stream-tail cap.");
